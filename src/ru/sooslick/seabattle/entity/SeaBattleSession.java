@@ -2,6 +2,7 @@ package ru.sooslick.seabattle.entity;
 
 import ru.sooslick.seabattle.SeaBattleMain;
 import ru.sooslick.seabattle.SeaBattleProperties;
+import ru.sooslick.seabattle.result.GameResult;
 
 public class SeaBattleSession {
     private static int nextId = 0;
@@ -28,6 +29,8 @@ public class SeaBattleSession {
         startTime = System.currentTimeMillis();
         updateLastAction();
         phase = SessionPhase.LOOKUP;
+        p1Field = new SeaBattleField();
+        p2Field = new SeaBattleField();
 
         p1.joinSession(this);
         SeaBattleMain.addActiveSession(this);
@@ -74,6 +77,37 @@ public class SeaBattleSession {
 
     public boolean testPw(String k) {
         return pw.isEmpty() || pw.equals(k);
+    }
+
+    public GameResult getResult(SeaBattlePlayer requester) {
+        // requester is spectator
+        if (p1 != requester && p2 != requester)
+            return new GameResult(phase.toString(), null, p1Field.getResult(false), p2Field.getResult(false));
+
+        Boolean turn = null;
+        switch (phase) {
+            case PREPARE:
+                turn = Boolean.TRUE;
+                break;
+            case TURN_P1:
+                turn = requester == p1;
+                break;
+            case TURN_P2:
+                turn = requester == p2;
+                break;
+        }
+
+        SeaBattleField myField;
+        SeaBattleField enemyField;
+        if (requester == p1) {
+            myField = p1Field;
+            enemyField = p2Field;
+        } else {
+            myField = p2Field;
+            enemyField = p1Field;
+        }
+        GameResult result = new GameResult(phase.toString(), turn, myField.getResult(true), enemyField.getResult(false));
+        return phase == SessionPhase.PREPARE ? result.ships(myField.getShips()) : result;
     }
 
     private void updateLastAction() {

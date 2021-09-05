@@ -2,6 +2,7 @@ package ru.sooslick.seabattle;
 
 import ru.sooslick.seabattle.entity.SeaBattlePlayer;
 import ru.sooslick.seabattle.entity.SeaBattleSession;
+import ru.sooslick.seabattle.result.EventResult;
 
 public class EventListener {
     public static EventResult getToken() {
@@ -34,6 +35,24 @@ public class EventListener {
             return new EventResult(false).info("Failed joinSession: session is private");
         session.joinPlayer(player);
         return new EventResult(true);
+    }
+
+    public static EventResult getSessions(String token) {
+        SeaBattlePlayer player = SeaBattleMain.getPlayer(token);
+        if (player == null)
+            return new EventResult(false).info("Failed getSessions: unknown or expired token");
+        EventResult result = new EventResult(true);
+        SeaBattleMain.getActiveSessions().forEach(session -> result.session(session.getId()));
+        return result;
+    }
+
+    public static EventResult getSessionStatus(String token) {
+        SeaBattlePlayer player = SeaBattleMain.getPlayer(token);
+        if (player == null)
+            return new EventResult(false).info("Failed getSessionStatus: unknown or expired token");
+        if (player.getSession() == null)
+            return new EventResult(false).info("Failed getSessionStatus: not joined to any session");
+        return new EventResult(true).gameResult(player.getSession().getResult(player));
     }
 
     private EventListener() {}
