@@ -35,7 +35,7 @@ public class SeaBattlePlayer {
         return System.currentTimeMillis() - lastActionTime < SeaBattleProperties.TOKEN_LIFETIME_TOTAL * 1000L;
     }
 
-    private void updateLastAction() {
+    public void updateLastAction() {
         lastActionTime = System.currentTimeMillis();
     }
 }

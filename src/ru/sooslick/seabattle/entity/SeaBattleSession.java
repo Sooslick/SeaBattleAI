@@ -2,7 +2,10 @@ package ru.sooslick.seabattle.entity;
 
 import ru.sooslick.seabattle.SeaBattleMain;
 import ru.sooslick.seabattle.SeaBattleProperties;
+import ru.sooslick.seabattle.result.EventResult;
 import ru.sooslick.seabattle.result.GameResult;
+
+import java.util.Objects;
 
 public class SeaBattleSession {
     private static int nextId = 0;
@@ -76,14 +79,16 @@ public class SeaBattleSession {
     }
 
     public boolean testPw(String k) {
-        return pw.isEmpty() || pw.equals(k);
+        return Objects.equals(pw, k);
     }
 
     public GameResult getResult(SeaBattlePlayer requester) {
+        requester.updateLastAction();
         // requester is spectator
         if (p1 != requester && p2 != requester)
             return new GameResult(phase.toString(), null, p1Field.getResult(false), p2Field.getResult(false));
 
+        updateLastAction();
         Boolean turn = null;
         switch (phase) {
             case PREPARE:
@@ -108,6 +113,26 @@ public class SeaBattleSession {
         }
         GameResult result = new GameResult(phase.toString(), turn, myField.getResult(true), enemyField.getResult(false));
         return phase == SessionPhase.PREPARE ? result.ships(myField.getShips()) : result;
+    }
+
+    public EventResult placeShip(SeaBattlePlayer player, String position, int size, boolean vertical) {
+        player.updateLastAction();
+        // requester is spectator
+        if (p1 != player && p2 != player)
+            return new EventResult(false).info("Can't placeShip: not a player");
+        if (phase != SessionPhase.PREPARE)
+            return new EventResult(false).info("Can't placeShip: wrong game phase");
+
+        updateLastAction();
+        EventResult result;
+        if (player == p1)
+            result = p1Field.placeShip(position, size, vertical);
+        else
+            result = p2Field.placeShip(position, size, vertical);
+
+        if (p1Field.getShips().isEmpty() && p2Field.getShips().isEmpty())
+            phase = p1.getToken().hashCode() % 2 == 1 ? SessionPhase.TURN_P1 : SessionPhase.TURN_P2;
+        return result;
     }
 
     private void updateLastAction() {

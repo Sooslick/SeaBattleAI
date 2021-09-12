@@ -11,6 +11,7 @@ public class SeaBattleProperties {
     public static int SESSION_LIFETIME_PREPARE = 300;
     public static int SESSION_LIFETIME_PLAYER = 60;
     public static int TOKEN_LIFETIME_TOTAL = 600;
+    public static boolean GAME_CORNER_COLLISION_ENABLE = false;
 
     static {
         Properties properties = new Properties();
@@ -21,6 +22,7 @@ public class SeaBattleProperties {
             SESSION_LIFETIME_PREPARE = Integer.parseInt(properties.getProperty("session.lifetime.prepare", "300"));
             SESSION_LIFETIME_PLAYER = Integer.parseInt(properties.getProperty("session.lifetime.player", "60"));
             TOKEN_LIFETIME_TOTAL = Integer.parseInt(properties.getProperty("token.lifetime.total", "600"));
+            GAME_CORNER_COLLISION_ENABLE = Boolean.parseBoolean(properties.getProperty("game.corner.collision.enable", "false"));
         } catch (FileNotFoundException e) {
             Logger.info("Cannot find app.properties, loading default settings");
         } catch (IOException e) {

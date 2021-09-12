@@ -20,7 +20,7 @@ public class EventListener {
         return new EventResult(true).session(session.getId());
     }
 
-    public static EventResult joinSession(String token, int sessionId, String pw) {
+    public static EventResult joinSession(String token, Integer sessionId, String pw) {
         SeaBattlePlayer player = SeaBattleMain.getPlayer(token);
         if (player == null)
             return new EventResult(false).info("Failed joinSession: unknown or expired token");
@@ -53,6 +53,22 @@ public class EventListener {
         if (player.getSession() == null)
             return new EventResult(false).info("Failed getSessionStatus: not joined to any session");
         return new EventResult(true).gameResult(player.getSession().getResult(player));
+    }
+
+    public static EventResult placeShip(String token, String position, Integer size, Boolean vertical) {
+        if (size == null)
+            return new EventResult(false).info("Can't placeShip: size not specified");
+        if (position == null)
+            return new EventResult(false).info("Can't placeShip: position not specified");
+        if (!SeaBattlePosition.isValid(position))
+            return new EventResult(false).info("Can't placeShip: wrong position format");
+        SeaBattlePlayer player = SeaBattleMain.getPlayer(token);
+        if (player == null)
+            return new EventResult(false).info("Can't placeShip: unknown or expired token");
+        if (player.getSession() == null)
+            return new EventResult(false).info("Can't placeShip: not joined to any session");
+        boolean b = vertical != null && vertical;
+        return player.getSession().placeShip(player, position, size, b);
     }
 
     private EventListener() {}
