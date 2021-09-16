@@ -135,8 +135,42 @@ public class SeaBattleSession {
         return result;
     }
 
+    public EventResult shoot(SeaBattlePlayer player, String position) {
+        player.updateLastAction();
+        // requester is spectator
+        if (p1 != player && p2 != player)
+            return new EventResult(false).info("Can't shoot: not a player");
+        if (phase != SessionPhase.TURN_P1 && phase != SessionPhase.TURN_P2)
+            return new EventResult(false).info("Can't shoot: wrong game phase");
+        if (!allowShoot(player))
+            return new EventResult(false).info("Can't shoot: opponent turn");
+
+        updateLastAction();
+        EventResult result;
+        // shoot
+        if (player == p1)
+            result = p2Field.shoot(position);
+        else
+            result = p1Field.shoot(position);
+        // post-shoot action
+        if (result.getSuccess())
+            if ("win".equals(result.getInfo()))
+                phase = SessionPhase.ENDGAME;
+            else if ("miss".equals(result.getInfo()))
+                switchTurn();
+        return result;
+    }
+
     private void updateLastAction() {
         lastActionTime = System.currentTimeMillis();
+    }
+
+    private boolean allowShoot(SeaBattlePlayer player) {
+        return ((player == p1 && phase == SessionPhase.TURN_P1) || (player == p2 && phase == SessionPhase.TURN_P2));
+    }
+
+    private void switchTurn() {
+        phase = phase == SessionPhase.TURN_P1 ? SessionPhase.TURN_P2 : SessionPhase.TURN_P1;
     }
 
     public enum SessionPhase {

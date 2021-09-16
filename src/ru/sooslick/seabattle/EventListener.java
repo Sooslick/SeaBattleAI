@@ -71,5 +71,18 @@ public class EventListener {
         return player.getSession().placeShip(player, position, size, b);
     }
 
+    public static EventResult shoot(String token, String position) {
+        if (position == null)
+            return new EventResult(false).info("Can't shoot: position not specified");
+        if (!SeaBattlePosition.isValid(position))
+            return new EventResult(false).info("Can't shoot: wrong position format");
+        SeaBattlePlayer player = SeaBattleMain.getPlayer(token);
+        if (player == null)
+            return new EventResult(false).info("Can't placeShip: unknown or expired token");
+        if (player.getSession() == null)
+            return new EventResult(false).info("Can't placeShip: not joined to any session");
+        return player.getSession().shoot(player, position);
+    }
+
     private EventListener() {}
 }

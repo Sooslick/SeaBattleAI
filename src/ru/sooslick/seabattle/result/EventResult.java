@@ -14,6 +14,10 @@ public class EventResult {
         this.success = success;
     }
 
+    public boolean getSuccess() {
+        return success;
+    }
+
     public EventResult token(String token) {
         this.token = token;
         return this;
@@ -29,6 +33,10 @@ public class EventResult {
     public EventResult info(String info) {
         this.info = info;
         return this;
+    }
+
+    public String getInfo() {
+        return info;
     }
 
     public EventResult gameResult(GameResult gameResult) {

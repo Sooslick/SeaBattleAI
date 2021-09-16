@@ -42,4 +42,21 @@ public class SeaBattlePosition {
     public SeaBattlePosition getRelative(int i, int j) {
         return new SeaBattlePosition(row + i, col + j);
     }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == null)
+            return false;
+        if (!(other instanceof SeaBattlePosition))
+            return false;
+        SeaBattlePosition pos = (SeaBattlePosition) other;
+        if (row != pos.getRow())
+            return false;
+        return col == pos.getCol();
+    }
+
+    @Override
+    public int hashCode() {
+        return row * 13 + col * 139;
+    }
 }
