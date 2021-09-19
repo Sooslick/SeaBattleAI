@@ -15,6 +15,8 @@ public class SeaBattlePosition {
 
     public static SeaBattlePosition convertPosition(String position) {
         Matcher m = POSITION_REGEX.matcher(position);
+        //noinspection ResultOfMethodCallIgnored
+        m.matches();
         return new SeaBattlePosition(getPositionRow(m.group(2)), getPositionCol(m.group(1)));
     }
 

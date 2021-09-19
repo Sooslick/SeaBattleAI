@@ -12,10 +12,11 @@ public class SeaBattlePlayer {
     private long lastActionTime;
 
     public SeaBattlePlayer() {
-        token = UUID.randomUUID().toString().substring(8);
+        token = UUID.randomUUID().toString().substring(0, 8);
         updateLastAction();
 
         SeaBattleMain.registerPlayer(this);
+        System.out.println("Registered new player " + token);
     }
 
     public String getToken() {

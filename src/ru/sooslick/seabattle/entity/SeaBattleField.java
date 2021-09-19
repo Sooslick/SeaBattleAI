@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class SeaBattleField {
-    private final List<Integer> availableShips = Arrays.asList(4, 3, 3, 2, 2, 2, 1, 1, 1, 1);
+    private final List<Integer> availableShips = new LinkedList<>(Arrays.asList(4, 3, 3, 2, 2, 2, 1, 1, 1, 1));
     private final SeaBattleCell[][] cells = new SeaBattleCell[10][10];
 
     public SeaBattleField() {
@@ -52,7 +52,7 @@ public class SeaBattleField {
         if (toCheck.stream().anyMatch(pos -> !isCellPlaceable(pos.getRow(), pos.getCol())))
             return new EventResult(false).info("Failed placeShip: collision");
         // place ship
-        availableShips.remove(size);
+        removeShip(size);
         toCheck.forEach(pos -> getCell(pos).placeShip());
         return new EventResult(true);
     }
@@ -136,8 +136,7 @@ public class SeaBattleField {
         if (shipPoses.stream().allMatch(currPos -> getCell(currPos).isStriked())) {
             strikeNearby(shipPoses);
             return "kill";
-        }
-        else
+        } else
             return "hit";
     }
 
@@ -172,5 +171,13 @@ public class SeaBattleField {
 
     private boolean hasShip(int size) {
         return availableShips.stream().anyMatch(i -> i == size);
+    }
+
+    private void removeShip(int size) {
+        for (int i = 0; i < availableShips.size(); i++)
+            if (availableShips.get(i).equals(size)) {
+                availableShips.remove(i);
+                return;
+            }
     }
 }

@@ -17,12 +17,12 @@ public class LifetimeWatcher extends Thread {
     public void run() {
         while (alive) {
             List<SeaBattleSession> inactiveSessions = SeaBattleMain.getActiveSessions().stream()
-                    .filter(SeaBattleSession::isAlive)
+                    .filter(session -> !session.isAlive())
                     .collect(Collectors.toList());
             SeaBattleMain.purgeSessions(inactiveSessions);
 
             List<SeaBattlePlayer> inactivePlayers = SeaBattleMain.getActivePlayers().stream()
-                    .filter(SeaBattlePlayer::isAlive)
+                    .filter(player -> !player.isAlive())
                     .collect(Collectors.toList());
             SeaBattleMain.purgePlayers(inactivePlayers);
 

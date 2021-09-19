@@ -20,13 +20,16 @@ public class EventListener {
         return new EventResult(true).session(session.getId());
     }
 
-    public static EventResult joinSession(String token, Integer sessionId, String pw) {
+    public static EventResult joinSession(String token, String sessionId, String pw) {
+        Integer id = tryParse(sessionId);
+        if (id == null)
+            return new EventResult(false).info("Failed joinSession: wrong sessionId format");
         SeaBattlePlayer player = SeaBattleMain.getPlayer(token);
         if (player == null)
             return new EventResult(false).info("Failed joinSession: unknown or expired token");
         if (player.getSession() != null)
             return new EventResult(false).info("Failed joinSession: token have linked to session already");
-        SeaBattleSession session = SeaBattleMain.getSession(sessionId);
+        SeaBattleSession session = SeaBattleMain.getSession(id);
         if (session == null)
             return new EventResult(false).info("Failed joinSession: session with provided id is not exist");
         if (session.getPhase() != SeaBattleSession.SessionPhase.LOOKUP)
@@ -55,7 +58,8 @@ public class EventListener {
         return new EventResult(true).gameResult(player.getSession().getResult(player));
     }
 
-    public static EventResult placeShip(String token, String position, Integer size, Boolean vertical) {
+    public static EventResult placeShip(String token, String position, String sizeRaw, String verticalRaw) {
+        Integer size = tryParse(sizeRaw);
         if (size == null)
             return new EventResult(false).info("Can't placeShip: size not specified");
         if (position == null)
@@ -67,7 +71,7 @@ public class EventListener {
             return new EventResult(false).info("Can't placeShip: unknown or expired token");
         if (player.getSession() == null)
             return new EventResult(false).info("Can't placeShip: not joined to any session");
-        boolean b = vertical != null && vertical;
+        boolean b = Boolean.parseBoolean(verticalRaw);
         return player.getSession().placeShip(player, position, size, b);
     }
 
@@ -85,4 +89,12 @@ public class EventListener {
     }
 
     private EventListener() {}
+
+    private static Integer tryParse(String intString) {
+        try {
+            return Integer.parseInt(intString);
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
 }

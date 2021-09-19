@@ -37,6 +37,7 @@ public class SeaBattleSession {
 
         p1.joinSession(this);
         SeaBattleMain.addActiveSession(this);
+        System.out.println("Registered new session " + id);
     }
 
     public int getId() {
