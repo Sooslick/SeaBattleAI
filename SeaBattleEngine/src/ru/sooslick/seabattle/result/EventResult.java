@@ -10,6 +10,8 @@ public class EventResult {
     private String info;
     private GameResult gameResult;
 
+    public EventResult() {}
+
     public EventResult(Boolean success) {
         this.success = success;
     }
@@ -23,11 +25,19 @@ public class EventResult {
         return this;
     }
 
+    public String getToken() {
+        return token;
+    }
+
     public EventResult session(Integer session) {
         if (this.session == null)
             this.session = new LinkedList<>();
         this.session.add(session);
         return this;
+    }
+
+    public List<Integer> getSession() {
+        return session;
     }
 
     public EventResult info(String info) {

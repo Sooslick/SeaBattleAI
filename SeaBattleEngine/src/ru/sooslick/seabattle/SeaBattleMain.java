@@ -63,7 +63,7 @@ public class SeaBattleMain {
         HttpServer server = HttpServer.create();
         server.bind(new InetSocketAddress(SeaBattleProperties.APP_SERVER_PORT), SeaBattleProperties.APP_SERVER_CONNECTIONS);
         server.createContext("/", new IndexHandler());
-        server.createContext("/api/getToken", eventHandler);
+        server.createContext("/api/getToken", eventHandler);            //todo api method enum
         server.createContext("/api/registerSession", eventHandler);
         server.createContext("/api/joinSession", eventHandler);
         server.createContext("/api/getSessions", eventHandler);

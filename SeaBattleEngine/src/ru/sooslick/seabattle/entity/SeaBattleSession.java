@@ -112,6 +112,7 @@ public class SeaBattleSession {
             myField = p2Field;
             enemyField = p1Field;
         }
+        //todo provide enemy field info if endgame phase
         GameResult result = new GameResult(phase.toString(), turn, myField.getResult(true), enemyField.getResult(false));
         return phase == SessionPhase.PREPARE ? result.ships(myField.getShips()) : result;
     }
