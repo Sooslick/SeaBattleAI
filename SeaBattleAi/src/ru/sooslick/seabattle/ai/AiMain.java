@@ -3,24 +3,34 @@ package ru.sooslick.seabattle.ai;
 import org.asynchttpclient.AsyncHttpClient;
 import org.asynchttpclient.BoundRequestBuilder;
 import org.asynchttpclient.Dsl;
+import org.asynchttpclient.ListenableFuture;
+import ru.sooslick.seabattle.result.EventResult;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class AiMain {
-    private static boolean create = true;
-    private static int sessionId = 0;
-    private static String sessionPw = "";
-    private static String host = "localhost:8080";
-    private static boolean useHeatMap = false;
     private static AsyncHttpClient client;
-    private static String token;
 
     public static void main(String[] args) {
-        Map<String, String> parsedArgs = mapArgs(args);
+        boolean create = true;
+        int sessionId = -1;
+        String sessionPw = "";
+        String host = "localhost:8080";
+        boolean useHeatMap = false;
+
+        // parse args
+        Pattern pattern = Pattern.compile("[-]?([A-Za-z]*)=(.*)");
+        Map<String, String> parsedArgs = new HashMap<>();
+        for (String arg : args) {
+            Matcher m = pattern.matcher(arg);
+            if (m.matches())
+                parsedArgs.put(m.group(1).toLowerCase(), m.group(2));
+        }
 
         //check sessionId
         if (parsedArgs.containsKey("sessionid")) {
@@ -45,76 +55,80 @@ public class AiMain {
         } else
             System.out.println("Selected session: " + sessionId);
 
-        initAi();
-    }
-
-    private static Map<String, String> mapArgs(String[] args) {
-        Pattern pattern = Pattern.compile("[-]?([A-Za-z]*)=(.*)");
-        Map<String, String> returnMap = new HashMap<>();
-        for (String arg : args) {
-            Matcher m = pattern.matcher(arg);
-            if (m.matches())
-                returnMap.put(m.group(1).toLowerCase(), m.group(2));
-        }
-        return returnMap;
-    }
-
-    private static void initAi() {
+        // init http client and request token
         client = Dsl.asyncHttpClient();
         BoundRequestBuilder request = client.prepareGet(host + "/api/getToken");
-        request.execute(new AsyncGetToken());
+        ListenableFuture<EventResult> requestLf = request.execute(new AsyncGetEventResult());
         System.out.println("Request new player token");
-    }
 
-    public static void initAiFailure(int code) {
-        switch (code) {
-            case -2: System.out.println("AI init failed: getToken response success is false"); break;
-            case -1: System.out.println("AI init failed: can't parse response"); break;
-            default: System.out.println("AI init failed: getToken response code is " + code);
+        // get token
+        EventResult lastResult = getResponse(requestLf);
+        if (lastResult == null) {
+            aiShutdown();
+            return;
         }
-        stopClient();
-    }
-
-    public static void initSession(String token) {
-        AiMain.token = token;
+        if (!lastResult.getSuccess()) {
+            System.out.println(lastResult.getInfo());
+            aiShutdown();
+            return;
+        }
+        String token = lastResult.getToken();
         System.out.println("Token is received // " + token);
+
+        // request session
         if (create) {
-            BoundRequestBuilder request = client.prepareGet(host + "/api/registerSession");
-            request.addQueryParam("token", token);
-            if (!sessionPw.isEmpty())
-                request.addQueryParam("pw", sessionPw);
-            request.execute(new AsyncGetSession());
+            request = client.prepareGet(host + "/api/registerSession");
             System.out.println("Request new game session");
         } else {
-            BoundRequestBuilder request = client.prepareGet(host + "/api/joinSession");
-            request.addQueryParam("token", token);
+            request = client.prepareGet(host + "/api/joinSession");
             request.addQueryParam("sessionId", Integer.toString(sessionId));
-            if (!sessionPw.isEmpty())
-                request.addQueryParam("pw", sessionPw);
-            request.execute(new AsyncGetSession());
             System.out.println("Trying to join session " + sessionId + " with password \"" + sessionPw + "\"");
+        }
+        request.addQueryParam("token", token);
+        if (!sessionPw.isEmpty())
+            request.addQueryParam("pw", sessionPw);
+        requestLf = request.execute(new AsyncGetEventResult());
+
+        // get session id if present
+        lastResult = getResponse(requestLf);
+        if (lastResult == null) {
+            aiShutdown();
+            return;
+        }
+        if (!lastResult.getSuccess()) {
+            System.out.println(lastResult.getInfo());
+            aiShutdown();
+            return;
+        }
+        if (create) {
+            if (lastResult.getSession() != null)
+                sessionId = lastResult.getSession().stream().findFirst().orElse(-1);
+            System.out.println("Created session id " + sessionId);
+        }
+        System.out.println("Successfully joined to session " + sessionId + ", entering main loop");
+        System.out.println("not implemented...");
+        //todo
+
+        //exit
+        aiShutdown();
+    }
+
+    private static <T> T getResponse(ListenableFuture<T> req) {
+        try {
+            return req.get();
+        } catch (InterruptedException | ExecutionException e) {
+            System.out.println("Failed get response");
+            e.printStackTrace();
+            return null;
         }
     }
 
-    public static void initSessionFailure(String info) {
-        System.out.println(info);
-        stopClient();
-    }
-
-    public static void startMainLoop(int sid) {
-        if (create)
-            System.out.println("Created session id " + sid);
-        System.out.println("Init complete, entering main loop");
-        System.out.println("not implemented...");
-        //todo
-    }
-
-    private static void stopClient() {
+    private static void aiShutdown() {
+        System.out.println("stopping...");
         try {
             client.close();
         } catch (IOException e) {
-            System.out.println("Failed stopping HTTP client...");
-            System.out.println(e.getMessage());
+            System.out.println("HTTP client cannot stop normally");
         }
     }
 
