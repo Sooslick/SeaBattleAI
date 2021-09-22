@@ -61,5 +61,6 @@ public class ApiHandler implements HttpHandler {
         String answer = ow.writeValueAsString(er);
         httpExchange.sendResponseHeaders(200, answer.length());
         httpExchange.getResponseBody().write(answer.getBytes());
+        httpExchange.close();
     }
 }

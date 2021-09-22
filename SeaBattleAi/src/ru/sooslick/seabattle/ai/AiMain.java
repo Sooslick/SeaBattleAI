@@ -80,17 +80,17 @@ public class AiMain {
         System.out.println("Token is received // " + token);
         if (create) {
             BoundRequestBuilder request = client.prepareGet(host + "/api/registerSession");
-            request.addFormParam("token", token);
+            request.addQueryParam("token", token);
             if (!sessionPw.isEmpty())
-                request.addFormParam("pw", sessionPw);
+                request.addQueryParam("pw", sessionPw);
             request.execute(new AsyncGetSession());
             System.out.println("Request new game session");
         } else {
             BoundRequestBuilder request = client.prepareGet(host + "/api/joinSession");
-            request.addFormParam("token", token);
-            request.addFormParam("sessionId", Integer.toString(sessionId));
+            request.addQueryParam("token", token);
+            request.addQueryParam("sessionId", Integer.toString(sessionId));
             if (!sessionPw.isEmpty())
-                request.addFormParam("pw", sessionPw);
+                request.addQueryParam("pw", sessionPw);
             request.execute(new AsyncGetSession());
             System.out.println("Trying to join session " + sessionId + " with password \"" + sessionPw + "\"");
         }

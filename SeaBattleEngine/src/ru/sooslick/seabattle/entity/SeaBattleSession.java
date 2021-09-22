@@ -23,7 +23,7 @@ public class SeaBattleSession {
 
     private static int getNextId() {
         return nextId++;
-    }
+    }       //todo random unique id
 
     public SeaBattleSession(SeaBattlePlayer initiator, String k) {
         p1 = initiator;

@@ -17,10 +17,10 @@ public class AsyncGetSession extends AsyncCompletionHandler<Void> {
         ObjectMapper om = new ObjectMapper();
         try {
             EventResult er = om.readValue(response.getResponseBody(), EventResult.class);
-            int sid = er.getSession().stream().findFirst().orElse(-1);
-            if (er.getSuccess())
+            if (er.getSuccess()) {
+                int sid = er.getSession().stream().findFirst().orElse(-1);
                 AiMain.startMainLoop(sid);
-            else
+            } else
                 AiMain.initSessionFailure(er.getInfo());
         } catch (JsonProcessingException e) {
             AiMain.initSessionFailure(e.getMessage());
