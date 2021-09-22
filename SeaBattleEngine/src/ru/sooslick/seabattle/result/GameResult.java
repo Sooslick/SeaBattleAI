@@ -9,6 +9,8 @@ public class GameResult {
     private FieldResult myField;
     private FieldResult enemyField;
 
+    public GameResult() {}
+
     public GameResult(String phase, Boolean myTurn, FieldResult myField, FieldResult enemyField) {
         this.phase = phase;
         this.myTurn = myTurn;
@@ -16,8 +18,28 @@ public class GameResult {
         this.enemyField = enemyField;
     }
 
+    public String getPhase() {
+        return phase;
+    }
+
+    public Boolean isMyTurn() {
+        return myTurn;
+    }
+
     public GameResult ships(List<Integer> ships) {
         this.ships = ships;
         return this;
+    }
+
+    public List<Integer> getShips() {
+        return ships;
+    }
+
+    public FieldResult getMyField() {
+        return myField;
+    }
+
+    public FieldResult getEnemyField() {
+        return enemyField;
     }
 }

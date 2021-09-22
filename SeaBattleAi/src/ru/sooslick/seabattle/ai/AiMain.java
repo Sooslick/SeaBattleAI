@@ -105,9 +105,31 @@ public class AiMain {
                 sessionId = lastResult.getSession().stream().findFirst().orElse(-1);
             System.out.println("Created session id " + sessionId);
         }
-        System.out.println("Successfully joined to session " + sessionId + ", entering main loop");
-        System.out.println("not implemented...");
-        //todo
+        System.out.println("Successfully joined to session " + sessionId + ", wait for start");
+
+        // wait for start phase
+        String phase = "";
+        while (true) {
+            request = client.prepareGet(host + "/api/getSessionStatus");
+            request.addQueryParam("token", token);
+            requestLf = request.execute(new AsyncGetEventResult());
+            lastResult = getResponse(requestLf);
+            if (lastResult == null) {
+                aiShutdown();
+                return;
+            }
+            if (!lastResult.getSuccess()) {
+                System.out.println(lastResult.getInfo());
+                aiShutdown();
+                return;
+            }
+            if (lastResult.getGameResult() != null)
+                phase = lastResult.getGameResult().getPhase();
+            if ("PREPARE".equals(phase))
+                break;
+            aiWait();
+        }
+        System.out.println("Entered game phase. Generating ships");
 
         //exit
         aiShutdown();
@@ -120,6 +142,14 @@ public class AiMain {
             System.out.println("Failed get response");
             e.printStackTrace();
             return null;
+        }
+    }
+
+    private static void aiWait() {
+        try {
+            Thread.sleep(1487);
+        } catch (InterruptedException e) {
+            System.out.println("aiWait interrupted...");
         }
     }
 

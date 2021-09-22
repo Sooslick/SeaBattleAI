@@ -53,4 +53,8 @@ public class EventResult {
         this.gameResult = gameResult;
         return this;
     }
+
+    public GameResult getGameResult() {
+        return gameResult;
+    }
 }

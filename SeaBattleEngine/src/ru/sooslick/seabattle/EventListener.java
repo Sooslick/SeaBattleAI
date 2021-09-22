@@ -50,6 +50,7 @@ public class EventListener {
     }
 
     public static EventResult getSessionStatus(String token) {
+        //todo provide lifetime info
         SeaBattlePlayer player = SeaBattleMain.getPlayer(token);
         if (player == null)
             return new EventResult(false).info("Failed getSessionStatus: unknown or expired token");
