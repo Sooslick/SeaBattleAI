@@ -131,6 +131,85 @@ public class AiMain {
         }
         System.out.println("Entered game phase. Generating ships");
 
+        // place ships
+        AiField myField = new AiField(useHeatMap, lastResult.getGameResult().getShips());
+        AiField enemyField = new AiField(useHeatMap, lastResult.getGameResult().getShips());
+        AiField.PlacePosition ppos;
+        while ((ppos = myField.getPlacePosition()) != null) {
+            request = client.prepareGet(host + "/api/placeShip");
+            request.addQueryParam("token", token);
+            request.addQueryParam("position", ppos.getPosition());
+            request.addQueryParam("size", Integer.toString(ppos.getSize()));
+            request.addQueryParam("vertical", Boolean.toString(ppos.isVert()));
+            requestLf = request.execute(new AsyncGetEventResult());
+            lastResult = getResponse(requestLf);
+            if (lastResult == null) {
+                aiShutdown();
+                return;
+            }
+            if (lastResult.getSuccess()) {
+                myField.confirmPlace(ppos);
+                System.out.println("Placed ship: " + ppos);
+            } else {
+                System.out.println("Try to place ship " + ppos);
+                System.out.println(lastResult.getInfo());
+                // todo handle severe errors (e.g. token / session expiration)
+            }
+        }
+        System.out.println("Ships placed, check ready");
+
+        // main loop
+        while (true) {
+            System.out.println("Wait for turn...");
+            while (true) {
+                request = client.prepareGet(host + "/api/getSessionStatus");
+                request.addQueryParam("token", token);
+                requestLf = request.execute(new AsyncGetEventResult());
+                lastResult = getResponse(requestLf);
+                if (lastResult == null) {
+                    aiShutdown();
+                    return;
+                }
+                if (!lastResult.getSuccess()) {
+                    System.out.println(lastResult.getInfo());
+                    aiShutdown();
+                    return;
+                }
+                if (lastResult.getGameResult() != null)
+                    phase = lastResult.getGameResult().getPhase();
+                if ("ENDGAME".equals(phase))
+                    break;
+                //noinspection ConstantConditions
+                if (("TURN_P1".equals(phase) || "TURN_P2".equals(phase)) && Boolean.TRUE.equals(lastResult.getGameResult().isMyTurn()))
+                    break;
+                aiWait();
+            }
+            if ("ENDGAME".equals(phase))
+                break;
+
+            // guess cell
+            String shootPos = enemyField.getShootPosition();
+            request = client.prepareGet(host + "/api/getSessionStatus");
+            request.addQueryParam("token", token);
+            request.addQueryParam("position", shootPos);
+            requestLf = request.execute(new AsyncGetEventResult());
+            lastResult = getResponse(requestLf);
+            if (lastResult == null) {
+                aiShutdown();
+                return;
+            }
+            if (lastResult.getSuccess()) {
+                System.out.println("Guess cell " + shootPos + ", result is" + lastResult.getInfo());
+                enemyField.confirmShoot(shootPos);
+            } else {
+                System.out.println("Try to guess cell " + shootPos);
+                System.out.println(lastResult.getInfo());
+                // todo handle severe errors (e.g. token / session expiration)
+            }
+        }
+
+        // todo: post-game actions
+
         //exit
         aiShutdown();
     }

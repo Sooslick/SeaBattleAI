@@ -8,6 +8,7 @@ public class GameResult {
     private List<Integer> ships;
     private FieldResult myField;
     private FieldResult enemyField;
+    // todo add match log
 
     public GameResult() {}
 

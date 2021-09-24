@@ -93,7 +93,7 @@ public class SeaBattleSession {
         Boolean turn = null;
         switch (phase) {
             case PREPARE:
-                turn = Boolean.TRUE;
+                turn = Boolean.TRUE;        //todo false if ships placed
                 break;
             case TURN_P1:
                 turn = requester == p1;
