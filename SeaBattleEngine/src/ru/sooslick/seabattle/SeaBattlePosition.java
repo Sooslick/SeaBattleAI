@@ -28,7 +28,7 @@ public class SeaBattlePosition {
         return (int) s.charAt(0) - 97;
     }
 
-    private SeaBattlePosition(int row, int col) {
+    public SeaBattlePosition(int row, int col) {
         this.row = row;
         this.col = col;
     }
@@ -43,6 +43,11 @@ public class SeaBattlePosition {
 
     public SeaBattlePosition getRelative(int i, int j) {
         return new SeaBattlePosition(row + i, col + j);
+    }
+
+    @Override
+    public String toString() {
+        return (char) (col + 97) + Integer.toString(row + 1);
     }
 
     @Override

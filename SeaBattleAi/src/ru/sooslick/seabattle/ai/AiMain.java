@@ -208,7 +208,7 @@ public class AiMain {
             }
         }
 
-        // todo: post-game actions
+        // todo: post-game actions, collect stats
 
         //exit
         aiShutdown();

@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 public class SeaBattleProperties {
-    public static int APP_SERVER_PORT = 8080;
+    public static int APP_SERVER_PORT = 65535;
     public static int APP_SERVER_CONNECTIONS = 16;
     public static int SESSION_LIFETIME_TOTAL = 3000;
     public static int SESSION_LIFETIME_LOOKUP = 300;
@@ -20,7 +20,7 @@ public class SeaBattleProperties {
         Properties properties = new Properties();
         try {
             properties.load(new FileInputStream("app.properties"));
-            APP_SERVER_PORT = Integer.parseInt(properties.getProperty("app.server.port", "8080"));
+            APP_SERVER_PORT = Integer.parseInt(properties.getProperty("app.server.port", "65535"));
             APP_SERVER_CONNECTIONS = Integer.parseInt(properties.getProperty("app.server.connections", "16"));
             SESSION_LIFETIME_TOTAL = Integer.parseInt(properties.getProperty("session.lifetime.total", "3000"));
             SESSION_LIFETIME_LOOKUP = Integer.parseInt(properties.getProperty("session.lifetime.lookup", "300"));
