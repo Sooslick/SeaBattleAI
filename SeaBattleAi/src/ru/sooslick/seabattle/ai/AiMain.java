@@ -189,7 +189,7 @@ public class AiMain {
 
             // guess cell
             String shootPos = enemyField.getShootPosition();
-            request = client.prepareGet(host + "/api/getSessionStatus");
+            request = client.prepareGet(host + "/api/shoot");
             request.addQueryParam("token", token);
             request.addQueryParam("position", shootPos);
             requestLf = request.execute(new AsyncGetEventResult());
@@ -199,11 +199,12 @@ public class AiMain {
                 return;
             }
             if (lastResult.getSuccess()) {
-                System.out.println("Guess cell " + shootPos + ", result is" + lastResult.getInfo());
-                enemyField.confirmShoot(shootPos);
+                System.out.println("Guess cell " + shootPos + ", result is " + lastResult.getInfo());
+                enemyField.confirmShoot(shootPos, lastResult.getInfo());
             } else {
                 System.out.println("Try to guess cell " + shootPos);
                 System.out.println(lastResult.getInfo());
+                // todo check field if too many fails (already striked / etc)
                 // todo handle severe errors (e.g. token / session expiration)
             }
         }
