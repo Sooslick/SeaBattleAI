@@ -10,6 +10,7 @@ import ru.sooslick.seabattle.job.LifetimeWatcher;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -63,16 +64,9 @@ public class SeaBattleMain {
         HttpServer server = HttpServer.create();
         server.bind(new InetSocketAddress(SeaBattleProperties.APP_SERVER_PORT), SeaBattleProperties.APP_SERVER_CONNECTIONS);
         server.createContext("/", new IndexHandler());
-        server.createContext("/api/getToken", eventHandler);            //todo api method enum
-        server.createContext("/api/registerSession", eventHandler);
-        server.createContext("/api/joinSession", eventHandler);
-        server.createContext("/api/getSessions", eventHandler);
-        server.createContext("/api/getSessionStatus", eventHandler);
-        server.createContext("/api/placeShip", eventHandler);
-        server.createContext("/api/shoot", eventHandler);
+        Arrays.stream(ApiMethod.values())
+                .forEach(m -> server.createContext(m.getPath(), eventHandler));
         server.setExecutor(Executors.newFixedThreadPool(SeaBattleProperties.APP_SERVER_CONNECTIONS));
         server.start();
-
-        //todo shutdown event
     }
 }

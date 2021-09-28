@@ -50,13 +50,12 @@ public class EventListener {
     }
 
     public static EventResult getSessionStatus(String token) {
-        //todo provide lifetime info
         SeaBattlePlayer player = SeaBattleMain.getPlayer(token);
         if (player == null)
             return new EventResult(false).info("Failed getSessionStatus: unknown or expired token");
         if (player.getSession() == null)
             return new EventResult(false).info("Failed getSessionStatus: not joined to any session");
-        return new EventResult(true).gameResult(player.getSession().getResult(player));                 //todo player.getSession.getStatus(player)
+        return player.getSession().getStatus(player);
     }
 
     public static EventResult placeShip(String token, String position, String sizeRaw, String verticalRaw) {

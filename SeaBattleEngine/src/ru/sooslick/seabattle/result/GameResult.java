@@ -8,7 +8,7 @@ public class GameResult {
     private List<Integer> ships;
     private FieldResult myField;
     private FieldResult enemyField;
-    // todo add match log
+    private String matchLog;
 
     public GameResult() {}
 
@@ -42,5 +42,14 @@ public class GameResult {
 
     public FieldResult getEnemyField() {
         return enemyField;
+    }
+
+    public GameResult matchLog(String ml) {
+        matchLog = ml;
+        return this;
+    }
+
+    public String getMatchLog() {
+        return matchLog;
     }
 }

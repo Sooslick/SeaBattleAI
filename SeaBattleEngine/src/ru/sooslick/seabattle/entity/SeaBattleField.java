@@ -49,7 +49,7 @@ public class SeaBattleField {
         if (toCheck.stream().anyMatch(pos -> getCell(pos.getRow(), pos.getCol()) == null))
             return new EventResult(false).info("Failed placeShip: out of bounds");
         // check cells
-        if (toCheck.stream().anyMatch(pos -> !isCellPlaceable(pos.getRow(), pos.getCol())))
+        if (toCheck.stream().anyMatch(pos -> !isCellPlaceable(pos)))
             return new EventResult(false).info("Failed placeShip: collision");
         // place ship
         removeShip(size);
@@ -66,8 +66,9 @@ public class SeaBattleField {
         return new EventResult(true).info(getShootInfo(convertedPos));
     }
 
-    //todo replace row/col -> seabatlpos
-    private boolean isCellPlaceable(int row, int col) {
+    private boolean isCellPlaceable(SeaBattlePosition pos) {
+        int row = pos.getRow();
+        int col = pos.getCol();
         List<SeaBattleCell> toCheck = new LinkedList<>();
         toCheck.add(getCell(row, col));
         toCheck.add(getCell(row - 1, col));
@@ -102,7 +103,6 @@ public class SeaBattleField {
         if (!hasAliveShips())
             return "win";
 
-        //todo can simplify?
         List<SeaBattlePosition> shipPoses = new LinkedList<>();
         shipPoses.add(pos);
         SeaBattlePosition checkPos = pos.getRelative(-1, 0);
