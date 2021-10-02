@@ -22,14 +22,16 @@ public class AiMain {
         String sessionPw = "";
         String host = "localhost:8080";
         boolean useHeatMap = false;
+        String heatDir = "out/workspace";
+        boolean analyze = false;
 
         // parse args
-        Pattern pattern = Pattern.compile("[-]?([A-Za-z]*)=(.*)");
+        Pattern pattern = Pattern.compile("[-]?([A-Za-z]*)(=(.*))?");
         Map<String, String> parsedArgs = new HashMap<>();
         for (String arg : args) {
             Matcher m = pattern.matcher(arg);
             if (m.matches())
-                parsedArgs.put(m.group(1).toLowerCase(), m.group(2));
+                parsedArgs.put(m.group(1).toLowerCase(), m.group(3));
         }
 
         //check sessionId
@@ -46,9 +48,23 @@ public class AiMain {
         if (parsedArgs.containsKey("useheatmap"))
             useHeatMap = Boolean.parseBoolean(parsedArgs.get("useheatmap"));
 
+        //check custom data folder
+        if (parsedArgs.containsKey("heatdir"))
+            heatDir = parsedArgs.get("heatdir");
+
+        //cheack action
+        if (parsedArgs.containsKey("analyze"))
+            analyze = true;
+
         //check host
         if (parsedArgs.containsKey("host"))
             host = parsedArgs.get("host");
+
+        AiHeatData.init(heatDir);
+        if (analyze) {
+            System.out.println("-analyze flag presents, update heat map");
+            AiHeatData.analyze();
+        }
 
         if (create) {
             System.out.println("sessionId not specified, ai will create new game");
@@ -209,7 +225,8 @@ public class AiMain {
             }
         }
 
-        // todo: post-game actions, collect stats
+        System.out.println("Post-game action: analyze enemy field and update heat map");
+        AiHeatData.analyze(lastResult.getGameResult().getEnemyField());
 
         //exit
         aiShutdown();
@@ -241,7 +258,4 @@ public class AiMain {
             System.out.println("HTTP client cannot stop normally");
         }
     }
-
-    //todo queries retries
-    // + replace async calls with sync?
 }

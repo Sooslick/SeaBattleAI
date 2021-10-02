@@ -1,0 +1,125 @@
+package ru.sooslick.seabattle.ai;
+
+import org.apache.commons.io.FileUtils;
+import ru.sooslick.seabattle.SeaBattlePosition;
+import ru.sooslick.seabattle.result.FieldResult;
+
+import java.io.*;
+import java.nio.file.Files;
+
+public class AiHeatData implements Serializable {
+    private final static long serialVersionUID = 1L;
+    private final static String dataName = "heatmap.dat";
+    private static String analyzeDir;
+    private static String dataDir;
+    private static AiHeatData instance;
+    private static boolean saveEnable = true;
+
+    private int total;
+    private final int[][] scores;
+
+    public static void init(String dir) {
+        dataDir = dir;
+        analyzeDir = dataDir + File.separator + "analyze";
+        read();
+    }
+
+    public static void analyze() {
+        File workDir = new File(analyzeDir);
+        if (!workDir.exists()) {
+            System.out.println("Cannot analyze: folder not exist");
+            return;
+        }
+        try {
+            Files.walk(workDir.toPath()).forEach(path -> {
+                String content;
+                try {
+                    content = Files.readAllLines(path).get(0);
+                } catch (Exception e) {
+                    System.out.println("Error reading file " + path.toString() + ": " + e.getMessage());
+                    return;
+                }
+                int row = 0;
+                for (String line : content.split("\\.")) {
+                    if (line.length() < 10)
+                        continue;
+                    for (int col = 0; col < 10; col++) {
+                        if (line.charAt(col) == '1')
+                            instance.scores[row][col]++;
+                    }
+                }
+                instance.total++;
+            });
+        } catch (IOException e) {
+            System.out.println("Error reading analyze directory");
+            return;
+        }
+        try {
+            FileUtils.cleanDirectory(workDir);
+        } catch (IOException e) {
+            System.out.println("Cannot clean directory after analyze, plz do it manually");
+        }
+        save();
+    }
+
+    public static void analyze(FieldResult fieldData) {
+        instance.total++;
+        int i = 0;
+        for (FieldResult.Row row : fieldData.getRows()) {
+            int j = 0;
+            for (Integer col : row.getCols()) {
+                if (col >= 2)
+                    instance.scores[i][j]++;
+                j++;
+            }
+            i++;
+        }
+        System.out.println("Saved FieldResult to heatmap");
+        save();
+    }
+
+    public static double getMultiplier(SeaBattlePosition position) {
+        return ((double) instance.scores[position.getRow()][position.getCol()] / instance.total) + 1;
+    }
+
+    private static void read() {
+        File workDir = new File(dataDir);
+        if (!workDir.exists()) {
+            if (!workDir.mkdirs()) {
+                System.out.println("Cannot create data folder! Head data will not be saved");
+                saveEnable = false;
+                instance = new AiHeatData();
+                return;
+            }
+        }
+        try {
+            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(dataDir + File.separator + dataName));
+            instance = (AiHeatData) ois.readObject();
+            ois.close();
+        } catch (Exception e) {
+            System.out.println("Cannot deserialize data: " + e.getMessage());
+            instance = new AiHeatData();
+        }
+    }
+
+    private static void save() {
+        if (!saveEnable)
+            return;
+        try {
+            ObjectOutputStream ois = new ObjectOutputStream(new FileOutputStream(dataDir + File.separator + dataName));
+            ois.writeObject(instance);
+            ois.close();
+            System.out.println("Saved heat to file heatmap.dat");
+        } catch (Exception e) {
+            System.out.println("Cannot serialize data: " + e.getMessage());
+        }
+    }
+
+    private AiHeatData() {
+        total = 0;
+        scores = new int[10][10];
+        for (int i = 0; i < 10; i++)
+            for (int j = 0; j < 10; j++)
+                scores[i][j] = 0;
+    }
+}
