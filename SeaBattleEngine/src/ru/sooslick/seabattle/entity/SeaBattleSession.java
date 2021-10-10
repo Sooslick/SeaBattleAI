@@ -23,7 +23,7 @@ public class SeaBattleSession {
     private final StringBuilder matchLog;
 
     private static int getNextId() {
-        return UUID.randomUUID().toString().substring(0, 8).hashCode();
+        return Math.abs(UUID.randomUUID().toString().substring(0, 8).hashCode());
     }
 
     public SeaBattleSession(SeaBattlePlayer initiator, String k) {

@@ -47,6 +47,7 @@ public class AiHeatData implements Serializable {
                         if (line.charAt(col) == '1')
                             instance.scores[row][col]++;
                     }
+                    row++;
                 }
                 instance.total++;
             });
@@ -79,6 +80,8 @@ public class AiHeatData implements Serializable {
     }
 
     public static double getMultiplier(SeaBattlePosition position) {
+        if (position.getCol() < 0 || position.getRow() < 0 || position.getCol() >= 10 || position.getRow() >= 10)
+            return 1;
         return ((double) instance.scores[position.getRow()][position.getCol()] / instance.total) + 1;
     }
 

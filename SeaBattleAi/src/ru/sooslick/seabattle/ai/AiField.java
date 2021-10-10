@@ -133,14 +133,18 @@ public class AiField {
         }
     }
 
-    private PlacePosition getRandomPlacePosition() {
-        // filter cells
+    private List<PlacePosition> filterPlacePositions() {
         List<PlacePosition> positions = new LinkedList<>();
         for (int i = 0; i < 10; i++)
             for (int j = 0; j < 10; j++)
                 if (!field[i][j].hasShip())
                     positions.add(new PlacePosition(new SeaBattlePosition(i, j)));
         Collections.shuffle(positions);
+        return positions;
+    }
+
+    private PlacePosition getRandomPlacePosition() {
+        List<PlacePosition> positions = filterPlacePositions();
         for (PlacePosition pp : positions) {
             pp.size = getMaxShip();
             if (pp.size == 0)
@@ -156,10 +160,31 @@ public class AiField {
     }
 
     private PlacePosition getHeatPlacePosition() {
-        return null;
+        List<PlacePosition> positions = filterPlacePositions();
+        for (PlacePosition pp : positions) {
+            pp.size = getMaxShip();
+            if (pp.size == 0)
+                return null;
+            double hScore = calcPlaceScore(pp, false);
+            double vScore = calcPlaceScore(pp, true);
+            if (Math.abs(hScore - vScore) < 0.001) {
+                pp.vert = RANDOM.nextBoolean();
+                pp.score = Math.max(hScore, vScore);
+            } else if (hScore > vScore) {
+                pp.vert = false;
+                pp.score = hScore;
+            } else {
+                pp.vert = true;
+                pp.score = vScore;
+            }
+        }
+        double maxScore = positions.stream().mapToDouble(pp -> pp.score).max().orElse(-1);
+        if (maxScore < 0)
+            return null;
+        return positions.stream().filter(pp -> pp.score >= maxScore).findAny().orElse(null);
     }
 
-    private String getRandomShootPosition() {
+    private String getBestShootPosition(boolean useHeatMult) {
         // guessing detected ship
         if (detectedShip != null) {
             List<SeaBattlePosition> guessNext = new LinkedList<>();
@@ -201,8 +226,9 @@ public class AiField {
                     }
                 }
             }
+            double maxScore = guessNext.stream().mapToDouble(pos -> calcShootScore(pos, useHeatMult)).max().orElse(1);
             Collections.shuffle(guessNext);
-            return guessNext.get(0).toString();
+            return guessNext.stream().filter(pos -> calcShootScore(pos, useHeatMult) >= maxScore).findAny().orElse(guessNext.get(0)).toString();
         }
         // get available cells
         List<SeaBattlePosition> positions = new LinkedList<>();
@@ -213,42 +239,51 @@ public class AiField {
         // guess cell by random
         int maxShip = getMaxShip();
         if (ships.size() >= shipsTotal || maxShip <= 1) {
+            double maxScore = positions.stream().mapToDouble(pos -> calcShootScore(pos, useHeatMult)).max().orElse(1);
             Collections.shuffle(positions);
-            return positions.get(0).toString();
+            return positions.stream().filter(pos -> calcShootScore(pos, useHeatMult) >= maxScore).findAny().orElse(positions.get(0)).toString();
         }
         // try to analyze board
         else {
-            Map<SeaBattlePosition, Integer> scoreMap = new HashMap<>();
-            int maxScore = 0;
+            Map<SeaBattlePosition, Double> scoreMap = new HashMap<>();
+            double maxScore = 0;
             for (SeaBattlePosition sbPos : positions) {
-                int cScore = 0;
+                double cScore = 0;
                 for (int i = 1; i < maxShip; i++) {
                     SeaBattleCell check = getCell(sbPos.getRelative(-i, 0));
                     if (check != null && !check.isStriked())
-                        cScore++;
+                        cScore+= calcShootScore(sbPos, useHeatMult);
                     check = getCell(sbPos.getRelative(i, 0));
                     if (check != null && !check.isStriked())
-                        cScore++;
+                        cScore+= calcShootScore(sbPos, useHeatMult);
                     check = getCell(sbPos.getRelative(0, -i));
                     if (check != null && !check.isStriked())
-                        cScore++;
+                        cScore+= calcShootScore(sbPos, useHeatMult);
                     check = getCell(sbPos.getRelative(0, i));
                     if (check != null && !check.isStriked())
-                        cScore++;
+                        cScore+= calcShootScore(sbPos, useHeatMult);
                 }
                 scoreMap.put(sbPos, cScore);
                 if (cScore > maxScore)
                     maxScore = cScore;
             }
-            final int max = maxScore;
+            final double max = maxScore;
             List<SeaBattlePosition> selectedPos = scoreMap.entrySet().stream().filter(e -> e.getValue() >= max).map(Map.Entry::getKey).collect(Collectors.toList());
             Collections.shuffle(selectedPos);
             return selectedPos.get(0).toString();
         }
     }
 
+    private String getRandomShootPosition() {
+        return getBestShootPosition(false);
+    }
+
     private String getHeatShootPosition() {
-        return null;
+        return getBestShootPosition(true);
+    }
+
+    private double calcShootScore(SeaBattlePosition pos, boolean heat) {
+        return heat ? AiHeatData.getMultiplier(pos) : 1;
     }
 
     private int getMaxShip() {
@@ -266,6 +301,20 @@ public class AiField {
                 return false;
         }
         return true;
+    }
+
+    private double calcPlaceScore(PlacePosition pp, boolean vert) {
+        int imod = vert ? 1 : 0;
+        int jmod = vert ? 0 : 1;
+        double score = 10;
+        for (int z = 0; z < pp.size; z++) {
+            SeaBattlePosition sbPos = pp.positionRaw.getRelative(z * imod, z * jmod);
+            if (sbPos.getRow() >= 10 || sbPos.getCol() >= 10) {
+                return -1;
+            }
+            score-= AiHeatData.getMultiplier(sbPos);
+        }
+        return score;
     }
 
     private SeaBattleCell getCell(SeaBattlePosition sbPos) {
@@ -295,6 +344,7 @@ public class AiField {
         private String position;
         private int size;
         private boolean vert;
+        private double score = 0;
 
         public PlacePosition(String position, int size, boolean vert) {
             this.position = position;

@@ -23,7 +23,8 @@ public class AiMain {
         String host = "localhost:8080";
         boolean useHeatMap = false;
         String heatDir = "out/workspace";
-        boolean analyze = false;
+        boolean analyzePre = false;
+        boolean analyzePost = true;
 
         // parse args
         Pattern pattern = Pattern.compile("[-]?([A-Za-z]*)(=(.*))?");
@@ -46,22 +47,26 @@ public class AiMain {
 
         //check ai type
         if (parsedArgs.containsKey("useheatmap"))
-            useHeatMap = Boolean.parseBoolean(parsedArgs.get("useheatmap"));
+            useHeatMap = true;
 
         //check custom data folder
         if (parsedArgs.containsKey("heatdir"))
             heatDir = parsedArgs.get("heatdir");
 
-        //cheack action
+        //check analyze required
         if (parsedArgs.containsKey("analyze"))
-            analyze = true;
+            analyzePre = true;
+
+        //check post-game analyze required
+        if (parsedArgs.containsKey("ignorepost"))
+            analyzePost = false;
 
         //check host
         if (parsedArgs.containsKey("host"))
             host = parsedArgs.get("host");
 
         AiHeatData.init(heatDir);
-        if (analyze) {
+        if (analyzePre) {
             System.out.println("-analyze flag presents, update heat map");
             AiHeatData.analyze();
         }
@@ -225,8 +230,10 @@ public class AiMain {
             }
         }
 
-        System.out.println("Post-game action: analyze enemy field and update heat map");
-        AiHeatData.analyze(lastResult.getGameResult().getEnemyField());
+        if (analyzePost) {
+            System.out.println("Post-game action: analyze enemy field and update heat map");
+            AiHeatData.analyze(lastResult.getGameResult().getEnemyField());
+        }
 
         //exit
         aiShutdown();
