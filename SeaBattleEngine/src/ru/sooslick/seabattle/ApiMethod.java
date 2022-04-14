@@ -3,6 +3,7 @@ package ru.sooslick.seabattle;
 import java.util.Arrays;
 
 public enum ApiMethod {
+    // todo getRules method
     GET_TOKEN("/api/getToken"),
     REGISTER_SESSION("/api/registerSession"),
     JOIN_SESSION("/api/joinSession"),

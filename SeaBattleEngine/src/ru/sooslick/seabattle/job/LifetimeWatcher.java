@@ -26,8 +26,10 @@ public class LifetimeWatcher extends Thread {
                     .collect(Collectors.toList());
             SeaBattleMain.purgePlayers(inactivePlayers);
 
-            Logger.info("LifetimeWatcher report: " + inactiveSessions.size() + " sessions expired");
-            Logger.info("LifetimeWatcher report: " + inactivePlayers.size() + " players expired");
+            if (inactiveSessions.size() > 0)
+                Logger.info("LifetimeWatcher report: " + inactiveSessions.size() + " sessions expired");
+            if (inactivePlayers.size() > 0)
+                Logger.info("LifetimeWatcher report: " + inactivePlayers.size() + " players expired");
 
             try {
                 //noinspection BusyWait

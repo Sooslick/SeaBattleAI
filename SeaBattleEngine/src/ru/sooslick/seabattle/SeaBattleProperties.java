@@ -19,7 +19,7 @@ public class SeaBattleProperties {
     static {
         Properties properties = new Properties();
         try {
-            properties.load(new FileInputStream("SeaBattleEngine/src/app.properties"));
+            properties.load(new FileInputStream("app.properties"));
             APP_SERVER_PORT = Integer.parseInt(properties.getProperty("app.server.port", "65535"));
             APP_SERVER_CONNECTIONS = Integer.parseInt(properties.getProperty("app.server.connections", "16"));
             SESSION_LIFETIME_TOTAL = Integer.parseInt(properties.getProperty("session.lifetime.total", "3000"));
@@ -32,7 +32,7 @@ public class SeaBattleProperties {
         } catch (FileNotFoundException e) {
             Logger.info("Cannot find app.properties, loading default settings");
         } catch (IOException e) {
-            Logger.info("Cannot read app.properties, loading deafult settings");
+            Logger.info("Cannot read app.properties, loading default settings");
         }
     }
 }

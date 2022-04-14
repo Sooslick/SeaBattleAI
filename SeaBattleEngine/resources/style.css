@@ -1,0 +1,111 @@
+body {
+    background: black;
+    color: white;
+    text-align: center;
+}
+
+table {
+    border-spacing: 2px;
+    border-collapse: separate;
+    margin: 20px;
+}
+
+td {
+    background: #212;
+    border: 1px solid #444;
+    width: 32px;
+    height: 32px;
+}
+td.cell {
+    background: #101;
+}
+td.place {
+    background: #403;
+}
+.shot {
+    position: relative;
+}
+td.shot:before {
+    content: " ";
+    position: absolute;
+    top: 50%;
+    left: -1px;
+    border-bottom: 1px solid #AAA;
+    width: 110%;
+    transform: rotate(40deg);
+}
+td.cell:hover {
+    border: 1px solid #803;
+}
+
+.aim {
+    border-color: #a68;
+}
+
+.captionText {
+    font-size: 200%;
+    text-align: center;
+    margin-top: 20px;
+    margin-bottom: 30px;
+}
+
+.clickable {
+    border: 2px solid gray;
+    margin: 2px;
+    padding: 10px;
+    width: 200px;
+}
+.clickable:hover {
+    border: 2px solid #803;
+}
+div.clickable {
+    margin-left: 100px;
+}
+
+.debug {
+    color: #888;
+    font-family: 'Courier New';
+    font-size: 80%;
+    margin-top: 100px;
+    text-align: left;
+}
+
+.field {
+    display: inline-block;
+}
+
+.linkBtn {
+    color: #aaa;
+    font-style: italic;
+    text-decoration: underline;
+}
+.linkBtn:hover {
+    color: #803;
+    font-style: italic;
+}
+
+.selected {
+    color: #a05;
+}
+
+#debugStatus {
+    color: #800;
+}
+
+#loading {
+    position: fixed;
+    top: 50px;
+    right: 50px;
+}
+
+#shiprotate {
+    border-radius: 22px;
+    font-family: 'Courier New';
+    margin-right: 10px;
+    padding: 5px 10px;
+}
+
+#shipSelector {
+    font-family: 'Courier New';
+    margin-right: 420px;
+}
