@@ -3,7 +3,7 @@ package ru.sooslick.seabattle.handler;
 import com.google.common.io.ByteStreams;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import ru.sooslick.seabattle.Logger;
+import ru.sooslick.seabattle.Log;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -18,7 +18,7 @@ public class IndexHandler implements HttpHandler {
             uri = "index.html";
         if (! new File(uri).exists())
             uri = "index.html";
-        Logger.info("Request web resource " + uri + " <- " + httpExchange.getRequestURI().getPath());
+        Log.info("Request web resource " + uri + " <- " + httpExchange.getRequestURI().getPath());
         byte[] answer = ByteStreams.toByteArray(new FileInputStream(uri));
         httpExchange.sendResponseHeaders(200, answer.length);
         httpExchange.getResponseBody().write(answer);

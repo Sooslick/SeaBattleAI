@@ -8,7 +8,7 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import ru.sooslick.seabattle.ApiMethod;
 import ru.sooslick.seabattle.EventListener;
-import ru.sooslick.seabattle.Logger;
+import ru.sooslick.seabattle.Log;
 import ru.sooslick.seabattle.result.EventResult;
 
 import java.io.IOException;
@@ -18,7 +18,7 @@ import java.util.Map;
 public class ApiHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange httpExchange) throws IOException {
-        Logger.info("Api method request: " + httpExchange.getHttpContext().getPath());
+        Log.info("Api method request: " + httpExchange.getHttpContext().getPath());
         ObjectMapper om = new ObjectMapper();
         om.setVisibility(om.getSerializationConfig().getDefaultVisibilityChecker()
                 .withFieldVisibility(JsonAutoDetect.Visibility.ANY))

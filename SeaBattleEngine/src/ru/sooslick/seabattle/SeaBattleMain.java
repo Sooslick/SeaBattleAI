@@ -58,12 +58,12 @@ public class SeaBattleMain {
     }
 
     public static void main(String[] args) throws IOException {
-        Logger.info("Starting app in " + System.getProperty("user.dir"));
+        Log.info("Starting app in " + System.getProperty("user.dir"));
         LifetimeWatcher lifetimeWatcher = new LifetimeWatcher();
         lifetimeWatcher.start();
         HttpHandler eventHandler = new ApiHandler();
         HttpServer server = HttpServer.create();
-        Logger.info("Starting server on port " + SeaBattleProperties.APP_SERVER_PORT);
+        Log.info("Starting server on port " + SeaBattleProperties.APP_SERVER_PORT);
         server.bind(new InetSocketAddress(SeaBattleProperties.APP_SERVER_PORT), SeaBattleProperties.APP_SERVER_CONNECTIONS);
         server.createContext("/", new IndexHandler());
         Arrays.stream(ApiMethod.values())

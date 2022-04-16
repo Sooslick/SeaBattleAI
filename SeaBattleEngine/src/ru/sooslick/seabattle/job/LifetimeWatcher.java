@@ -1,6 +1,6 @@
 package ru.sooslick.seabattle.job;
 
-import ru.sooslick.seabattle.Logger;
+import ru.sooslick.seabattle.Log;
 import ru.sooslick.seabattle.SeaBattleMain;
 import ru.sooslick.seabattle.entity.SeaBattlePlayer;
 import ru.sooslick.seabattle.entity.SeaBattleSession;
@@ -27,16 +27,16 @@ public class LifetimeWatcher extends Thread {
             SeaBattleMain.purgePlayers(inactivePlayers);
 
             if (inactiveSessions.size() > 0)
-                Logger.info("LifetimeWatcher report: " + inactiveSessions.size() + " sessions expired");
+                Log.info("LifetimeWatcher report: " + inactiveSessions.size() + " sessions expired");
             if (inactivePlayers.size() > 0)
-                Logger.info("LifetimeWatcher report: " + inactivePlayers.size() + " players expired");
+                Log.info("LifetimeWatcher report: " + inactivePlayers.size() + " players expired");
 
             try {
                 //noinspection BusyWait
                 sleep(INTERVAL);
             } catch (InterruptedException e) {
                 alive = false;
-                Logger.info("LifetimeWatcher interrupted");
+                Log.info("LifetimeWatcher interrupted");
             }
         }
     }

@@ -30,9 +30,9 @@ public class SeaBattleProperties {
             GAME_CORNER_COLLISION_ENABLE = Boolean.parseBoolean(properties.getProperty("game.corner.collision.enable", "false"));
             GAME_STRIKED_CHECK_ENABLE = Boolean.parseBoolean(properties.getProperty("game.striked.check.enable", "true"));
         } catch (FileNotFoundException e) {
-            Logger.info("Cannot find app.properties, loading default settings");
+            Log.warn("Cannot find app.properties, loading default settings");
         } catch (IOException e) {
-            Logger.info("Cannot read app.properties, loading default settings");
+            Log.warn("Cannot read app.properties, loading default settings");
         }
     }
 }

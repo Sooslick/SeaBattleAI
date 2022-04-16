@@ -35,12 +35,13 @@ public class SeaBattleField {
         return new LinkedList<>(availableShips);
     }
 
-    public EventResult placeShip(String position, int size, boolean vertical) {
+    // todo String validPosition -> SeaBattelPosition
+    public EventResult placeShip(String validPosition, int size, boolean vertical) {
         // validate size
         if (!hasShip(size))
             return new EventResult(false).info("Failed placeShip: no such ship that size");
         // get ship cells
-        SeaBattlePosition convertedPos = SeaBattlePosition.convertPosition(position);
+        SeaBattlePosition convertedPos = SeaBattlePosition.convertPosition(validPosition);
         List<SeaBattlePosition> toCheck = new LinkedList<>();
         toCheck.add(convertedPos);
         for (int i = 1; i < size; i++)
