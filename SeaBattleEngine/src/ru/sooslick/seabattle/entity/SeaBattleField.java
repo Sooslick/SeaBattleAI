@@ -58,6 +58,7 @@ public class SeaBattleField {
         return new EventResult(true);
     }
 
+    // todo convert
     public EventResult shoot(String position) {
         SeaBattlePosition convertedPos = SeaBattlePosition.convertPosition(position);
         SeaBattleCell cell = getCell(convertedPos);

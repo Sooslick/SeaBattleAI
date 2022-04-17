@@ -29,6 +29,7 @@ public class SeaBattleProperties {
             TOKEN_LIFETIME_TOTAL = Integer.parseInt(properties.getProperty("token.lifetime.total", "600"));
             GAME_CORNER_COLLISION_ENABLE = Boolean.parseBoolean(properties.getProperty("game.corner.collision.enable", "false"));
             GAME_STRIKED_CHECK_ENABLE = Boolean.parseBoolean(properties.getProperty("game.striked.check.enable", "true"));
+            // todo autostrike after kill setting
         } catch (FileNotFoundException e) {
             Log.warn("Cannot find app.properties, loading default settings");
         } catch (IOException e) {
