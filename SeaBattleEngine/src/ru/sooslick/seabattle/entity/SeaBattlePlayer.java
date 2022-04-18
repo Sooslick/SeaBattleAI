@@ -1,5 +1,6 @@
 package ru.sooslick.seabattle.entity;
 
+import ru.sooslick.seabattle.Log;
 import ru.sooslick.seabattle.SeaBattleMain;
 import ru.sooslick.seabattle.SeaBattleProperties;
 
@@ -16,7 +17,7 @@ public class SeaBattlePlayer {
         updateLastAction();
 
         SeaBattleMain.registerPlayer(this);
-        System.out.println("Registered new player " + token);
+        Log.info("Registered new player " + token);
     }
 
     public String getToken() {
@@ -27,16 +28,16 @@ public class SeaBattlePlayer {
         return session;
     }
 
-    public void joinSession(SeaBattleSession session) {
-        this.session = session;
-        updateLastAction();
-    }
-
     public boolean isAlive() {
         return System.currentTimeMillis() - lastActionTime < SeaBattleProperties.TOKEN_LIFETIME_TOTAL * 1000L;
     }
 
     public void updateLastAction() {
         lastActionTime = System.currentTimeMillis();
+    }
+
+    protected void joinSession(SeaBattleSession session) {
+        this.session = session;
+        updateLastAction();
     }
 }

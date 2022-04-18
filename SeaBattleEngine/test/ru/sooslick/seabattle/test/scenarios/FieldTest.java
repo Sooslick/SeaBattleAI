@@ -37,65 +37,64 @@ public class FieldTest {
 
         // place tests
         // invalid size
-        // todo validate fail messages
-        Assert.assertFalse("Successful event result", field.placeShip("a1", 0, false).getSuccess());
+        placeAndCheckResult("a1", 0, false, false, "Failed placeShip: no such ship that size");
         Assert.assertTrue("Ships not equals", CollectionUtils.isEqualCollection(startShips, field.getShips()));
         checkFieldFree(field.getResult(true));
         checkFieldFree(field.getResult(false));
 
-        Assert.assertFalse("Successful event result", field.placeShip("a1", -1, false).getSuccess());
+        placeAndCheckResult("a1", -1, false, false, "Failed placeShip: no such ship that size");
         Assert.assertTrue("Ships not equals", CollectionUtils.isEqualCollection(startShips, field.getShips()));
         checkFieldFree(field.getResult(true));
         checkFieldFree(field.getResult(false));
 
-        Assert.assertFalse("Successful event result", field.placeShip("a1", 5, false).getSuccess());
+        placeAndCheckResult("a1", 5, false, false, "Failed placeShip: no such ship that size");
         Assert.assertTrue("Ships not equals", CollectionUtils.isEqualCollection(startShips, field.getShips()));
         checkFieldFree(field.getResult(true));
         checkFieldFree(field.getResult(false));
 
         // out of bounds
-        Assert.assertFalse("Successful event result", field.placeShip("j10", 2, false).getSuccess());
+        placeAndCheckResult("j10", 2, false, false, "Failed placeShip: out of bounds");
         Assert.assertTrue("Ships not equals", CollectionUtils.isEqualCollection(startShips, field.getShips()));
         checkFieldFree(field.getResult(true));
         checkFieldFree(field.getResult(false));
 
-        Assert.assertFalse("Successful event result", field.placeShip("j10", 2, true).getSuccess());
+        placeAndCheckResult("j10", 2, true, false, "Failed placeShip: out of bounds");
         Assert.assertTrue("Ships not equals", CollectionUtils.isEqualCollection(startShips, field.getShips()));
         checkFieldFree(field.getResult(true));
         checkFieldFree(field.getResult(false));
 
         // success single ship
-        Assert.assertTrue("Unsuccessful event result", field.placeShip("a1", 1, true).getSuccess());
+        placeAndCheckResult("a1", 1, true, true, null);
         Assert.assertTrue("Ships not equals", CollectionUtils.isEqualCollection(ships1, field.getShips()));
         checkFieldFree(field.getResult(false));
         Assert.assertEquals("Ship cells count not equals", 1, getShipCellsCount(field.getResult(true)));
         Assert.assertEquals("Striked cells count not equals", 0, getStrikedCellsCount(field.getResult(true)));
 
         // all ships size of "1"
-        Assert.assertTrue("Unsuccessful event result", field.placeShip("a10", 1, false).getSuccess());
-        Assert.assertTrue("Unsuccessful event result", field.placeShip("j1", 1, false).getSuccess());
-        Assert.assertTrue("Unsuccessful event result", field.placeShip("j10", 1, false).getSuccess());
-        Assert.assertFalse("Successful event result", field.placeShip("e5", 1, false).getSuccess());
+        placeAndCheckResult("a10", 1, false, true, null);
+        placeAndCheckResult("j1", 1, true, true, null);
+        placeAndCheckResult("j10", 1, false, true, null);
+        placeAndCheckResult("e5", 1, false, false, "Failed placeShip: no such ship that size");
         Assert.assertTrue("Ships not equals", CollectionUtils.isEqualCollection(ships2, field.getShips()));
         Assert.assertEquals("Ship cells count not equals", 4, getShipCellsCount(field.getResult(true)));
 
         // one of 2, 3, 4 ships
-        Assert.assertTrue("Unsuccessful event result", field.placeShip("c1", 2, false).getSuccess());
-        Assert.assertTrue("Unsuccessful event result", field.placeShip("a3", 3, true).getSuccess());
-        Assert.assertTrue("Unsuccessful event result", field.placeShip("j5", 4, true).getSuccess());
+        placeAndCheckResult("c1", 2, false, true, null);
+        placeAndCheckResult("a3", 3, true, true, null);
+        placeAndCheckResult("j5", 4, true, true, null);
         Assert.assertTrue("Ships not equals", CollectionUtils.isEqualCollection(ships3, field.getShips()));
 
         // remaining ships
-        Assert.assertTrue("Unsuccessful event result", field.placeShip("c3", 2, false).getSuccess());
-        Assert.assertTrue("Unsuccessful event result", field.placeShip("c5", 3, false).getSuccess());
-        Assert.assertTrue("Unsuccessful event result", field.placeShip("g3", 2, true).getSuccess());
+        placeAndCheckResult("c3", 2, false, true, null);
+        placeAndCheckResult("c5", 3, false, true, null);
+        placeAndCheckResult("g3", 2, true, true, null);
         Assert.assertTrue("Ships remains", field.getShips().isEmpty());
         Assert.assertEquals("Ship cells count not equals", 20, getShipCellsCount(field.getResult(true)));
         Assert.assertEquals("Striked cells count not equals", 0, getStrikedCellsCount(field.getResult(true)));
         checkFieldFree(field.getResult(false));
 
         // try place after 0 ships remains
-        Assert.assertFalse("Successful event result", field.placeShip("g7", 1, false).getSuccess());
+        placeAndCheckResult("g7", 1, false, false, "Failed placeShip: no such ship that size");
 
         // shoot tests
         // miss + check fields
@@ -140,63 +139,83 @@ public class FieldTest {
     @Test
     public void testPlaceCornerDisabled() {
         SeaBattleProperties.GAME_CORNER_COLLISION_ENABLE = false;
-        SeaBattleField field = new SeaBattleField();
+        SeaBattleProperties.GAME_STRIKED_CHECK_ENABLE = true;
 
-        Assert.assertTrue("Unsuccessful event result", field.placeShip("c3", 1, false).getSuccess());
+        placeAndCheckResult("c3", 1, false, true, null);
         Assert.assertEquals("Ship cells count not equals", 1, getShipCellsCount(field.getResult(true)));
 
         // cannot place on exact pos
-        Assert.assertFalse("Successful event result", field.placeShip("c3", 1, false).getSuccess());
+        placeAndCheckResult("c3", 1, false, false, "Failed placeShip: collision");
         Assert.assertEquals("Ship cells count not equals", 1, getShipCellsCount(field.getResult(true)));
 
         // cannot place around
-        Assert.assertFalse("Successful event result", field.placeShip("b2", 1, false).getSuccess());
-        Assert.assertFalse("Successful event result", field.placeShip("b3", 1, false).getSuccess());
-        Assert.assertFalse("Successful event result", field.placeShip("b4", 1, false).getSuccess());
-        Assert.assertFalse("Successful event result", field.placeShip("c2", 1, false).getSuccess());
-        Assert.assertFalse("Successful event result", field.placeShip("c4", 1, false).getSuccess());
-        Assert.assertFalse("Successful event result", field.placeShip("d2", 1, false).getSuccess());
-        Assert.assertFalse("Successful event result", field.placeShip("d3", 1, false).getSuccess());
-        Assert.assertFalse("Successful event result", field.placeShip("d4", 1, false).getSuccess());
+        placeAndCheckResult("b2", 1, false, false, "Failed placeShip: collision");
+        placeAndCheckResult("b3", 1, false, false, "Failed placeShip: collision");
+        placeAndCheckResult("b4", 1, false, false, "Failed placeShip: collision");
+        placeAndCheckResult("c2", 1, false, false, "Failed placeShip: collision");
+        placeAndCheckResult("c4", 1, false, false, "Failed placeShip: collision");
+        placeAndCheckResult("d2", 1, false, false, "Failed placeShip: collision");
+        placeAndCheckResult("d3", 1, false, false, "Failed placeShip: collision");
+        placeAndCheckResult("d4", 1, false, false, "Failed placeShip: collision");
         Assert.assertEquals("Ship cells count not equals", 1, getShipCellsCount(field.getResult(true)));
 
         // successful ships around
-        Assert.assertTrue("Unsuccessful event result", field.placeShip("c1", 2, false).getSuccess());
-        Assert.assertTrue("Unsuccessful event result", field.placeShip("c5", 2, false).getSuccess());
-        Assert.assertTrue("Unsuccessful event result", field.placeShip("a2", 3, true).getSuccess());
-        Assert.assertTrue("Unsuccessful event result", field.placeShip("e3", 1, true).getSuccess());
+        placeAndCheckResult("c1", 2, false, true, null);
+        placeAndCheckResult("c5", 2, false, true, null);
+        placeAndCheckResult("a2", 3, true, true, null);
+        placeAndCheckResult("e3", 1, true, true, null);
         Assert.assertEquals("Ship cells count not equals", 9, getShipCellsCount(field.getResult(true)));
 
-        // todo kill and check striked cells
+        // kill and check striked cells
+        shootAndCheckResult("c3", true, "kill");
+        Assert.assertEquals("Striked cells count not equals", 9, getStrikedCellsCount(field.getResult(true)));
+        Assert.assertEquals("Striked cells count not equals", 9, getStrikedCellsCount(field.getResult(false)));
+        shootAndCheckResult("b2", false, "Failed shoot: this cell is striked");
+        shootAndCheckResult("b3", false, "Failed shoot: this cell is striked");
+        shootAndCheckResult("b4", false, "Failed shoot: this cell is striked");
+        shootAndCheckResult("c2", false, "Failed shoot: this cell is striked");
+        shootAndCheckResult("c3", false, "Failed shoot: this cell is striked");
+        shootAndCheckResult("c4", false, "Failed shoot: this cell is striked");
+        shootAndCheckResult("d2", false, "Failed shoot: this cell is striked");
+        shootAndCheckResult("d3", false, "Failed shoot: this cell is striked");
+        shootAndCheckResult("d4", false, "Failed shoot: this cell is striked");
     }
 
     @Test
     public void testPlaceCornerEnabled() {
         SeaBattleProperties.GAME_CORNER_COLLISION_ENABLE = true;
-        SeaBattleField field = new SeaBattleField();
+        SeaBattleProperties.GAME_STRIKED_CHECK_ENABLE = true;
 
-        Assert.assertTrue("Unsuccessful event result", field.placeShip("c3", 1, false).getSuccess());
+        placeAndCheckResult("c3", 1, false, true, null);
         Assert.assertEquals("Ship cells count not equals", 1, getShipCellsCount(field.getResult(true)));
 
         // cannot place on exact pos
-        Assert.assertFalse("Successful event result", field.placeShip("c3", 1, false).getSuccess());
+        placeAndCheckResult("c3", 1, false, false, "Failed placeShip: collision");
         Assert.assertEquals("Ship cells count not equals", 1, getShipCellsCount(field.getResult(true)));
 
         // cannot place around
-        Assert.assertFalse("Successful event result", field.placeShip("b3", 1, false).getSuccess());
-        Assert.assertFalse("Successful event result", field.placeShip("c2", 1, false).getSuccess());
-        Assert.assertFalse("Successful event result", field.placeShip("c4", 1, false).getSuccess());
-        Assert.assertFalse("Successful event result", field.placeShip("d3", 1, false).getSuccess());
+        placeAndCheckResult("b3", 1, false, false, "Failed placeShip: collision");
+        placeAndCheckResult("c2", 1, false, false, "Failed placeShip: collision");
+        placeAndCheckResult("c4", 1, false, false, "Failed placeShip: collision");
+        placeAndCheckResult("d3", 1, false, false, "Failed placeShip: collision");
         Assert.assertEquals("Ship cells count not equals", 1, getShipCellsCount(field.getResult(true)));
 
         // successful ships around
-        Assert.assertTrue("Unsuccessful event result", field.placeShip("b2", 1, false).getSuccess());
-        Assert.assertTrue("Unsuccessful event result", field.placeShip("b4", 1, false).getSuccess());
-        Assert.assertTrue("Unsuccessful event result", field.placeShip("d2", 1, true).getSuccess());
-        Assert.assertTrue("Unsuccessful event result", field.placeShip("d4", 2, true).getSuccess());
+        placeAndCheckResult("b2", 1, false, true, null);
+        placeAndCheckResult("b4", 1, false, true, null);
+        placeAndCheckResult("d2", 1, true, true, null);
+        placeAndCheckResult("d4", 2, true, true, null);
         Assert.assertEquals("Ship cells count not equals", 6, getShipCellsCount(field.getResult(true)));
 
-        // todo kill and check striked cells
+        // kill and check striked cells
+        shootAndCheckResult("c3", true, "kill");
+        Assert.assertEquals("Striked cells count not equals", 5, getStrikedCellsCount(field.getResult(true)));
+        Assert.assertEquals("Striked cells count not equals", 5, getStrikedCellsCount(field.getResult(false)));
+        shootAndCheckResult("b3", false, "Failed shoot: this cell is striked");
+        shootAndCheckResult("c2", false, "Failed shoot: this cell is striked");
+        shootAndCheckResult("c3", false, "Failed shoot: this cell is striked");
+        shootAndCheckResult("c4", false, "Failed shoot: this cell is striked");
+        shootAndCheckResult("d3", false, "Failed shoot: this cell is striked");
     }
 
     @Test
@@ -205,7 +224,27 @@ public class FieldTest {
         shootAndCheckResult("b2", true, "win");
     }
 
-    // todo striked check enabled test
+    @Test
+    public void testCheckStriked() {
+        SeaBattleProperties.GAME_STRIKED_CHECK_ENABLE = false;
+
+        placeAndCheckResult("a1", 1, false, true, null);
+        placeAndCheckResult("a3", 2, false, true, null);
+
+        // miss and repeat
+        shootAndCheckResult("j10", true, "miss");
+        shootAndCheckResult("j10", true, "miss");
+
+        // kill, repeat and try hit around
+        shootAndCheckResult("a1", true, "kill");
+        shootAndCheckResult("a1", true, "kill");
+        shootAndCheckResult("a2", true, "miss");
+
+        // hit, repeat and kill
+        shootAndCheckResult("a3", true, "hit");
+        shootAndCheckResult("a3", true, "hit");
+        shootAndCheckResult("b3", true, "win");
+    }
 
     private void checkFieldFree(FieldResult fr) {
         fr.getRows().forEach(row -> row.getCols().forEach(col -> Assert.assertEquals("Cell is marked", 0, (int) col)));
@@ -217,6 +256,12 @@ public class FieldTest {
 
     private int getStrikedCellsCount(FieldResult fr) {
         return fr.getRows().stream().mapToInt(row -> row.getCols().stream().mapToInt(i -> i % 2).sum()).sum();
+    }
+
+    private void placeAndCheckResult(String pos, int size, boolean vert, boolean expectedSuccess, String expectedResolution) {
+        EventResult sr = field.placeShip(pos, size, vert);
+        Assert.assertEquals("Unexpected event result", expectedSuccess, sr.getSuccess());
+        Assert.assertEquals("Unexpected place result", expectedResolution, sr.getInfo());
     }
 
     private void shootAndCheckResult(String pos, boolean expectedSuccess, String expectedResolution) {

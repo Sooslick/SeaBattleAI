@@ -1,11 +1,13 @@
 package ru.sooslick.seabattle.entity;
 
+import ru.sooslick.seabattle.Log;
 import ru.sooslick.seabattle.SeaBattleMain;
 import ru.sooslick.seabattle.SeaBattleProperties;
 import ru.sooslick.seabattle.result.EventResult;
 import ru.sooslick.seabattle.result.FieldResult;
 import ru.sooslick.seabattle.result.GameResult;
 
+import javax.annotation.Nullable;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -26,7 +28,7 @@ public class SeaBattleSession {
         return Math.abs(UUID.randomUUID().toString().substring(0, 8).hashCode());
     }
 
-    public SeaBattleSession(SeaBattlePlayer initiator, String k) {
+    public SeaBattleSession(SeaBattlePlayer initiator, @Nullable String k) {
         p1 = initiator;
         pw = k;
         id = getNextId();
@@ -39,7 +41,7 @@ public class SeaBattleSession {
 
         p1.joinSession(this);
         SeaBattleMain.addActiveSession(this);
-        System.out.println("Registered new session " + id);
+        Log.info("Registered new session " + id);
     }
 
     public int getId() {
