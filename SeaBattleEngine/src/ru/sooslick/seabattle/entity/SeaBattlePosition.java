@@ -1,4 +1,6 @@
-package ru.sooslick.seabattle;
+package ru.sooslick.seabattle.entity;
+
+import org.jetbrains.annotations.Nullable;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -6,18 +8,16 @@ import java.util.regex.Pattern;
 public class SeaBattlePosition {
     public static final Pattern POSITION_REGEX = Pattern.compile("^([a-j])([1-9]|10)$");
 
-    private int row;
-    private int col;
+    private final int row;
+    private final int col;
 
     public static boolean isValid(String position) {
-        return POSITION_REGEX.matcher(position).matches();
+        return position != null && POSITION_REGEX.matcher(position).matches();
     }
 
-    public static SeaBattlePosition convertPosition(String position) {
+    public static @Nullable SeaBattlePosition convertPosition(String position) {
         Matcher m = POSITION_REGEX.matcher(position);
-        //noinspection ResultOfMethodCallIgnored
-        m.matches();
-        return new SeaBattlePosition(getPositionRow(m.group(2)), getPositionCol(m.group(1)));
+        return m.matches() ? new SeaBattlePosition(getPositionRow(m.group(2)), getPositionCol(m.group(1))) : null;
     }
 
     private static int getPositionRow(String s) {

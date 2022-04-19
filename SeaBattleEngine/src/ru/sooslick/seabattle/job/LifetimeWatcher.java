@@ -31,12 +31,14 @@ public class LifetimeWatcher extends Thread {
             if (inactivePlayers.size() > 0)
                 Log.info("LifetimeWatcher report: " + inactivePlayers.size() + " players expired");
 
-            try {
-                //noinspection BusyWait
-                sleep(INTERVAL);
-            } catch (InterruptedException e) {
-                alive = false;
-                Log.info("LifetimeWatcher interrupted");
+            if (alive) {
+                try {
+                    //noinspection BusyWait
+                    sleep(INTERVAL);
+                } catch (InterruptedException e) {
+                    alive = false;
+                    Log.info("LifetimeWatcher interrupted");
+                }
             }
         }
     }

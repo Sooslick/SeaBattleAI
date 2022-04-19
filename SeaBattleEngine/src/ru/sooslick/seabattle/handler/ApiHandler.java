@@ -58,7 +58,7 @@ public class ApiHandler implements HttpHandler {
             }
         } catch (Exception e) {
             er.info(e.getMessage());
-            System.out.println(e.getMessage());
+            Log.warn(e.getMessage());
             e.printStackTrace();
         }
         String answer = ow.writeValueAsString(er);

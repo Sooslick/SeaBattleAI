@@ -1,7 +1,7 @@
 package ru.sooslick.seabattle.ai;
 
-import ru.sooslick.seabattle.SeaBattlePosition;
 import ru.sooslick.seabattle.entity.SeaBattleCell;
+import ru.sooslick.seabattle.entity.SeaBattlePosition;
 
 import java.util.*;
 import java.util.function.Supplier;

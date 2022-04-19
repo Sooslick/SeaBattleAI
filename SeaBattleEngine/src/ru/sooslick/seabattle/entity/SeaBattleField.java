@@ -1,6 +1,5 @@
 package ru.sooslick.seabattle.entity;
 
-import ru.sooslick.seabattle.SeaBattlePosition;
 import ru.sooslick.seabattle.SeaBattleProperties;
 import ru.sooslick.seabattle.result.EventResult;
 import ru.sooslick.seabattle.result.FieldResult;

@@ -1,7 +1,7 @@
 package ru.sooslick.seabattle.ai;
 
 import org.apache.commons.io.FileUtils;
-import ru.sooslick.seabattle.SeaBattlePosition;
+import ru.sooslick.seabattle.entity.SeaBattlePosition;
 import ru.sooslick.seabattle.result.FieldResult;
 
 import java.io.*;

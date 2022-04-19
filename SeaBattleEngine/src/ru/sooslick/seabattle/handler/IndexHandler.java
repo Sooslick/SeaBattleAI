@@ -12,13 +12,13 @@ import java.io.IOException;
 public class IndexHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange httpExchange) throws IOException {
-        String uri = httpExchange.getRequestURI().getPath();
-        uri = uri.substring(1);
+        String reqPath = httpExchange.getRequestURI().getPath();
+        String uri = reqPath.substring(1);
         if ("".equals(uri))
             uri = "index.html";
         if (! new File(uri).exists())
             uri = "index.html";
-        Log.info("Request web resource " + uri + " <- " + httpExchange.getRequestURI().getPath());
+        Log.info("Request web resource " + uri + " <- " + reqPath);
         byte[] answer = ByteStreams.toByteArray(new FileInputStream(uri));
         httpExchange.sendResponseHeaders(200, answer.length);
         httpExchange.getResponseBody().write(answer);

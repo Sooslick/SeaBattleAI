@@ -1,6 +1,7 @@
 package ru.sooslick.seabattle;
 
 import ru.sooslick.seabattle.entity.SeaBattlePlayer;
+import ru.sooslick.seabattle.entity.SeaBattlePosition;
 import ru.sooslick.seabattle.entity.SeaBattleSession;
 import ru.sooslick.seabattle.result.EventResult;
 
