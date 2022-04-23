@@ -11,6 +11,7 @@ import ru.sooslick.seabattle.job.LifetimeWatcher;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -58,6 +59,7 @@ public class SeaBattleMain {
     }
 
     public static void main(String[] args) throws IOException {
+        parseArgs(args);
         Log.info("Starting app in " + System.getProperty("user.dir"));
         LifetimeWatcher lifetimeWatcher = new LifetimeWatcher();
         lifetimeWatcher.start();
@@ -70,5 +72,16 @@ public class SeaBattleMain {
                 .forEach(m -> server.createContext(m.getPath(), eventHandler));
         server.setExecutor(Executors.newFixedThreadPool(SeaBattleProperties.APP_SERVER_CONNECTIONS));
         server.start();
+    }
+
+    public static void parseArgs(String[] args) {
+        HashMap<String, String> kvs = new HashMap<>();
+        Arrays.stream(args).forEach(a -> {
+            String[] kv = a.split("=", 2);
+            kvs.put(kv[0], kv.length > 1 ? kv[1] : null);
+        });
+        if (kvs.containsKey("-app.properties")) {
+            System.setProperty("app.properties", kvs.get("-app.properties"));
+        }
     }
 }

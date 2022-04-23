@@ -1,5 +1,6 @@
 package ru.sooslick.seabattle.entity;
 
+import org.jetbrains.annotations.Nullable;
 import ru.sooslick.seabattle.Log;
 import ru.sooslick.seabattle.SeaBattleMain;
 import ru.sooslick.seabattle.SeaBattleProperties;
@@ -7,7 +8,6 @@ import ru.sooslick.seabattle.result.EventResult;
 import ru.sooslick.seabattle.result.FieldResult;
 import ru.sooslick.seabattle.result.GameResult;
 
-import javax.annotation.Nullable;
 import java.util.Objects;
 import java.util.UUID;
 
