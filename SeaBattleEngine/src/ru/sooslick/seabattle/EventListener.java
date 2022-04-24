@@ -50,12 +50,22 @@ public class EventListener {
         return result;
     }
 
-    public static EventResult getSessionStatus(String token) {
+    public static EventResult getSessionStatus(String token, String sessionId) {
+        //todo long poll status
         SeaBattlePlayer player = SeaBattleMain.getPlayer(token);
         if (player == null)
             return new EventResult(false).info("Failed getSessionStatus: unknown or expired token");
-        if (player.getSession() == null)
-            return new EventResult(false).info("Failed getSessionStatus: not joined to any session");
+        if (player.getSession() == null) {
+            if (sessionId == null)
+                return new EventResult(false).info("Failed getSessionStatus: not joined to any session");
+            Integer id = tryParse(sessionId);
+            if (id == null)
+                return new EventResult(false).info("Failed getSessionStatus: wrong sessionId format");
+            SeaBattleSession session = SeaBattleMain.getSession(id);
+            if (session == null)
+                return new EventResult(false).info("Failed getSessionStatus: session with provided id is not exist");
+            return session.getStatus(player);
+        }
         return player.getSession().getStatus(player);
     }
 

@@ -48,7 +48,7 @@ public class ApiHandler implements HttpHandler {
                     er = EventListener.getSessions(getParameters.get("token"));
                     break;
                 case GET_SESSION_STATUS:
-                    er = EventListener.getSessionStatus(getParameters.get("token"));
+                    er = EventListener.getSessionStatus(getParameters.get("token"), getParameters.get("sessionid"));
                     break;
                 case PLACE_SHIP:
                     er = EventListener.placeShip(getParameters.get("token"), getParameters.get("position"), getParameters.get("size"), getParameters.get("vertical"));

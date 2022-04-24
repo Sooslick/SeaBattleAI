@@ -10,10 +10,12 @@ public class GameResult {
     private FieldResult enemyField;
     private String matchLog;
 
-    public GameResult() {}
+    public GameResult(String phase) {
+        this.phase = phase;
+    }
 
     public GameResult(String phase, Boolean myTurn, FieldResult myField, FieldResult enemyField) {
-        this.phase = phase;
+        this(phase);
         this.myTurn = myTurn;
         this.myField = myField;
         this.enemyField = enemyField;

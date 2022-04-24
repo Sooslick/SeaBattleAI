@@ -1,5 +1,6 @@
 package ru.sooslick.seabattle.entity;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ru.sooslick.seabattle.Log;
 import ru.sooslick.seabattle.SeaBattleMain;
@@ -102,8 +103,13 @@ public class SeaBattleSession {
     public EventResult getStatus(SeaBattlePlayer requester) {
         requester.updateLastAction();
         // requester is spectator
-        if (p1 != requester && p2 != requester)
-            return new EventResult(true).gameResult(new GameResult(phase.toString(), null, p1Field.getResult(false), p2Field.getResult(false)));
+        if (p1 != requester && p2 != requester) {
+            if (phase == SessionPhase.LOOKUP || phase == SessionPhase.PREPARE)
+                return new EventResult(true).gameResult(new GameResult(phase.toString()));
+            boolean reveal = phase == SessionPhase.ENDGAME;
+            return new EventResult(true).gameResult(new GameResult(phase.toString(), null, p1Field.getResult(reveal), p2Field.getResult(reveal))
+                    .matchLog(formatLog(requester)));
+        }
 
         updateLastAction();
         SeaBattleField myField;
@@ -131,7 +137,7 @@ public class SeaBattleSession {
         FieldResult efr = phase == SessionPhase.PREPARE ? null :
                 phase == SessionPhase.ENDGAME ? enemyField.getResult(true) : enemyField.getResult(false);
         GameResult result = new GameResult(phase.toString(), turn, myField.getResult(true), efr)
-                .matchLog(matchLog.toString());
+                .matchLog(formatLog(requester));
         return new EventResult(true)
                 .info(getLifetimeInfo())
                 .gameResult(phase == SessionPhase.PREPARE ? result.ships(myField.getShips()) : result);
@@ -203,6 +209,17 @@ public class SeaBattleSession {
 
     private void switchTurn() {
         phase = phase == SessionPhase.TURN_P1 ? SessionPhase.TURN_P2 : SessionPhase.TURN_P1;
+    }
+
+    private String formatLog(@NotNull SeaBattlePlayer viewer) {
+        if (phase == SessionPhase.ENDGAME)
+            return matchLog.toString();
+        String prefix = "p[1-2]";
+        if (viewer.equals(p1))
+            prefix = "p2";
+        else if (viewer.equals(p2))
+            prefix = "p1";
+        return matchLog.toString().replaceAll(prefix + ": \\+.*?\\n", "");
     }
 
     public enum SessionPhase {
