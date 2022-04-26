@@ -13,33 +13,26 @@ import java.util.Objects;
 import java.util.UUID;
 
 public class SeaBattleSession {
-    private final int id;
-    private final long startTime;
-
+    private final int id = getNextId();
+    private final long startTime = System.currentTimeMillis();
+    private final SeaBattleField p1Field = new SeaBattleField();
+    private final SeaBattleField p2Field = new SeaBattleField();
+    private final StringBuilder matchLog = new StringBuilder();
+    private final String pw;
     private final SeaBattlePlayer p1;
     private SeaBattlePlayer p2;
-    private final String pw;
-    private SessionPhase phase;
-    private final SeaBattleField p1Field;
-    private final SeaBattleField p2Field;
+    private SessionPhase phase = SessionPhase.LOOKUP;
     private long lastActionTime;
-    private final StringBuilder matchLog;
 
     private static int getNextId() {
         return Math.abs(UUID.randomUUID().toString().substring(0, 8).hashCode());
     }
 
-    public SeaBattleSession(SeaBattlePlayer initiator, @Nullable String k) {
+    public SeaBattleSession(@NotNull SeaBattlePlayer initiator, @Nullable String k) {
         p1 = initiator;
         pw = k;
-        id = getNextId();
-        startTime = System.currentTimeMillis();
-        updateLastAction();
-        phase = SessionPhase.LOOKUP;
-        p1Field = new SeaBattleField();
-        p2Field = new SeaBattleField();
-        matchLog = new StringBuilder();
 
+        updateLastAction();
         p1.joinSession(this);
         SeaBattleMain.addActiveSession(this);
         Log.info("Registered new session " + id);
@@ -53,7 +46,10 @@ public class SeaBattleSession {
         return phase;
     }
 
-    public void joinPlayer(SeaBattlePlayer player) {
+    public void joinPlayer(@NotNull SeaBattlePlayer player) {
+        if (p2 != null || player.equals(p1))
+            return;
+
         p2 = player;
         updateLastAction();
         phase = SessionPhase.PREPARE;
@@ -65,20 +61,21 @@ public class SeaBattleSession {
         long currentTime = System.currentTimeMillis();
         long msAlive = currentTime - startTime;
         long msAction = currentTime - lastActionTime;
-        if (msAlive / 1000 > SeaBattleProperties.SESSION_LIFETIME_TOTAL)
+        if (msAlive > SeaBattleProperties.SESSION_LIFETIME_TOTAL * 1000L)
             return false;
         switch (phase) {
             case LOOKUP:
-                if (msAction / 1000 > SeaBattleProperties.SESSION_LIFETIME_LOOKUP)
+                if (msAction > SeaBattleProperties.SESSION_LIFETIME_LOOKUP * 1000L)
                     return false;
                 break;
             case PREPARE:
-                if (msAction / 1000 > SeaBattleProperties.SESSION_LIFETIME_PREPARE)
+                if (msAction > SeaBattleProperties.SESSION_LIFETIME_PREPARE * 1000L)
                     return false;
                 break;
             case TURN_P1:
             case TURN_P2:
-                if (msAction / 1000 > SeaBattleProperties.SESSION_LIFETIME_PLAYER)
+            case ENDGAME:
+                if (msAction > SeaBattleProperties.SESSION_LIFETIME_PLAYER * 1000L)
                     return false;
         }
         return true;
@@ -93,10 +90,10 @@ public class SeaBattleSession {
                 phase == SessionPhase.PREPARE ? SeaBattleProperties.SESSION_LIFETIME_PREPARE :
                         phase != SessionPhase.ENDGAME ? SeaBattleProperties.SESSION_LIFETIME_PLAYER : 0;
         long stage = Math.max(stageDuration - msAction / 1000, 0);
-        return (total + "s passed. Phase timeleft: " + stage + "s");
+        return ("Room expires after " + total + "s. Current phase timeleft: " + stage + "s");
     }
 
-    public boolean testPw(String k) {
+    public boolean testPw(@Nullable String k) {
         return Objects.equals(pw, k);
     }
 
@@ -134,8 +131,7 @@ public class SeaBattleSession {
                 break;
         }
 
-        FieldResult efr = phase == SessionPhase.PREPARE ? null :
-                phase == SessionPhase.ENDGAME ? enemyField.getResult(true) : enemyField.getResult(false);
+        FieldResult efr = phase == SessionPhase.PREPARE ? null : enemyField.getResult(phase == SessionPhase.ENDGAME);
         GameResult result = new GameResult(phase.toString(), turn, myField.getResult(true), efr)
                 .matchLog(formatLog(requester));
         return new EventResult(true)
@@ -164,7 +160,7 @@ public class SeaBattleSession {
         }
 
         if (p1Field.getShips().isEmpty() && p2Field.getShips().isEmpty())
-            phase = p1.getToken().hashCode() % 2 == 1 ? SessionPhase.TURN_P1 : SessionPhase.TURN_P2;
+            phase = p1.getToken().hashCode() % 2 == 0 ? SessionPhase.TURN_P1 : SessionPhase.TURN_P2;
         return result;
     }
 

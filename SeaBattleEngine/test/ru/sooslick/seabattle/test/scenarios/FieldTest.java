@@ -5,6 +5,8 @@ import org.junit.Assert;
 import org.junit.Test;
 import ru.sooslick.seabattle.SeaBattleProperties;
 import ru.sooslick.seabattle.entity.SeaBattleField;
+import ru.sooslick.seabattle.entity.SeaBattlePlayer;
+import ru.sooslick.seabattle.entity.SeaBattleSession;
 import ru.sooslick.seabattle.result.EventResult;
 import ru.sooslick.seabattle.result.FieldResult;
 
@@ -99,33 +101,25 @@ public class FieldTest {
         // shoot tests
         // miss + check fields
         shootAndCheckResult("a2", true, "miss");
-        Assert.assertEquals("Ship cells count not equals", 20, getShipCellsCount(field.getResult(true)));
-        Assert.assertEquals("Striked cells count not equals", 1, getStrikedCellsCount(field.getResult(true)));
-        Assert.assertEquals("Ship cells count not equals", 0, getShipCellsCount(field.getResult(false)));
-        Assert.assertEquals("Striked cells count not equals", 1, getStrikedCellsCount(field.getResult(false)));
+        checkCellCounts(field.getResult(true), 20, 1);
+        checkCellCounts(field.getResult(false), 0, 1);
 
         shootAndCheckResult("a2", false, "Failed shoot: this cell is striked");
-        Assert.assertEquals("Ship cells count not equals", 20, getShipCellsCount(field.getResult(true)));
-        Assert.assertEquals("Striked cells count not equals", 1, getStrikedCellsCount(field.getResult(true)));
-        Assert.assertEquals("Ship cells count not equals", 0, getShipCellsCount(field.getResult(false)));
-        Assert.assertEquals("Striked cells count not equals", 1, getStrikedCellsCount(field.getResult(false)));
+        checkCellCounts(field.getResult(true), 20, 1);
+        checkCellCounts(field.getResult(false), 0, 1);
 
         // single kill
         shootAndCheckResult("a1", true, "kill");
-        Assert.assertEquals("Ship cells count not equals", 20, getShipCellsCount(field.getResult(true)));
-        Assert.assertEquals("Striked cells count not equals", 4, getStrikedCellsCount(field.getResult(true)));
-        Assert.assertEquals("Ship cells count not equals", 1, getShipCellsCount(field.getResult(false)));
-        Assert.assertEquals("Striked cells count not equals", 4, getStrikedCellsCount(field.getResult(false)));
+        checkCellCounts(field.getResult(true), 20, 4);
+        checkCellCounts(field.getResult(false), 1, 4);
 
         // consistent hits
         shootAndCheckResult("c1", true, "hit");
-        Assert.assertEquals("Ship cells count not equals", 20, getShipCellsCount(field.getResult(true)));
-        Assert.assertEquals("Striked cells count not equals", 5, getStrikedCellsCount(field.getResult(true)));
-        Assert.assertEquals("Ship cells count not equals", 2, getShipCellsCount(field.getResult(false)));
-        Assert.assertEquals("Striked cells count not equals", 5, getStrikedCellsCount(field.getResult(false)));
+        checkCellCounts(field.getResult(true), 20, 5);
+        checkCellCounts(field.getResult(false), 2, 5);
         shootAndCheckResult("d1", true, "kill");
-        Assert.assertEquals("Striked cells count not equals", 10, getStrikedCellsCount(field.getResult(true)));
-        Assert.assertEquals("Striked cells count not equals", 10, getStrikedCellsCount(field.getResult(false)));
+        checkCellCounts(field.getResult(true), 20, 10);
+        checkCellCounts(field.getResult(false), 3, 10);
 
         // unconsistent hits
         shootAndCheckResult("a3", true, "hit");
@@ -246,8 +240,110 @@ public class FieldTest {
         shootAndCheckResult("b3", true, "win");
     }
 
+    @Test
+    public void testSessionStatus() {
+        SeaBattleProperties.GAME_CORNER_COLLISION_ENABLE = false;
+        SeaBattleProperties.GAME_STRIKED_CHECK_ENABLE = true;
+
+        SeaBattlePlayer p1 = new SeaBattlePlayer();
+        SeaBattlePlayer p2 = new SeaBattlePlayer();
+        SeaBattlePlayer p3 = new SeaBattlePlayer();                     // spectator
+        SeaBattleSession session = new SeaBattleSession(p1, null);
+        session.joinPlayer(p2);
+
+        // PREPARE: empty fields
+        checkFieldFree(session.getStatus(p1).getGameResult().getMyField());
+        checkFieldFree(session.getStatus(p2).getGameResult().getMyField());
+
+        // PREPARE: p1 places ship
+        session.placeShip(p1, "a1", 1, true);
+        checkCellCounts(session.getStatus(p1).getGameResult().getMyField(), 1, 0);
+        checkFieldFree(session.getStatus(p2).getGameResult().getMyField());
+
+        // PREPARE: p2 places ship
+        session.placeShip(p2, "a4", 4, true);
+        checkCellCounts(session.getStatus(p1).getGameResult().getMyField(), 1, 0);
+        checkCellCounts(session.getStatus(p2).getGameResult().getMyField(), 4, 0);
+
+        // TURN 1
+        session.placeShip(p1, "c1", 1, true);
+        session.placeShip(p1, "e1", 1, true);
+        session.placeShip(p1, "g1", 1, true);
+        session.placeShip(p1, "i1", 2, true);
+        session.placeShip(p1, "i4", 2, true);
+        session.placeShip(p1, "g4", 2, true);
+        session.placeShip(p1, "e4", 3, true);
+        session.placeShip(p1, "c4", 3, true);
+        session.placeShip(p1, "a4", 4, true);
+        session.placeShip(p2, "a1", 1, true);
+        session.placeShip(p2, "c1", 1, true);
+        session.placeShip(p2, "e1", 1, true);
+        session.placeShip(p2, "g1", 1, true);
+        session.placeShip(p2, "i1", 2, true);
+        session.placeShip(p2, "i4", 2, true);
+        session.placeShip(p2, "g4", 2, true);
+        session.placeShip(p2, "e4", 3, true);
+        session.placeShip(p2, "c4", 3, true);
+        // first turn determined by p1's hash. Force TURN_P1
+        int extra = 0;
+        if (p1.getToken().hashCode() % 2 != 0) {
+            session.shoot(p2, "j10");
+            extra = 1;
+        }
+        // shot
+        session.shoot(p1, "a4");
+        checkCellCounts(session.getStatus(p1).getGameResult().getMyField(), 20, extra);
+        checkCellCounts(session.getStatus(p1).getGameResult().getEnemyField(), 1, 1);
+        checkCellCounts(session.getStatus(p2).getGameResult().getMyField(), 20, 1);
+        checkCellCounts(session.getStatus(p2).getGameResult().getEnemyField(), 0, extra);
+        checkCellCounts(session.getStatus(p3).getGameResult().getMyField(), 0, extra);
+        checkCellCounts(session.getStatus(p3).getGameResult().getEnemyField(), 1, 1);
+
+        // TURN_P2
+        session.shoot(p1, "b4");
+        session.shoot(p2, "a1");
+        checkCellCounts(session.getStatus(p1).getGameResult().getMyField(), 20, 4 + extra);
+        checkCellCounts(session.getStatus(p1).getGameResult().getEnemyField(), 1, 2);
+        checkCellCounts(session.getStatus(p2).getGameResult().getMyField(), 20, 2);
+        checkCellCounts(session.getStatus(p2).getGameResult().getEnemyField(), 1, 4 + extra);
+        checkCellCounts(session.getStatus(p3).getGameResult().getMyField(), 1, 4 + extra);
+        checkCellCounts(session.getStatus(p3).getGameResult().getEnemyField(), 1, 2);
+
+        // WINGAME
+        session.shoot(p2, "c1");
+        session.shoot(p2, "e1");
+        session.shoot(p2, "g1");
+        session.shoot(p2, "i1");
+        session.shoot(p2, "i2");
+        session.shoot(p2, "i4");
+        session.shoot(p2, "i5");
+        session.shoot(p2, "g4");
+        session.shoot(p2, "g5");
+        session.shoot(p2, "e4");
+        session.shoot(p2, "e5");
+        session.shoot(p2, "e6");
+        session.shoot(p2, "c4");
+        session.shoot(p2, "c5");
+        session.shoot(p2, "c6");
+        session.shoot(p2, "a4");
+        session.shoot(p2, "a5");
+        session.shoot(p2, "a6");
+        session.shoot(p2, "a7");
+        checkCellCounts(session.getStatus(p1).getGameResult().getMyField(), 20, 65 + extra);
+        checkCellCounts(session.getStatus(p1).getGameResult().getEnemyField(), 20, 2);
+        checkCellCounts(session.getStatus(p2).getGameResult().getMyField(), 20, 2);
+        checkCellCounts(session.getStatus(p2).getGameResult().getEnemyField(), 20, 65 + extra);
+        checkCellCounts(session.getStatus(p3).getGameResult().getMyField(), 20, 65 + extra);
+        checkCellCounts(session.getStatus(p3).getGameResult().getEnemyField(), 20, 2);
+    }
+
     private void checkFieldFree(FieldResult fr) {
         fr.getRows().forEach(row -> row.getCols().forEach(col -> Assert.assertEquals("Cell is marked", 0, (int) col)));
+    }
+
+    private void checkCellCounts(FieldResult fr, int ships, int strikes) {
+        Assert.assertEquals("Ship count not equals", ships, getShipCellsCount(fr));
+        Assert.assertEquals("Strikes count not equals", strikes, getStrikedCellsCount(fr));
     }
 
     private int getShipCellsCount(FieldResult fr) {
