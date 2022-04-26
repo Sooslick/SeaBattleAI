@@ -45,5 +45,6 @@ public class LifetimeWatcher extends Thread {
 
     public void kill() {
         alive = false;
+        this.interrupt();
     }
 }

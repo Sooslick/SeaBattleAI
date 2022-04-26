@@ -7,6 +7,7 @@ import ru.sooslick.seabattle.entity.SeaBattleSession;
 import ru.sooslick.seabattle.handler.ApiHandler;
 import ru.sooslick.seabattle.handler.IndexHandler;
 import ru.sooslick.seabattle.job.LifetimeWatcher;
+import ru.sooslick.seabattle.job.UserPromptListener;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -14,6 +15,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class SeaBattleMain {
@@ -58,11 +60,12 @@ public class SeaBattleMain {
         ACTIVE_PLAYERS.removeAll(inactivePlayers);
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, InterruptedException {
         parseArgs(args);
         Log.info("Starting app in " + System.getProperty("user.dir"));
         LifetimeWatcher lifetimeWatcher = new LifetimeWatcher();
         lifetimeWatcher.start();
+
         HttpHandler eventHandler = new ApiHandler();
         HttpServer server = HttpServer.create();
         Log.info("Starting server on port " + SeaBattleProperties.APP_SERVER_PORT);
@@ -70,8 +73,18 @@ public class SeaBattleMain {
         server.createContext("/", new IndexHandler());
         Arrays.stream(ApiMethod.values())
                 .forEach(m -> server.createContext(m.getPath(), eventHandler));
-        server.setExecutor(Executors.newFixedThreadPool(SeaBattleProperties.APP_SERVER_CONNECTIONS));
+        ExecutorService exec = Executors.newFixedThreadPool(SeaBattleProperties.APP_SERVER_CONNECTIONS);
+        server.setExecutor(exec);
         server.start();
+
+        UserPromptListener upl = new UserPromptListener();
+        upl.start();
+        upl.join();
+
+        Log.info("Stopping server...");
+        lifetimeWatcher.kill();
+        server.stop(0);
+        exec.shutdownNow();
     }
 
     public static void parseArgs(String[] args) {
