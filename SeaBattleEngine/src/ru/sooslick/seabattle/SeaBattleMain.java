@@ -2,6 +2,7 @@ package ru.sooslick.seabattle;
 
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
+import org.jetbrains.annotations.Nullable;
 import ru.sooslick.seabattle.entity.SeaBattlePlayer;
 import ru.sooslick.seabattle.entity.SeaBattleSession;
 import ru.sooslick.seabattle.handler.ApiHandler;
@@ -45,7 +46,7 @@ public class SeaBattleMain {
         ACTIVE_PLAYERS.add(player);
     }
 
-    public static SeaBattlePlayer getPlayer(String token) {
+    public static SeaBattlePlayer getPlayer(@Nullable String token) {
         return ACTIVE_PLAYERS.stream()
                 .filter(pl -> pl.getToken().equals(token))
                 .findAny()

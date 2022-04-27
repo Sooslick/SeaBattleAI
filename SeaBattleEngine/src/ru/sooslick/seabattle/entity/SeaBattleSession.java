@@ -90,7 +90,7 @@ public class SeaBattleSession {
                 phase == SessionPhase.PREPARE ? SeaBattleProperties.SESSION_LIFETIME_PREPARE :
                         phase != SessionPhase.ENDGAME ? SeaBattleProperties.SESSION_LIFETIME_PLAYER : 0;
         long stage = Math.max(stageDuration - msAction / 1000, 0);
-        return ("Room expires after " + total + "s. Current phase timeleft: " + stage + "s");
+        return ("Room expires in " + total + "s. Current phase timeleft: " + stage + "s");
     }
 
     public boolean testPw(@Nullable String k) {

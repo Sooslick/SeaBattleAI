@@ -1,5 +1,6 @@
 package ru.sooslick.seabattle;
 
+import org.jetbrains.annotations.Nullable;
 import ru.sooslick.seabattle.entity.SeaBattlePlayer;
 import ru.sooslick.seabattle.entity.SeaBattlePosition;
 import ru.sooslick.seabattle.entity.SeaBattleSession;
@@ -11,7 +12,7 @@ public class EventListener {
         return new EventResult(true).token(player.getToken());
     }
 
-    public static EventResult registerSession(String token, String pw) {
+    public static EventResult registerSession(@Nullable String token, @Nullable String pw) {
         SeaBattlePlayer player = SeaBattleMain.getPlayer(token);
         if (player == null)
             return new EventResult(false).info("Failed registerSession: unknown or expired token");
@@ -21,7 +22,7 @@ public class EventListener {
         return new EventResult(true).session(session.getId());
     }
 
-    public static EventResult joinSession(String token, String sessionId, String pw) {
+    public static EventResult joinSession(@Nullable String token, @Nullable String sessionId, @Nullable String pw) {
         Integer id = tryParse(sessionId);
         if (id == null)
             return new EventResult(false).info("Failed joinSession: wrong sessionId format");
@@ -41,16 +42,16 @@ public class EventListener {
         return new EventResult(true);
     }
 
-    public static EventResult getSessions(String token) {
+    public static EventResult getSessions(@Nullable String token) {
         SeaBattlePlayer player = SeaBattleMain.getPlayer(token);
         if (player == null)
             return new EventResult(false).info("Failed getSessions: unknown or expired token");
-        EventResult result = new EventResult(true);
+        EventResult result = new EventResult(true).emptySession();
         SeaBattleMain.getActiveSessions().forEach(session -> result.session(session.getId()));
         return result;
     }
 
-    public static EventResult getSessionStatus(String token, String sessionId) {
+    public static EventResult getSessionStatus(@Nullable String token, @Nullable String sessionId) {
         //todo long poll status
         SeaBattlePlayer player = SeaBattleMain.getPlayer(token);
         if (player == null)
@@ -69,7 +70,12 @@ public class EventListener {
         return player.getSession().getStatus(player);
     }
 
-    public static EventResult placeShip(String token, String position, String sizeRaw, String verticalRaw) {
+    public static EventResult placeShip(@Nullable String token, @Nullable String position, @Nullable String sizeRaw, @Nullable String verticalRaw) {
+        SeaBattlePlayer player = SeaBattleMain.getPlayer(token);
+        if (player == null)
+            return new EventResult(false).info("Can't placeShip: unknown or expired token");
+        if (player.getSession() == null)
+            return new EventResult(false).info("Can't placeShip: not joined to any session");
         Integer size = tryParse(sizeRaw);
         if (size == null)
             return new EventResult(false).info("Can't placeShip: size not specified");
@@ -77,31 +83,28 @@ public class EventListener {
             return new EventResult(false).info("Can't placeShip: position not specified");
         if (!SeaBattlePosition.isValid(position))
             return new EventResult(false).info("Can't placeShip: wrong position format");
-        SeaBattlePlayer player = SeaBattleMain.getPlayer(token);
-        if (player == null)
-            return new EventResult(false).info("Can't placeShip: unknown or expired token");
-        if (player.getSession() == null)
-            return new EventResult(false).info("Can't placeShip: not joined to any session");
         boolean b = Boolean.parseBoolean(verticalRaw);
         return player.getSession().placeShip(player, position, size, b);
     }
 
-    public static EventResult shoot(String token, String position) {
+    public static EventResult shoot(@Nullable String token, @Nullable String position) {
+        SeaBattlePlayer player = SeaBattleMain.getPlayer(token);
+        if (player == null)
+            return new EventResult(false).info("Can't shoot: unknown or expired token");
+        if (player.getSession() == null)
+            return new EventResult(false).info("Can't shoot: not joined to any session");
         if (position == null)
             return new EventResult(false).info("Can't shoot: position not specified");
         if (!SeaBattlePosition.isValid(position))
             return new EventResult(false).info("Can't shoot: wrong position format");
-        SeaBattlePlayer player = SeaBattleMain.getPlayer(token);
-        if (player == null)
-            return new EventResult(false).info("Can't placeShip: unknown or expired token");
-        if (player.getSession() == null)
-            return new EventResult(false).info("Can't placeShip: not joined to any session");
         return player.getSession().shoot(player, position);
     }
 
     private EventListener() {}
 
-    private static Integer tryParse(String intString) {
+    private static Integer tryParse(@Nullable String intString) {
+        if (intString == null)
+            return null;
         try {
             return Integer.parseInt(intString);
         } catch (NumberFormatException e) {

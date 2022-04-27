@@ -1,5 +1,7 @@
 package ru.sooslick.seabattle.job;
 
+import ru.sooslick.seabattle.Log;
+
 import java.util.Scanner;
 
 public class UserPromptListener extends Thread {
@@ -12,5 +14,6 @@ public class UserPromptListener extends Thread {
                 if ('q' == scanner.next().charAt(0))
                     break;
         }
+        Log.info("Quitting...");
     }
 }
