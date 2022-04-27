@@ -6,6 +6,7 @@ import ru.sooslick.seabattle.Log;
 import ru.sooslick.seabattle.test.scenarios.CellTest;
 import ru.sooslick.seabattle.test.scenarios.FieldTest;
 import ru.sooslick.seabattle.test.scenarios.HandlerTest;
+import ru.sooslick.seabattle.test.scenarios.MainTest;
 import ru.sooslick.seabattle.test.scenarios.PlayerTest;
 import ru.sooslick.seabattle.test.scenarios.PositionTest;
 import ru.sooslick.seabattle.test.scenarios.SessionTest;
@@ -19,7 +20,9 @@ public class TestRunner {
                 FieldTest.class,
                 PlayerTest.class,
                 SessionTest.class,
-                HandlerTest.class
+                HandlerTest.class,
+                MainTest.class
+                // todo job, listener
         );
         result.getFailures().forEach(f -> {
             Log.warn("\nFailed test " + f.getTestHeader());

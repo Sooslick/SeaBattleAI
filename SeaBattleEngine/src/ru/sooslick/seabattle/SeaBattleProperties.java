@@ -8,6 +8,7 @@ import java.util.Properties;
 public class SeaBattleProperties {
     public static int APP_SERVER_PORT = 65535;
     public static int APP_SERVER_CONNECTIONS = 16;
+    public static int APP_CLEANUP_INTERVAL = 90;
     public static int SESSION_LIFETIME_TOTAL = 3000;
     public static int SESSION_LIFETIME_LOOKUP = 300;
     public static int SESSION_LIFETIME_PREPARE = 300;
@@ -35,15 +36,24 @@ public class SeaBattleProperties {
     private static void loadProperties(InputStream is) throws IOException {
         Properties properties = new Properties();
         properties.load(is);
-        APP_SERVER_PORT = Integer.parseInt(properties.getProperty("app.server.port", "65535"));
-        APP_SERVER_CONNECTIONS = Integer.parseInt(properties.getProperty("app.server.connections", "16"));
-        SESSION_LIFETIME_TOTAL = Integer.parseInt(properties.getProperty("session.lifetime.total", "3000"));
-        SESSION_LIFETIME_LOOKUP = Integer.parseInt(properties.getProperty("session.lifetime.lookup", "300"));
-        SESSION_LIFETIME_PREPARE = Integer.parseInt(properties.getProperty("session.lifetime.prepare", "300"));
-        SESSION_LIFETIME_PLAYER = Integer.parseInt(properties.getProperty("session.lifetime.player", "60"));
-        TOKEN_LIFETIME_TOTAL = Integer.parseInt(properties.getProperty("token.lifetime.total", "600"));
+        APP_SERVER_PORT = tryParse(properties, "app.server.port", 65535);
+        APP_SERVER_CONNECTIONS = tryParse(properties, "app.server.connections", 16);
+        APP_CLEANUP_INTERVAL = tryParse(properties, "app.cleanup.interval", 90);
+        SESSION_LIFETIME_TOTAL = tryParse(properties, "session.lifetime.total", 3000);
+        SESSION_LIFETIME_LOOKUP = tryParse(properties, "session.lifetime.lookup", 300);
+        SESSION_LIFETIME_PREPARE = tryParse(properties, "session.lifetime.prepare", 300);
+        SESSION_LIFETIME_PLAYER = tryParse(properties, "session.lifetime.player", 60);
+        TOKEN_LIFETIME_TOTAL = tryParse(properties, "token.lifetime.total", 600);
         GAME_CORNER_COLLISION_ENABLE = Boolean.parseBoolean(properties.getProperty("game.corner.collision.enable", "false"));
         GAME_STRIKED_CHECK_ENABLE = Boolean.parseBoolean(properties.getProperty("game.striked.check.enable", "true"));
         // todo autostrike after kill setting
+    }
+    
+    private static int tryParse(Properties props, String property, int dflt) {
+        try {
+            return Integer.parseInt(props.getProperty(property, Integer.toString(dflt)));
+        } catch (NumberFormatException e) {
+            return dflt;
+        }
     }
 }

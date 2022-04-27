@@ -34,7 +34,7 @@ public class SeaBattleMain {
     }
 
     public static List<SeaBattleSession> getActiveSessions() {
-        return ACTIVE_SESSIONS;
+        return new LinkedList<>(ACTIVE_SESSIONS);
     }
 
     public static void purgeSessions(List<SeaBattleSession> inactiveSessions) {
@@ -53,7 +53,7 @@ public class SeaBattleMain {
     }
 
     public static List<SeaBattlePlayer> getActivePlayers() {
-        return ACTIVE_PLAYERS;
+        return new LinkedList<>(ACTIVE_PLAYERS);
     }
 
     public static void purgePlayers(List<SeaBattlePlayer> inactivePlayers) {
@@ -87,7 +87,7 @@ public class SeaBattleMain {
         exec.shutdownNow();
     }
 
-    public static void parseArgs(String[] args) {
+    private static void parseArgs(String[] args) {
         HashMap<String, String> kvs = new HashMap<>();
         Arrays.stream(args).forEach(a -> {
             String[] kv = a.split("=", 2);

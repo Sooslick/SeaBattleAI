@@ -2,14 +2,16 @@ package ru.sooslick.seabattle.job;
 
 import ru.sooslick.seabattle.Log;
 import ru.sooslick.seabattle.SeaBattleMain;
+import ru.sooslick.seabattle.SeaBattleProperties;
 import ru.sooslick.seabattle.entity.SeaBattlePlayer;
 import ru.sooslick.seabattle.entity.SeaBattleSession;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class LifetimeWatcher extends Thread {
-    private static final long INTERVAL = 66666;  //ms
+    private static final long INTERVAL = SeaBattleProperties.APP_CLEANUP_INTERVAL;  //s
 
     boolean alive = true;
 
@@ -33,14 +35,13 @@ public class LifetimeWatcher extends Thread {
 
             if (alive) {
                 try {
-                    //noinspection BusyWait
-                    sleep(INTERVAL);
+                    TimeUnit.SECONDS.sleep(INTERVAL);
                 } catch (InterruptedException e) {
                     alive = false;
-                    Log.info("LifetimeWatcher interrupted");
                 }
             }
         }
+        Log.info("LifetimeWatcher task finished");
     }
 
     public void kill() {
