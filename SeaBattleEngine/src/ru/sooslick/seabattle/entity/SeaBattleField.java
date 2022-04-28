@@ -57,7 +57,7 @@ public class SeaBattleField {
 
     public EventResult shoot(SeaBattlePosition position) {
         SeaBattleCell cell = getCell(position);
-        if (SeaBattleProperties.GAME_STRIKED_CHECK_ENABLE && cell.isStriked())
+        if (SeaBattleProperties.GAME_STRIKE_CHECK_ENABLE && cell.isStriked())
             return new EventResult(false).info("Failed shoot: this cell is striked");
         cell.strike();
         return new EventResult(true).info(getShootInfo(position));
@@ -138,6 +138,8 @@ public class SeaBattleField {
     }
 
     private void strikeNearby(List<SeaBattlePosition> shipPoses) {
+        if (!SeaBattleProperties.GAME_STRIKE_AFTER_KILL)
+            return;
         for (SeaBattlePosition pos : shipPoses) {
             strikeCell(pos.getRelative(-1, 0));
             strikeCell(pos.getRelative(1, 0));

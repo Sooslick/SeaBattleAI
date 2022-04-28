@@ -15,7 +15,8 @@ public class SeaBattleProperties {
     public static int SESSION_LIFETIME_PLAYER = 60;
     public static int TOKEN_LIFETIME_TOTAL = 600;
     public static boolean GAME_CORNER_COLLISION_ENABLE = false;
-    public static boolean GAME_STRIKED_CHECK_ENABLE = true;
+    public static boolean GAME_STRIKE_CHECK_ENABLE = true;
+    public static boolean GAME_STRIKE_AFTER_KILL = true;
 
     static {
         String fname = System.getProperty("app.properties", "app.properties");
@@ -45,8 +46,8 @@ public class SeaBattleProperties {
         SESSION_LIFETIME_PLAYER = tryParse(properties, "session.lifetime.player", 60);
         TOKEN_LIFETIME_TOTAL = tryParse(properties, "token.lifetime.total", 600);
         GAME_CORNER_COLLISION_ENABLE = Boolean.parseBoolean(properties.getProperty("game.corner.collision.enable", "false"));
-        GAME_STRIKED_CHECK_ENABLE = Boolean.parseBoolean(properties.getProperty("game.striked.check.enable", "true"));
-        // todo autostrike after kill setting
+        GAME_STRIKE_CHECK_ENABLE = Boolean.parseBoolean(properties.getProperty("game.strike.check.enable", "true"));
+        GAME_STRIKE_AFTER_KILL = Boolean.parseBoolean(properties.getProperty("game.strike.after.kill", "true"));
     }
     
     private static int tryParse(Properties props, String property, int dflt) {

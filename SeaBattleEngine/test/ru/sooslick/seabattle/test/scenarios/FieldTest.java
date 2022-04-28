@@ -21,7 +21,8 @@ public class FieldTest {
     @Test
     public void testBasic() {
         SeaBattleProperties.GAME_CORNER_COLLISION_ENABLE = false;
-        SeaBattleProperties.GAME_STRIKED_CHECK_ENABLE = true;
+        SeaBattleProperties.GAME_STRIKE_CHECK_ENABLE = true;
+        SeaBattleProperties.GAME_STRIKE_AFTER_KILL = true;
 
         List<Integer> startShips = new LinkedList<>(Arrays.asList(4, 3, 3, 2, 2, 2, 1, 1, 1, 1));
         List<Integer> ships1 = new LinkedList<>(Arrays.asList(4, 3, 3, 2, 2, 2, 1, 1, 1));
@@ -134,7 +135,8 @@ public class FieldTest {
     @Test
     public void testPlaceCornerDisabled() {
         SeaBattleProperties.GAME_CORNER_COLLISION_ENABLE = false;
-        SeaBattleProperties.GAME_STRIKED_CHECK_ENABLE = true;
+        SeaBattleProperties.GAME_STRIKE_CHECK_ENABLE = true;
+        SeaBattleProperties.GAME_STRIKE_AFTER_KILL = true;
 
         placeAndCheckResult("c3", 1, false, true, null);
         Assert.assertEquals("Ship cells count not equals", 1, getShipCellsCount(field.getResult(true)));
@@ -179,7 +181,8 @@ public class FieldTest {
     @Test
     public void testPlaceCornerEnabled() {
         SeaBattleProperties.GAME_CORNER_COLLISION_ENABLE = true;
-        SeaBattleProperties.GAME_STRIKED_CHECK_ENABLE = true;
+        SeaBattleProperties.GAME_STRIKE_CHECK_ENABLE = true;
+        SeaBattleProperties.GAME_STRIKE_AFTER_KILL = true;
 
         placeAndCheckResult("c3", 1, false, true, null);
         Assert.assertEquals("Ship cells count not equals", 1, getShipCellsCount(field.getResult(true)));
@@ -221,7 +224,8 @@ public class FieldTest {
 
     @Test
     public void testCheckStriked() {
-        SeaBattleProperties.GAME_STRIKED_CHECK_ENABLE = false;
+        SeaBattleProperties.GAME_STRIKE_CHECK_ENABLE = false;
+        SeaBattleProperties.GAME_STRIKE_AFTER_KILL = true;
 
         placeAndCheckResult("a1", 1, false, true, null);
         placeAndCheckResult("a3", 2, false, true, null);
@@ -242,9 +246,28 @@ public class FieldTest {
     }
 
     @Test
+    public void testStrikeNearbyDisabled() {
+        SeaBattleProperties.GAME_CORNER_COLLISION_ENABLE = false;
+        SeaBattleProperties.GAME_STRIKE_CHECK_ENABLE = true;
+        SeaBattleProperties.GAME_STRIKE_AFTER_KILL = false;
+        field.placeShip(cp("a1"), 1, true);
+        field.placeShip(cp("a3"), 2, true);
+
+        shootAndCheckResult("a3", true, "hit");
+        checkCellCounts(field.getResult(true), 3, 1);
+        shootAndCheckResult("a1", true, "kill");
+        checkCellCounts(field.getResult(true), 3, 2);
+        shootAndCheckResult("a2", true, "miss");
+        checkCellCounts(field.getResult(true), 3, 3);
+        shootAndCheckResult("a4", true, "win");
+        checkCellCounts(field.getResult(true), 3, 4);
+    }
+
+    @Test
     public void testSessionStatus() {
         SeaBattleProperties.GAME_CORNER_COLLISION_ENABLE = false;
-        SeaBattleProperties.GAME_STRIKED_CHECK_ENABLE = true;
+        SeaBattleProperties.GAME_STRIKE_CHECK_ENABLE = true;
+        SeaBattleProperties.GAME_STRIKE_AFTER_KILL = true;
 
         SeaBattlePlayer p1 = new SeaBattlePlayer();
         SeaBattlePlayer p2 = new SeaBattlePlayer();
