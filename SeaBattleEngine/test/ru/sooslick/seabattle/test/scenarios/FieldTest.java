@@ -6,6 +6,7 @@ import org.junit.Test;
 import ru.sooslick.seabattle.SeaBattleProperties;
 import ru.sooslick.seabattle.entity.SeaBattleField;
 import ru.sooslick.seabattle.entity.SeaBattlePlayer;
+import ru.sooslick.seabattle.entity.SeaBattlePosition;
 import ru.sooslick.seabattle.entity.SeaBattleSession;
 import ru.sooslick.seabattle.result.EventResult;
 import ru.sooslick.seabattle.result.FieldResult;
@@ -214,7 +215,7 @@ public class FieldTest {
 
     @Test
     public void testWin() {
-        field.placeShip("b2", 1, false);
+        field.placeShip(cp("b2"), 1, false);
         shootAndCheckResult("b2", true, "win");
     }
 
@@ -256,42 +257,42 @@ public class FieldTest {
         checkFieldFree(session.getStatus(p2).getGameResult().getMyField());
 
         // PREPARE: p1 places ship
-        session.placeShip(p1, "a1", 1, true);
+        session.placeShip(p1, cp("a1"), 1, true);
         checkCellCounts(session.getStatus(p1).getGameResult().getMyField(), 1, 0);
         checkFieldFree(session.getStatus(p2).getGameResult().getMyField());
 
         // PREPARE: p2 places ship
-        session.placeShip(p2, "a4", 4, true);
+        session.placeShip(p2, cp("a4"), 4, true);
         checkCellCounts(session.getStatus(p1).getGameResult().getMyField(), 1, 0);
         checkCellCounts(session.getStatus(p2).getGameResult().getMyField(), 4, 0);
 
         // TURN 1
-        session.placeShip(p1, "c1", 1, true);
-        session.placeShip(p1, "e1", 1, true);
-        session.placeShip(p1, "g1", 1, true);
-        session.placeShip(p1, "i1", 2, true);
-        session.placeShip(p1, "i4", 2, true);
-        session.placeShip(p1, "g4", 2, true);
-        session.placeShip(p1, "e4", 3, true);
-        session.placeShip(p1, "c4", 3, true);
-        session.placeShip(p1, "a4", 4, true);
-        session.placeShip(p2, "a1", 1, true);
-        session.placeShip(p2, "c1", 1, true);
-        session.placeShip(p2, "e1", 1, true);
-        session.placeShip(p2, "g1", 1, true);
-        session.placeShip(p2, "i1", 2, true);
-        session.placeShip(p2, "i4", 2, true);
-        session.placeShip(p2, "g4", 2, true);
-        session.placeShip(p2, "e4", 3, true);
-        session.placeShip(p2, "c4", 3, true);
+        session.placeShip(p1, cp("c1"), 1, true);
+        session.placeShip(p1, cp("e1"), 1, true);
+        session.placeShip(p1, cp("g1"), 1, true);
+        session.placeShip(p1, cp("i1"), 2, true);
+        session.placeShip(p1, cp("i4"), 2, true);
+        session.placeShip(p1, cp("g4"), 2, true);
+        session.placeShip(p1, cp("e4"), 3, true);
+        session.placeShip(p1, cp("c4"), 3, true);
+        session.placeShip(p1, cp("a4"), 4, true);
+        session.placeShip(p2, cp("a1"), 1, true);
+        session.placeShip(p2, cp("c1"), 1, true);
+        session.placeShip(p2, cp("e1"), 1, true);
+        session.placeShip(p2, cp("g1"), 1, true);
+        session.placeShip(p2, cp("i1"), 2, true);
+        session.placeShip(p2, cp("i4"), 2, true);
+        session.placeShip(p2, cp("g4"), 2, true);
+        session.placeShip(p2, cp("e4"), 3, true);
+        session.placeShip(p2, cp("c4"), 3, true);
         // first turn determined by p1's hash. Force TURN_P1
         int extra = 0;
         if (p1.getToken().hashCode() % 2 != 0) {
-            session.shoot(p2, "j10");
+            session.shoot(p2, cp("j10"));
             extra = 1;
         }
         // shot
-        session.shoot(p1, "a4");
+        session.shoot(p1, cp("a4"));
         checkCellCounts(session.getStatus(p1).getGameResult().getMyField(), 20, extra);
         checkCellCounts(session.getStatus(p1).getGameResult().getEnemyField(), 1, 1);
         checkCellCounts(session.getStatus(p2).getGameResult().getMyField(), 20, 1);
@@ -300,8 +301,8 @@ public class FieldTest {
         checkCellCounts(session.getStatus(p3).getGameResult().getEnemyField(), 1, 1);
 
         // TURN_P2
-        session.shoot(p1, "b4");
-        session.shoot(p2, "a1");
+        session.shoot(p1, cp("b4"));
+        session.shoot(p2, cp("a1"));
         checkCellCounts(session.getStatus(p1).getGameResult().getMyField(), 20, 4 + extra);
         checkCellCounts(session.getStatus(p1).getGameResult().getEnemyField(), 1, 2);
         checkCellCounts(session.getStatus(p2).getGameResult().getMyField(), 20, 2);
@@ -310,25 +311,25 @@ public class FieldTest {
         checkCellCounts(session.getStatus(p3).getGameResult().getEnemyField(), 1, 2);
 
         // WINGAME
-        session.shoot(p2, "c1");
-        session.shoot(p2, "e1");
-        session.shoot(p2, "g1");
-        session.shoot(p2, "i1");
-        session.shoot(p2, "i2");
-        session.shoot(p2, "i4");
-        session.shoot(p2, "i5");
-        session.shoot(p2, "g4");
-        session.shoot(p2, "g5");
-        session.shoot(p2, "e4");
-        session.shoot(p2, "e5");
-        session.shoot(p2, "e6");
-        session.shoot(p2, "c4");
-        session.shoot(p2, "c5");
-        session.shoot(p2, "c6");
-        session.shoot(p2, "a4");
-        session.shoot(p2, "a5");
-        session.shoot(p2, "a6");
-        session.shoot(p2, "a7");
+        session.shoot(p2, cp("c1"));
+        session.shoot(p2, cp("e1"));
+        session.shoot(p2, cp("g1"));
+        session.shoot(p2, cp("i1"));
+        session.shoot(p2, cp("i2"));
+        session.shoot(p2, cp("i4"));
+        session.shoot(p2, cp("i5"));
+        session.shoot(p2, cp("g4"));
+        session.shoot(p2, cp("g5"));
+        session.shoot(p2, cp("e4"));
+        session.shoot(p2, cp("e5"));
+        session.shoot(p2, cp("e6"));
+        session.shoot(p2, cp("c4"));
+        session.shoot(p2, cp("c5"));
+        session.shoot(p2, cp("c6"));
+        session.shoot(p2, cp("a4"));
+        session.shoot(p2, cp("a5"));
+        session.shoot(p2, cp("a6"));
+        session.shoot(p2, cp("a7"));
         checkCellCounts(session.getStatus(p1).getGameResult().getMyField(), 20, 65 + extra);
         checkCellCounts(session.getStatus(p1).getGameResult().getEnemyField(), 20, 2);
         checkCellCounts(session.getStatus(p2).getGameResult().getMyField(), 20, 2);
@@ -355,14 +356,18 @@ public class FieldTest {
     }
 
     private void placeAndCheckResult(String pos, int size, boolean vert, boolean expectedSuccess, String expectedResolution) {
-        EventResult sr = field.placeShip(pos, size, vert);
+        EventResult sr = field.placeShip(cp(pos), size, vert);
         Assert.assertEquals("Unexpected event result", expectedSuccess, sr.getSuccess());
         Assert.assertEquals("Unexpected place result", expectedResolution, sr.getInfo());
     }
 
     private void shootAndCheckResult(String pos, boolean expectedSuccess, String expectedResolution) {
-        EventResult sr = field.shoot(pos);
+        EventResult sr = field.shoot(cp(pos));
         Assert.assertEquals("Unexpected event result", expectedSuccess, sr.getSuccess());
         Assert.assertEquals("Unexpected shot result", expectedResolution, sr.getInfo());
+    }
+
+    private SeaBattlePosition cp(String convert) {
+        return SeaBattlePosition.convertPosition(convert);
     }
 }

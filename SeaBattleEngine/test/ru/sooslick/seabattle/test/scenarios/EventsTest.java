@@ -182,8 +182,4 @@ public class EventsTest {
         Assert.assertNull("Unexpected value in response", er.getSession());
         Assert.assertNull("Unexpected value in response", er.getGameResult());
     }
-
-    //todo
-    // place
-    // shoot
 }

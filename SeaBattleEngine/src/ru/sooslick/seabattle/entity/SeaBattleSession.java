@@ -139,7 +139,7 @@ public class SeaBattleSession {
                 .gameResult(phase == SessionPhase.PREPARE ? result.ships(myField.getShips()) : result);
     }
 
-    public EventResult placeShip(SeaBattlePlayer player, String position, int size, boolean vertical) {
+    public EventResult placeShip(SeaBattlePlayer player, SeaBattlePosition position, int size, boolean vertical) {
         player.updateLastAction();
         // requester is spectator
         if (p1 != player && p2 != player)
@@ -164,7 +164,7 @@ public class SeaBattleSession {
         return result;
     }
 
-    public EventResult shoot(SeaBattlePlayer player, String position) {
+    public EventResult shoot(SeaBattlePlayer player, SeaBattlePosition position) {
         player.updateLastAction();
         // requester is spectator
         if (p1 != player && p2 != player)

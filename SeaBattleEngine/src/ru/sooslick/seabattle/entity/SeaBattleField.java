@@ -34,17 +34,15 @@ public class SeaBattleField {
         return new LinkedList<>(availableShips);
     }
 
-    // todo String validPosition -> SeaBattelPosition
-    public EventResult placeShip(String validPosition, int size, boolean vertical) {
+    public EventResult placeShip(SeaBattlePosition position, int size, boolean vertical) {
         // validate size
         if (!hasShip(size))
             return new EventResult(false).info("Failed placeShip: no such ship that size");
         // get ship cells
-        SeaBattlePosition convertedPos = SeaBattlePosition.convertPosition(validPosition);
         List<SeaBattlePosition> toCheck = new LinkedList<>();
-        toCheck.add(convertedPos);
+        toCheck.add(position);
         for (int i = 1; i < size; i++)
-            toCheck.add(vertical ? convertedPos.getRelative(i, 0) : convertedPos.getRelative(0, i));
+            toCheck.add(vertical ? position.getRelative(i, 0) : position.getRelative(0, i));
         // validate cells
         if (toCheck.stream().anyMatch(pos -> getCell(pos.getRow(), pos.getCol()) == null))
             return new EventResult(false).info("Failed placeShip: out of bounds");
@@ -57,14 +55,12 @@ public class SeaBattleField {
         return new EventResult(true);
     }
 
-    // todo convert
-    public EventResult shoot(String position) {
-        SeaBattlePosition convertedPos = SeaBattlePosition.convertPosition(position);
-        SeaBattleCell cell = getCell(convertedPos);
+    public EventResult shoot(SeaBattlePosition position) {
+        SeaBattleCell cell = getCell(position);
         if (SeaBattleProperties.GAME_STRIKED_CHECK_ENABLE && cell.isStriked())
             return new EventResult(false).info("Failed shoot: this cell is striked");
         cell.strike();
-        return new EventResult(true).info(getShootInfo(convertedPos));
+        return new EventResult(true).info(getShootInfo(position));
     }
 
     private boolean isCellPlaceable(SeaBattlePosition pos) {

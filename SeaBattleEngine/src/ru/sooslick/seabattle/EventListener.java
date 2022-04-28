@@ -84,7 +84,7 @@ public class EventListener {
         if (!SeaBattlePosition.isValid(position))
             return new EventResult(false).info("Can't placeShip: wrong position format");
         boolean b = Boolean.parseBoolean(verticalRaw);
-        return player.getSession().placeShip(player, position, size, b);
+        return player.getSession().placeShip(player, SeaBattlePosition.convertPosition(position), size, b);
     }
 
     public static EventResult shoot(@Nullable String token, @Nullable String position) {
@@ -97,7 +97,7 @@ public class EventListener {
             return new EventResult(false).info("Can't shoot: position not specified");
         if (!SeaBattlePosition.isValid(position))
             return new EventResult(false).info("Can't shoot: wrong position format");
-        return player.getSession().shoot(player, position);
+        return player.getSession().shoot(player, SeaBattlePosition.convertPosition(position));
     }
 
     private EventListener() {}
