@@ -49,6 +49,8 @@ function phasePrepare() {
 
 function phaseTurn(myTurn) {
     document.getElementById("lobbyStatus").innerText = myTurn ? "Your turn: guess opponent's ship" : "Wait for opponent's turn";
+    document.getElementById("myField").className = myTurn ? "field" : "field highlight";
+    document.getElementById("enemyField").className = myTurn ? "field highlight" : "field";
     document.getElementById("myField").hidden = false;
     document.getElementById("enemyField").hidden = false;
 }

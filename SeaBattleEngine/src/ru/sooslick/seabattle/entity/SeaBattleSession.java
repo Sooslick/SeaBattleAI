@@ -58,6 +58,7 @@ public class SeaBattleSession {
         phase = SessionPhase.PREPARE;
 
         p2.joinSession(this);
+        notifyAction();
     }
 
     public boolean isAlive() {
@@ -202,7 +203,7 @@ public class SeaBattleSession {
 
     public void waitForStatus() {
         Object lock = new Object();
-        if (phase == SessionPhase.LOOKUP || phase == SessionPhase.ENDGAME)
+        if (phase == SessionPhase.ENDGAME)
             return;
         synchronized (lock) {
             activeLocks.add(lock);

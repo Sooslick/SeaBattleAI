@@ -98,5 +98,8 @@ public class SeaBattleMain {
         if (kvs.containsKey("-app.properties")) {
             System.setProperty("app.properties", kvs.get("-app.properties"));
         }
+        if (kvs.containsKey("-use.defaults")) {
+            System.setProperty("use.defaults", "true");
+        }
     }
 }

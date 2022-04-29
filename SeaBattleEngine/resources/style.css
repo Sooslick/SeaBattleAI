@@ -74,6 +74,11 @@ div.clickable {
     display: inline-block;
 }
 
+.highlight {
+    background: #321;
+    animation: flicker 3s infinite;
+}
+
 .linkBtn {
     color: #aaa;
     font-style: italic;
@@ -108,4 +113,16 @@ div.clickable {
 #shipSelector {
     font-family: 'Courier New';
     margin-right: 420px;
+}
+
+@keyframes flicker {
+    from {
+        background: #321;
+    }
+    50% {
+        background: #001;
+    }
+    to {
+        background: #321;
+    }
 }

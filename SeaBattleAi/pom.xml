@@ -6,7 +6,7 @@
 
     <groupId>groupId</groupId>
     <artifactId>SeaBattleAi</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
 
     <dependencies>
         <dependency>
@@ -22,12 +22,12 @@
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>2.6</version>
+            <version>2.11.0</version>
         </dependency>
         <dependency>
             <groupId>sea-battle-ai</groupId>
             <artifactId>SeaBattleEngine</artifactId>
-            <version>1.0</version>
+            <version>b0.9</version>
         </dependency>
     </dependencies>
 

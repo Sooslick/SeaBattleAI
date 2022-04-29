@@ -1,7 +1,9 @@
 package ru.sooslick.seabattle;
 
+import com.google.common.io.Files;
 import ru.sooslick.seabattle.entity.SeaBattlePlayer;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,6 +25,7 @@ public class SeaBattleProperties {
     public static boolean GAME_STRIKE_AFTER_KILL = true;
 
     static {
+        // rd version
         String tempVer = "unknown";
         try {
             Properties properties = new Properties();
@@ -34,16 +37,31 @@ public class SeaBattleProperties {
         APP_VERSION = tempVer;
         Log.info("Running engine version " + APP_VERSION);
 
+        // check exist or copy props
         String fname = System.getProperty("app.properties", "app.properties");
-        try {
+        File propsFile = new File(fname);
+        if (!propsFile.exists() && !Boolean.parseBoolean(System.getProperty("use.defaults", "false"))) {
+            try (InputStream is = SeaBattleProperties.class.getResourceAsStream("/app.properties")) {
+                Log.info("Copying default app.properties to " + fname);
+                byte[] bytes = new byte[is.available()];
+                is.read(bytes);
+                Files.write(bytes, propsFile);
+            } catch (NullPointerException | IOException e) {
+                Log.warn("Can't copy app.properties: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+
+        // rd props
+        try (InputStream is = new FileInputStream(propsFile)) {
             // loading from file first
-            loadProperties(new FileInputStream(fname));
-        } catch (IOException | NumberFormatException e) {
+            loadProperties(is);
+        } catch (IOException e) {
             Log.warn("Cannot find or read app.properties, loading default settings");
             // then try load bundled resource
-            try {
-                loadProperties(SeaBattleProperties.class.getResourceAsStream("/app.properties"));
-            } catch (IOException | NumberFormatException e1) {
+            try (InputStream is = SeaBattleProperties.class.getResourceAsStream("/app.properties")) {
+                loadProperties(is);
+            } catch (IOException e1) {
                 Log.warn("Cannot load default app.properties");
             }
         }

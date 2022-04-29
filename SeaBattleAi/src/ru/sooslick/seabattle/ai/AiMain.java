@@ -19,7 +19,7 @@ public class AiMain {
     public static void main(String[] args) {
         boolean create = true;
         int sessionId = -1;
-        String sessionPw = "";
+        String sessionPw = null;
         String host = "localhost:8080";
         boolean useHeatMap = false;
         String heatDir = "out/workspace";
@@ -85,6 +85,7 @@ public class AiMain {
         // get token
         EventResult lastResult = getResponse(requestLf);
         if (lastResult == null) {
+            System.out.println("Can't retrieve token, service unreachable");
             aiShutdown();
             return;
         }
@@ -106,7 +107,7 @@ public class AiMain {
             System.out.println("Trying to join session " + sessionId + " with password \"" + sessionPw + "\"");
         }
         request.addQueryParam("token", token);
-        if (!sessionPw.isEmpty())
+        if (sessionPw != null)
             request.addQueryParam("pw", sessionPw);
         requestLf = request.execute(new AsyncGetEventResult());
 
@@ -126,7 +127,7 @@ public class AiMain {
                 sessionId = lastResult.getSession().stream().findFirst().orElse(-1);
             System.out.println("Created session id " + sessionId);
         }
-        System.out.println("Successfully joined to session " + sessionId + ", wait for start");
+        System.out.println("Successfully joined to session " + sessionId + ", waiting for start");
 
         // wait for start phase
         String phase = "";
