@@ -38,7 +38,7 @@ function loadGame(sid) {
 function startSessionInterval(sid) {
     document.cookie = "sessionId=" + storedSessionId + "; max-age=3000";
     document.getElementById("debugSid").innerText = storedSessionId;
-    storedTimer = setInterval(getSessionStatus, 2000, storedToken);
+    storedTimer = setInterval(getSessionStatus, 5000, storedToken);
 }
 
 function phasePrepare() {
@@ -58,7 +58,7 @@ function phaseEnd() {
     document.getElementById("myField").hidden = false;
     document.getElementById("enemyField").hidden = false;
     storedPhase = "ENDGAME";
-    clearInterval(storedInterval);
+    clearInterval(storedTimer);
 }
 
 function leave() {

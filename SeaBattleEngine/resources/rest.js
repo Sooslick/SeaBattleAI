@@ -97,9 +97,22 @@ function joinSessionHandler() {
 }
 
 function getSessionStatus(token) {
+    getSessionStatus(token, false);
+}
+
+function getSessionStatus(token, scheduleNext) {
     xhr = new XMLHttpRequest();
     xhr.onload = getStatusHandler;
+    xhr.scheduleNext = scheduleNext;
     xhr.open('GET', '/api/getSessionStatus?token=' + token, true);
+    xhr.send();
+}
+
+function getLongpollSessionStatus(token) {
+    xhr = new XMLHttpRequest();
+    xhr.onload = getStatusHandler;
+    xhr.scheduleNext = true;
+    xhr.open('GET', '/api/longpoll/getSessionStatus?token=' + token, true);
     xhr.send();
 }
 
@@ -118,10 +131,16 @@ function getStatusHandler() {
                 updateField(true, obj.gameResult.myField);
                 reqUpdate = false;
             }
+            if (!obj.gameResult.myTurn && this.scheduleNext) {
+                getLongpollSessionStatus(storedToken);
+            }
         } else if (obj.gameResult.phase.includes("TURN")) {
             let my = obj.gameResult.myTurn;
             if (storedPhase != obj.gameResult.phase) {
                 phaseTurn(my);
+            }
+            if (!my && this.scheduleNext) {
+                getLongpollSessionStatus(storedToken);
             }
             updateField(true, obj.gameResult.myField);
             updateField(false, obj.gameResult.enemyField);
@@ -154,6 +173,7 @@ function placeShipHandler() {
             handleFault(obj.info)
             return;
         }
+        getSessionStatus(storedToken, true);
         return;
     }
     httpFault();
@@ -176,6 +196,7 @@ function shootHandler() {
             return;
         }
         document.getElementById('shipRotate').innerHTML = obj.info;
+        getSessionStatus(storedToken, true);
         return;
     }
     httpFault();

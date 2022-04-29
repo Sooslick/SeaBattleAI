@@ -67,11 +67,12 @@ public class SeaBattleMain {
         LifetimeWatcher lifetimeWatcher = new LifetimeWatcher();
         lifetimeWatcher.start();
 
-        HttpHandler eventHandler = new ApiHandler();
+        HttpHandler eventHandler = new ApiHandler(ApiHandler.DEFAULT_API);
         HttpServer server = HttpServer.create();
         Log.info("Starting server on port " + SeaBattleProperties.APP_SERVER_PORT);
         server.bind(new InetSocketAddress(SeaBattleProperties.APP_SERVER_PORT), SeaBattleProperties.APP_SERVER_CONNECTIONS);
         server.createContext("/", new IndexHandler());
+        server.createContext("/api/longpoll/getSessionStatus", new ApiHandler(ApiHandler.LONG_POLL_STATUS));
         Arrays.stream(ApiMethod.values())
                 .forEach(m -> server.createContext(m.getPath(), eventHandler));
         ExecutorService exec = Executors.newFixedThreadPool(SeaBattleProperties.APP_SERVER_CONNECTIONS);

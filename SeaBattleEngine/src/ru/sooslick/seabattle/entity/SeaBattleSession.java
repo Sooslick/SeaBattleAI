@@ -9,10 +9,13 @@ import ru.sooslick.seabattle.result.EventResult;
 import ru.sooslick.seabattle.result.FieldResult;
 import ru.sooslick.seabattle.result.GameResult;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
 public class SeaBattleSession {
+    private final List<Object> activeLocks = new LinkedList<>();
     private final int id = getNextId();
     private final long startTime = System.currentTimeMillis();
     private final SeaBattleField p1Field = new SeaBattleField();
@@ -161,6 +164,7 @@ public class SeaBattleSession {
 
         if (p1Field.getShips().isEmpty() && p2Field.getShips().isEmpty())
             phase = p1.getToken().hashCode() % 2 == 0 ? SessionPhase.TURN_P1 : SessionPhase.TURN_P2;
+        notifyAction();
         return result;
     }
 
@@ -188,11 +192,34 @@ public class SeaBattleSession {
         // post-shoot action
         if (result.getSuccess())
             matchLog.append(p).append(position).append(" ").append(result.getInfo()).append("\n");
-            if ("win".equals(result.getInfo()))
-                phase = SessionPhase.ENDGAME;
-            else if ("miss".equals(result.getInfo()))
-                switchTurn();
+        if ("win".equals(result.getInfo()))
+            phase = SessionPhase.ENDGAME;
+        else if ("miss".equals(result.getInfo()))
+            switchTurn();
+        notifyAction();
         return result;
+    }
+
+    public void waitForStatus() {
+        Object lock = new Object();
+        if (phase == SessionPhase.LOOKUP || phase == SessionPhase.ENDGAME)
+            return;
+        synchronized (lock) {
+            activeLocks.add(lock);
+            try {
+                lock.wait();
+            } catch (InterruptedException ignored) {
+            }
+        }
+    }
+
+    private void notifyAction() {
+        activeLocks.forEach(lock -> {
+            synchronized (lock) {
+                lock.notify();
+            }
+        });
+        activeLocks.clear();
     }
 
     private void updateLastAction() {

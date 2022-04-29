@@ -38,6 +38,10 @@ public class TestExchange extends HttpExchange {
                 Assert.assertTrue("Response body does not contain " + str, responseBody.contains(str)));
     }
 
+    public boolean isClosed() {
+        return closed;
+    }
+
     @Override
     public URI getRequestURI() {
         try {
