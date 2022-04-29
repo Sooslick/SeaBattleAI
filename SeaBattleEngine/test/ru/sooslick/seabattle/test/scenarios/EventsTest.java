@@ -26,6 +26,18 @@ public class EventsTest {
     }
 
     @Test
+    public void rulesTest() {
+        EventResult er = EventListener.getRules(null);
+        verifyEventFail(er, "Failed getRules: unknown or expired token");
+        er = EventListener.getRules(token);
+        Assert.assertTrue("Unexpected operation result", er.getSuccess());
+        Assert.assertNotNull("Rules not specified", er.getInfo());
+        Assert.assertNull("Unexpected value in response", er.getToken());
+        Assert.assertNull("Unexpected value in response", er.getSession());
+        Assert.assertNull("Unexpected value in response", er.getGameResult());
+    }
+
+    @Test
     public void registerSessionTest() {
         EventResult er = EventListener.registerSession("qwe", null);
         verifyEventFail(er, "Failed registerSession: unknown or expired token");

@@ -5,6 +5,7 @@ import java.util.List;
 public class FieldResult {
     private List<Row> rows;
 
+    @SuppressWarnings("unused")
     public FieldResult() {}
 
     public FieldResult(List<Row> rows) {

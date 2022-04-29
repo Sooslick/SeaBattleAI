@@ -10,6 +10,9 @@ public class GameResult {
     private FieldResult enemyField;
     private String matchLog;
 
+    @SuppressWarnings("unused")
+    public GameResult() {}
+
     public GameResult(String phase) {
         this.phase = phase;
     }

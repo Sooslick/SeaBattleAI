@@ -10,6 +10,10 @@ public class EventResult {
     private String info;
     private GameResult gameResult;
 
+    // Default constructor for AI JSON parser
+    @SuppressWarnings("unused")
+    public EventResult() {}
+
     public EventResult(Boolean success) {
         this.success = success;
     }

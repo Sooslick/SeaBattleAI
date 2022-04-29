@@ -1,11 +1,15 @@
 package ru.sooslick.seabattle;
 
+import ru.sooslick.seabattle.entity.SeaBattlePlayer;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
 public class SeaBattleProperties {
+    public final static String APP_VERSION;
+
     public static int APP_SERVER_PORT = 65535;
     public static int APP_SERVER_CONNECTIONS = 16;
     public static int APP_CLEANUP_INTERVAL = 90;
@@ -19,6 +23,17 @@ public class SeaBattleProperties {
     public static boolean GAME_STRIKE_AFTER_KILL = true;
 
     static {
+        String tempVer = "unknown";
+        try {
+            Properties properties = new Properties();
+            properties.load(SeaBattleProperties.class.getResourceAsStream("/version.properties"));
+            tempVer = properties.getProperty("app.version", tempVer);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        APP_VERSION = tempVer;
+        Log.info("Running engine version " + APP_VERSION);
+
         String fname = System.getProperty("app.properties", "app.properties");
         try {
             // loading from file first
@@ -32,6 +47,17 @@ public class SeaBattleProperties {
                 Log.warn("Cannot load default app.properties");
             }
         }
+    }
+
+    public static String getRules(SeaBattlePlayer requester) {
+        return "SeaBattle ver " + APP_VERSION +
+                "\nToken expires in " + requester.getExpiration() +
+                "\n\nGame rules:" +
+                "\nField size: 10x10" +
+                "\nAvailable ships: ↕4x1, ↕3x2, ↕2x3, ↕1x4" +
+                "\nAllow ships corner collision: " + GAME_CORNER_COLLISION_ENABLE +
+                "\nPrevent shooting marked cells: " + GAME_STRIKE_CHECK_ENABLE +
+                "\nMark nearby cells after kill: " + GAME_STRIKE_AFTER_KILL;
     }
 
     private static void loadProperties(InputStream is) throws IOException {

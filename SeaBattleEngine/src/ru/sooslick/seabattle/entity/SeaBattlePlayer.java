@@ -29,7 +29,11 @@ public class SeaBattlePlayer {
     }
 
     public boolean isAlive() {
-        return System.currentTimeMillis() - lastActionTime < SeaBattleProperties.TOKEN_LIFETIME_TOTAL * 1000L;
+        return getExpiration() > 0;
+    }
+
+    public long getExpiration() {
+        return SeaBattleProperties.TOKEN_LIFETIME_TOTAL * 1000L - (System.currentTimeMillis() - lastActionTime);
     }
 
     public void updateLastAction() {

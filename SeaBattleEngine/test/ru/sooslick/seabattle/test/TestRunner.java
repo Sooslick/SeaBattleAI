@@ -27,10 +27,13 @@ public class TestRunner {
                 PromptTest.class,
                 EventsTest.class
         );
-        result.getFailures().forEach(f -> {
-            Log.warn("\nFailed test " + f.getTestHeader());
-            f.getException().printStackTrace();
-        });
-        Log.info("Tests finished in " + result.getRunTime() + "ms");
+        if (result.getFailureCount() == 0)
+            Log.info("* S U C C E S S *");
+        else
+            result.getFailures().forEach(f -> {
+                Log.warn("\nFailed test " + f.getTestHeader());
+                f.getException().printStackTrace();
+            });
+        Log.info(result.getRunCount() + " tests finished in " + result.getRunTime() + "ms");
     }
 }

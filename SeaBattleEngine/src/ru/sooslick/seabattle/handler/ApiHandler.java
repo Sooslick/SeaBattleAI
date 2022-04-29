@@ -40,6 +40,9 @@ public class ApiHandler implements HttpHandler {
                     case GET_TOKEN:
                         er = EventListener.getToken();
                         break;
+                    case GET_RULES:
+                        er = EventListener.getRules(getParameters.get("token"));
+                        break;
                     case REGISTER_SESSION:
                         er = EventListener.registerSession(getParameters.get("token"), getParameters.get("pw"));
                         break;
