@@ -1,11 +1,20 @@
 package ru.sooslick.seabattle.ai;
 
+import javafx.util.Pair;
 import ru.sooslick.seabattle.entity.SeaBattleCell;
 import ru.sooslick.seabattle.entity.SeaBattlePosition;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Random;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class AiField {
     private static final Random RANDOM = new Random();
@@ -45,7 +54,7 @@ public class AiField {
     public void confirmPlace(PlacePosition placePosition) {
         SeaBattlePosition sbPos = SeaBattlePosition.convertPosition(placePosition.getPosition());
         int imod = placePosition.isVert() ? 1 : 0;
-        int jmod = placePosition.isVert() ? 0 : 1;
+        int jmod = 1 - imod;
         List<SeaBattleCell> mark = new LinkedList<>();
         for (int z = 0; z < placePosition.getSize(); z++) {
             SeaBattlePosition basePos = sbPos.getRelative(z * imod, z * jmod);
@@ -94,15 +103,13 @@ public class AiField {
                 marked++;
                 if (detectedVert != null) {
                     int imod = detectedVert ? 1 : 0;
-                    int jmod = detectedVert ? 0 : 1;
+                    int jmod = 1 - imod;
                     int z = 0;
                     while (true) {
                         z++;
                         SeaBattlePosition checkPos = detectedShip.getRelative(z * imod, z * jmod);
                         SeaBattleCell check = getCell(checkPos);
-                        if (check == null)
-                            break;
-                        if (!check.hasShip())
+                        if (check == null || !check.hasShip())
                             break;
                         markKill(checkPos);
                         marked++;
@@ -112,9 +119,7 @@ public class AiField {
                         z--;
                         SeaBattlePosition checkPos = detectedShip.getRelative(z * imod, z * jmod);
                         SeaBattleCell check = getCell(checkPos);
-                        if (check == null)
-                            break;
-                        if (!check.hasShip())
+                        if (check == null || !check.hasShip())
                             break;
                         markKill(checkPos);
                         marked++;
@@ -193,15 +198,18 @@ public class AiField {
                 for (int i = -1; i <= 1; i+= 2) {
                     int mod = 0;
                     while (true) {
-                        mod++;
-                        SeaBattlePosition cPos = detectedShip.getRelative(i * mod, 0);
+                        SeaBattlePosition cPos = detectedShip.getRelative(i * ++mod, 0);
                         SeaBattleCell cCell = getCell(cPos);
+                        // check OoB first,
                         if (cCell == null)
                             break;
+                        // then if cell has ship, continue investigating,
                         if (cCell.hasShip())
                             continue;
+                        // if next cell is striked, then break and try another direction,
                         if (cCell.isStriked())
                             break;
+                        // finally, guess direction
                         guessNext.add(cPos);
                         break;
                     }
@@ -212,8 +220,7 @@ public class AiField {
                 for (int i = -1; i <= 1; i+= 2) {
                     int mod = 0;
                     while (true) {
-                        mod++;
-                        SeaBattlePosition cPos = detectedShip.getRelative(0, i * mod);
+                        SeaBattlePosition cPos = detectedShip.getRelative(0, i * ++mod);
                         SeaBattleCell cCell = getCell(cPos);
                         if (cCell == null)
                             break;
@@ -248,20 +255,17 @@ public class AiField {
             Map<SeaBattlePosition, Double> scoreMap = new HashMap<>();
             double maxScore = 0;
             for (SeaBattlePosition sbPos : positions) {
-                double cScore = 0;
-                for (int i = 1; i < maxShip; i++) {
-                    SeaBattleCell check = getCell(sbPos.getRelative(-i, 0));
-                    if (check != null && !check.isStriked())
-                        cScore+= calcShootScore(sbPos, useHeatMult);
-                    check = getCell(sbPos.getRelative(i, 0));
-                    if (check != null && !check.isStriked())
-                        cScore+= calcShootScore(sbPos, useHeatMult);
-                    check = getCell(sbPos.getRelative(0, -i));
-                    if (check != null && !check.isStriked())
-                        cScore+= calcShootScore(sbPos, useHeatMult);
-                    check = getCell(sbPos.getRelative(0, i));
-                    if (check != null && !check.isStriked())
-                        cScore+= calcShootScore(sbPos, useHeatMult);
+                double cScore = calcShootScore(sbPos, useHeatMult);
+                List<Pair<Integer, Integer>> directions = Arrays.asList(
+                        new Pair<>(-1, 0), new Pair<>(1, 0), new Pair<>(0, -1), new Pair<>(0, 1));
+                for (Pair<Integer, Integer> direction : directions) {
+                    for (int i = 1; i < maxShip; i++) {
+                        SeaBattlePosition relPos = sbPos.getRelative(i * direction.getKey(), i * direction.getValue());
+                        SeaBattleCell check = getCell(relPos);
+                        if (check == null || check.isStriked())
+                            break;
+                        cScore += calcShootScore(relPos, useHeatMult);
+                    }
                 }
                 scoreMap.put(sbPos, cScore);
                 if (cScore > maxScore)
@@ -292,7 +296,7 @@ public class AiField {
 
     private boolean canPlace(PlacePosition pp) {
         int imod = pp.vert ? 1 : 0;
-        int jmod = pp.vert ? 0 : 1;
+        int jmod = 1 - imod;
         for (int z = 1; z < pp.size; z++) {
             SeaBattlePosition sbPos = pp.positionRaw.getRelative(z * imod, z * jmod);
             if (sbPos.getRow() >= 10 || sbPos.getCol() >= 10)
@@ -305,7 +309,7 @@ public class AiField {
 
     private double calcPlaceScore(PlacePosition pp, boolean vert) {
         int imod = vert ? 1 : 0;
-        int jmod = vert ? 0 : 1;
+        int jmod = 1 - imod;
         double score = 10;
         for (int z = 0; z < pp.size; z++) {
             SeaBattlePosition sbPos = pp.positionRaw.getRelative(z * imod, z * jmod);
@@ -327,16 +331,16 @@ public class AiField {
     }
 
     private void markKill(SeaBattlePosition sbPos) {
-        List<SeaBattleCell> cells = new LinkedList<>();
-        cells.add(getCell(sbPos.getRelative(-1, 0)));
-        cells.add(getCell(sbPos.getRelative(-1, 1)));
-        cells.add(getCell(sbPos.getRelative(0, 1)));
-        cells.add(getCell(sbPos.getRelative(1, 1)));
-        cells.add(getCell(sbPos.getRelative(1, 0)));
-        cells.add(getCell(sbPos.getRelative(1, -1)));
-        cells.add(getCell(sbPos.getRelative(0, -1)));
-        cells.add(getCell(sbPos.getRelative(-1, -1)));
-        cells.stream().filter(Objects::nonNull).forEach(SeaBattleCell::strike);
+        Stream.of(
+                getCell(sbPos.getRelative(-1, 0)),
+                getCell(sbPos.getRelative(-1, 1)),
+                getCell(sbPos.getRelative(0, 1)),
+                getCell(sbPos.getRelative(1, 1)),
+                getCell(sbPos.getRelative(1, 0)),
+                getCell(sbPos.getRelative(1, -1)),
+                getCell(sbPos.getRelative(0, -1)),
+                getCell(sbPos.getRelative(-1, -1))
+        ).filter(Objects::nonNull).forEach(SeaBattleCell::strike);
     }
 
     public static class PlacePosition {

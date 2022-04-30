@@ -15,6 +15,7 @@ import ru.sooslick.seabattle.test.scenarios.SessionTest;
 
 public class TestRunner {
     public static void main(String[] args) {
+        System.setProperty("use.defaults", "true");
         JUnitCore core = new JUnitCore();
         Result result = core.run(
                 CellTest.class,
