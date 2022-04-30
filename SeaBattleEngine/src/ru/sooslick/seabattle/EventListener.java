@@ -70,7 +70,7 @@ public class EventListener {
         if (result.session == null)
             // session is null only when EventResult is unsuccessful
             return result.supplier.get();
-        result.session.waitForStatus();
+        result.session.waitForStatus(result.player);
         return result.supplier.get();
     }
 
@@ -119,27 +119,41 @@ public class EventListener {
     private static StatusSupplier validateStatusRequest(@Nullable String token, @Nullable String sessionId) {
         SeaBattlePlayer player = SeaBattleMain.getPlayer(token);
         if (player == null)
-            return new StatusSupplier(null, () -> new EventResult(false).info("Failed getSessionStatus: unknown or expired token"));
+            return new StatusSupplier(() -> new EventResult(false).info("Failed getSessionStatus: unknown or expired token"));
         if (player.getSession() == null) {
             if (sessionId == null)
-                return new StatusSupplier(null, () -> new EventResult(false).info("Failed getSessionStatus: not joined to any session"));
+                return new StatusSupplier(() -> new EventResult(false).info("Failed getSessionStatus: not joined to any session"));
             Integer id = tryParse(sessionId);
             if (id == null)
-                return new StatusSupplier(null, () -> new EventResult(false).info("Failed getSessionStatus: wrong sessionId format"));
+                return new StatusSupplier(() -> new EventResult(false).info("Failed getSessionStatus: wrong sessionId format"));
             SeaBattleSession session = SeaBattleMain.getSession(id);
             if (session == null)
-                return new StatusSupplier(null, () -> new EventResult(false).info("Failed getSessionStatus: session with provided id is not exist"));
+                return new StatusSupplier(() -> new EventResult(false).info("Failed getSessionStatus: session with provided id is not exist"));
             return new StatusSupplier(session, () -> session.getStatus(player));
         }
-        return new StatusSupplier(player.getSession(), () -> player.getSession().getStatus(player));
+        return new StatusSupplier(player, () -> player.getSession().getStatus(player));
     }
 
     private static class StatusSupplier {
+        private final SeaBattlePlayer player;
         private final SeaBattleSession session;
         private final Supplier<EventResult> supplier;
 
+        private StatusSupplier(Supplier<EventResult> supplier) {
+            this.player = null;
+            this.session = null;
+            this.supplier = supplier;
+        }
+
         private StatusSupplier(SeaBattleSession session, Supplier<EventResult> supplier) {
+            this.player = null;
             this.session = session;
+            this.supplier = supplier;
+        }
+
+        private StatusSupplier(SeaBattlePlayer player, Supplier<EventResult> supplier) {
+            this.player = player;
+            this.session = player.getSession();
             this.supplier = supplier;
         }
     }

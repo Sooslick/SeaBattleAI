@@ -128,10 +128,8 @@ public class SeaBattleSession {
                 turn = myField.getShips().size() > 0;
                 break;
             case TURN_P1:
-                turn = requester == p1;
-                break;
             case TURN_P2:
-                turn = requester == p2;
+                turn = allowShoot(requester);
                 break;
         }
 
@@ -201,9 +199,10 @@ public class SeaBattleSession {
         return result;
     }
 
-    public void waitForStatus() {
+    public void waitForStatus(SeaBattlePlayer player) {
         Object lock = new Object();
-        if (phase == SessionPhase.ENDGAME)
+        // do not lock request if game ends or requester can perform any game action
+        if (this.allowPlace(player) || this.allowShoot(player) || phase == SessionPhase.ENDGAME)
             return;
         synchronized (lock) {
             activeLocks.add(lock);
@@ -227,7 +226,17 @@ public class SeaBattleSession {
         lastActionTime = System.currentTimeMillis();
     }
 
-    private boolean allowShoot(SeaBattlePlayer player) {
+    private boolean allowPlace(@Nullable SeaBattlePlayer player) {
+        if (phase == SessionPhase.PREPARE) {
+            if (player == p1)
+                return p1Field.getShips().size() > 0;
+            else if (player == p2)
+                return p2Field.getShips().size() > 0;
+        }
+        return false;
+    }
+
+    private boolean allowShoot(@Nullable SeaBattlePlayer player) {
         return ((player == p1 && phase == SessionPhase.TURN_P1) || (player == p2 && phase == SessionPhase.TURN_P2));
     }
 

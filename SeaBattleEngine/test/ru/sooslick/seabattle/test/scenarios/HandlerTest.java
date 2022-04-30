@@ -46,10 +46,12 @@ public class HandlerTest {
 
         SeaBattlePlayer p1 = new SeaBattlePlayer();
         SeaBattlePlayer p2 = new SeaBattlePlayer();
+        SeaBattlePlayer p3 = new SeaBattlePlayer();
         SeaBattleSession session = new SeaBattleSession(p1, "");
         session.joinPlayer(p2);
 
-        TestExchange lpExchange = new TestExchange("/api/longpoll/getSessionStatus", "token=" + p1.getToken());
+        TestExchange lpExchange = new TestExchange("/api/longpoll/getSessionStatus",
+                "token=" + p3.getToken(), "sessionId=" + session.getId());
         Thread thread = new Thread(() -> {
             try {
                 handler.handle(lpExchange);

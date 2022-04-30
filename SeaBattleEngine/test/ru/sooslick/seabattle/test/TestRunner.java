@@ -35,6 +35,7 @@ public class TestRunner {
                 Log.warn("\nFailed test " + f.getTestHeader());
                 f.getException().printStackTrace();
             });
-        Log.info(result.getRunCount() + " tests finished in " + result.getRunTime() + "ms");
+        Log.info("Tests finished in " + result.getRunTime() + "ms");
+        Log.info(result.getRunCount() - result.getFailureCount() + "/" + result.getRunCount() + " tests passed successfully");
     }
 }
