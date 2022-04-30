@@ -84,14 +84,8 @@ public class AiMain {
 
         // get token
         EventResult lastResult = getResponse(requestLf);
-        if (lastResult == null) {
-            System.out.println("Can't retrieve token, service unreachable");
-            aiShutdown();
-            return;
-        }
-        if (!lastResult.getSuccess()) {
-            System.out.println(lastResult.getInfo());
-            aiShutdown();
+        if (lastResult == null || !lastResult.getSuccess()) {
+            aiShutdown(lastResult == null ? "/api/getToken not respond" : lastResult.getInfo());
             return;
         }
         String token = lastResult.getToken();
@@ -113,44 +107,33 @@ public class AiMain {
 
         // get session id if present
         lastResult = getResponse(requestLf);
-        if (lastResult == null) {
-            aiShutdown();
-            return;
-        }
-        if (!lastResult.getSuccess()) {
-            System.out.println(lastResult.getInfo());
-            aiShutdown();
+        if (lastResult == null || !lastResult.getSuccess()) {
+            aiShutdown(lastResult == null ? "Host does not respond" : lastResult.getInfo());
             return;
         }
         if (create) {
             if (lastResult.getSession() != null)
                 sessionId = lastResult.getSession().stream().findFirst().orElse(-1);
-            System.out.println("Created session id " + sessionId);
+            System.out.println("Created session // " + sessionId);
         }
         System.out.println("Successfully joined to session " + sessionId + ", waiting for start");
 
         // wait for start phase
         String phase = "";
-        while (true) {
-            request = client.prepareGet(host + "/api/getSessionStatus");
+        do {
+            System.out.println("Sending longpoll status request...");
+            request = client.prepareGet(host + "/api/longpoll/getSessionStatus");
             request.addQueryParam("token", token);
+            request.addQueryParam("timeout", "55");
             requestLf = request.execute(new AsyncGetEventResult());
             lastResult = getResponse(requestLf);
-            if (lastResult == null) {
-                aiShutdown();
-                return;
-            }
-            if (!lastResult.getSuccess()) {
-                System.out.println(lastResult.getInfo());
-                aiShutdown();
+            if (lastResult == null || !lastResult.getSuccess()) {
+                aiShutdown(lastResult == null ? "/api/getSessionStatus not respond" : lastResult.getInfo());
                 return;
             }
             if (lastResult.getGameResult() != null)
                 phase = lastResult.getGameResult().getPhase();
-            if ("PREPARE".equals(phase))
-                break;
-            aiWait();
-        }
+        } while (!"PREPARE".equals(phase));
         System.out.println("Entered game phase. Generating ships");
 
         // place ships
@@ -166,7 +149,7 @@ public class AiMain {
             requestLf = request.execute(new AsyncGetEventResult());
             lastResult = getResponse(requestLf);
             if (lastResult == null) {
-                aiShutdown();
+                aiShutdown("/api/placeShip not respond");
                 return;
             }
             if (lastResult.getSuccess()) {
@@ -181,55 +164,52 @@ public class AiMain {
         System.out.println("Ships placed, check ready");
 
         // main loop
-        while (true) {
+        do {
             System.out.println("Wait for turn...");
-            while (true) {
-                request = client.prepareGet(host + "/api/getSessionStatus");
+            do {
+                request = client.prepareGet(host + "/api/longpoll/getSessionStatus");
                 request.addQueryParam("token", token);
+                request.addQueryParam("timeout", "55");
+                requestLf = request.execute(new AsyncGetEventResult());
+                lastResult = getResponse(requestLf);
+                if (lastResult == null || !lastResult.getSuccess()) {
+                    aiShutdown(lastResult == null ? "/api/getSessionStatus not respond" : lastResult.getInfo());
+                    return;
+                }
+                if (lastResult.getGameResult() != null) {
+                    phase = lastResult.getGameResult().getPhase();
+                    if (Boolean.TRUE.equals(lastResult.getGameResult().isMyTurn()))
+                        break;
+                }
+            } while (!"ENDGAME".equals(phase));
+            if ("ENDGAME".equals(phase)) {
+                System.out.println("Seems like defeat.");
+                break;
+            }
+
+            // guess cell
+            do {
+                String shootPos = enemyField.getShootPosition();
+                request = client.prepareGet(host + "/api/shoot");
+                request.addQueryParam("token", token);
+                request.addQueryParam("position", shootPos);
                 requestLf = request.execute(new AsyncGetEventResult());
                 lastResult = getResponse(requestLf);
                 if (lastResult == null) {
-                    aiShutdown();
+                    aiShutdown("/api/shoot not respond");
                     return;
                 }
-                if (!lastResult.getSuccess()) {
+                if (lastResult.getSuccess()) {
+                    System.out.println("Guess cell " + shootPos + ", result is " + lastResult.getInfo());
+                    enemyField.confirmShoot(shootPos, lastResult.getInfo());
+                } else {
+                    System.out.println("Try to guess cell " + shootPos);
                     System.out.println(lastResult.getInfo());
-                    aiShutdown();
-                    return;
+                    // todo check field if too many fails (already striked / etc)
+                    // todo handle severe errors (e.g. token / session expiration)
                 }
-                if (lastResult.getGameResult() != null)
-                    phase = lastResult.getGameResult().getPhase();
-                if ("ENDGAME".equals(phase))
-                    break;
-                //noinspection ConstantConditions
-                if (("TURN_P1".equals(phase) || "TURN_P2".equals(phase)) && Boolean.TRUE.equals(lastResult.getGameResult().isMyTurn()))
-                    break;
-                aiWait();
-            }
-            if ("ENDGAME".equals(phase))
-                break;
-
-            // guess cell
-            String shootPos = enemyField.getShootPosition();
-            request = client.prepareGet(host + "/api/shoot");
-            request.addQueryParam("token", token);
-            request.addQueryParam("position", shootPos);
-            requestLf = request.execute(new AsyncGetEventResult());
-            lastResult = getResponse(requestLf);
-            if (lastResult == null) {
-                aiShutdown();
-                return;
-            }
-            if (lastResult.getSuccess()) {
-                System.out.println("Guess cell " + shootPos + ", result is " + lastResult.getInfo());
-                enemyField.confirmShoot(shootPos, lastResult.getInfo());
-            } else {
-                System.out.println("Try to guess cell " + shootPos);
-                System.out.println(lastResult.getInfo());
-                // todo check field if too many fails (already striked / etc)
-                // todo handle severe errors (e.g. token / session expiration)
-            }
-        }
+            } while ("hit".equals(lastResult.getInfo()) || "kill".equals(lastResult.getInfo()));
+        } while (!"win".equals(lastResult.getInfo()));
 
         if (analyzePost) {
             System.out.println("Post-game action: analyze enemy field and update heat map");
@@ -237,7 +217,7 @@ public class AiMain {
         }
 
         //exit
-        aiShutdown();
+        aiShutdown("Done.");
     }
 
     private static <T> T getResponse(ListenableFuture<T> req) {
@@ -250,16 +230,8 @@ public class AiMain {
         }
     }
 
-    private static void aiWait() {
-        try {
-            Thread.sleep(1487);
-        } catch (InterruptedException e) {
-            System.out.println("aiWait interrupted...");
-        }
-    }
-
-    private static void aiShutdown() {
-        System.out.println("stopping...");
+    private static void aiShutdown(String cause) {
+        System.out.println(cause + "\nStopping...");
         try {
             client.close();
         } catch (IOException e) {

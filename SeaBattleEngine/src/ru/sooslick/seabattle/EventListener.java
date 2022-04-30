@@ -65,12 +65,14 @@ public class EventListener {
         return validateStatusRequest(token, sessionId).supplier.get();
     }
 
-    public static EventResult getSessionStatusLongpoll(@Nullable String token, @Nullable String sessionId) {
+    public static EventResult getSessionStatusLongpoll(@Nullable String token, @Nullable String sessionId, @Nullable String timeoutRaw) {
         StatusSupplier result = validateStatusRequest(token, sessionId);
         if (result.session == null)
             // session is null only when EventResult is unsuccessful
             return result.supplier.get();
-        result.session.waitForStatus(result.player);
+        Integer timeoutObj = tryParse(timeoutRaw);
+        long timeout = timeoutObj == null || timeoutObj <= 0 || timeoutObj > 60 ? 60 : timeoutObj;
+        result.session.waitForStatus(result.player, timeout);
         return result.supplier.get();
     }
 

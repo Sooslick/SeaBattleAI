@@ -199,7 +199,7 @@ public class SeaBattleSession {
         return result;
     }
 
-    public void waitForStatus(SeaBattlePlayer player) {
+    public void waitForStatus(SeaBattlePlayer player, long timeout) {
         Object lock = new Object();
         // do not lock request if game ends or requester can perform any game action
         if (this.allowPlace(player) || this.allowShoot(player) || phase == SessionPhase.ENDGAME)
@@ -207,8 +207,9 @@ public class SeaBattleSession {
         synchronized (lock) {
             activeLocks.add(lock);
             try {
-                lock.wait();
+                lock.wait(timeout * 1000);
             } catch (InterruptedException ignored) {
+                Log.info("longpoll request interrupted");
             }
         }
     }

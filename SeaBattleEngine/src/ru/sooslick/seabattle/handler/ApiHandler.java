@@ -57,7 +57,7 @@ public class ApiHandler implements HttpHandler {
     }
 
     public static final Function<Map<String, String>, EventResult> LONG_POLL_STATUS = (getParameters) ->
-            EventListener.getSessionStatusLongpoll(getParameters.get("token"), getParameters.get("sessionid"));
+            EventListener.getSessionStatusLongpoll(getParameters.get("token"), getParameters.get("sessionid"), getParameters.get("timeout"));
 
     public static final Function<Map<String, String>, EventResult> DEFAULT_API = (getParameters) -> {
         ApiMethod method = ApiMethod.find(getParameters.get("path"));
