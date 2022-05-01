@@ -23,7 +23,7 @@ public class AiField {
     private final Supplier<String> shootMethod;
 
     private final SeaBattleCell[][] field;
-    private final List<Integer> ships;
+    protected final List<Integer> ships;
     private final int shipsTotal;
 
     private SeaBattlePosition detectedShip;

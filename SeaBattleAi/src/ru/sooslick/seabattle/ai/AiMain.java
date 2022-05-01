@@ -4,6 +4,8 @@ import org.asynchttpclient.AsyncHttpClient;
 import org.asynchttpclient.BoundRequestBuilder;
 import org.asynchttpclient.Dsl;
 import org.asynchttpclient.ListenableFuture;
+import org.jetbrains.annotations.NotNull;
+import ru.sooslick.seabattle.Log;
 import ru.sooslick.seabattle.result.EventResult;
 
 import java.io.IOException;
@@ -14,13 +16,17 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class AiMain {
-    private static AsyncHttpClient client;
+    private AsyncHttpClient client;
 
     public static void main(String[] args) {
+        new AiMain().run(args);
+    }
+
+    public boolean run(String @NotNull [] args) {
         boolean create = true;
         int sessionId = -1;
         String sessionPw = null;
-        String host = "localhost:8080";
+        String host = "localhost:65535";
         boolean useHeatMap = false;
         String heatDir = "out/workspace";
         boolean analyzePre = false;
@@ -62,43 +68,45 @@ public class AiMain {
             analyzePost = false;
 
         //check host
-        if (parsedArgs.containsKey("host"))
+        if (parsedArgs.containsKey("host")) {
             host = parsedArgs.get("host");
+            if (host.length() > 0 && host.charAt(host.length() - 1) == '/')
+                host = host.substring(0, host.length() - 1);
+        }
 
         AiHeatData.init(heatDir);
         if (analyzePre) {
-            System.out.println("-analyze flag presents, update heat map");
+            Log.info("-analyze flag presents, update heat map");
             AiHeatData.analyze();
         }
 
         if (create) {
-            System.out.println("sessionId not specified, ai will create new game");
+            Log.info("sessionId not specified, ai will create new game");
         } else
-            System.out.println("Selected session: " + sessionId);
+            Log.info("Selected session: " + sessionId);
 
         // init http client and request token
         client = Dsl.asyncHttpClient();
         BoundRequestBuilder request = client.prepareGet(host + "/api/getToken");
         ListenableFuture<EventResult> requestLf = request.execute(new AsyncGetEventResult());
-        System.out.println("Request new player token");
+        Log.info("Request new player token");
 
         // get token
         EventResult lastResult = getResponse(requestLf);
         if (lastResult == null || !lastResult.getSuccess()) {
-            aiShutdown(lastResult == null ? "/api/getToken not respond" : lastResult.getInfo());
-            return;
+            return aiShutdown(lastResult == null ? "/api/getToken not respond" : lastResult.getInfo());
         }
         String token = lastResult.getToken();
-        System.out.println("Token is received // " + token);
+        Log.info("Token is received // " + token);
 
         // request session
         if (create) {
             request = client.prepareGet(host + "/api/registerSession");
-            System.out.println("Request new game session");
+            Log.info("Request new game session");
         } else {
             request = client.prepareGet(host + "/api/joinSession");
             request.addQueryParam("sessionId", Integer.toString(sessionId));
-            System.out.println("Trying to join session " + sessionId + " with password \"" + sessionPw + "\"");
+            Log.info("Trying to join session " + sessionId + " with password \"" + sessionPw + "\"");
         }
         request.addQueryParam("token", token);
         if (sessionPw != null)
@@ -108,33 +116,31 @@ public class AiMain {
         // get session id if present
         lastResult = getResponse(requestLf);
         if (lastResult == null || !lastResult.getSuccess()) {
-            aiShutdown(lastResult == null ? "Host does not respond" : lastResult.getInfo());
-            return;
+            return aiShutdown(lastResult == null ? "Host does not respond" : lastResult.getInfo());
         }
         if (create) {
             if (lastResult.getSession() != null)
                 sessionId = lastResult.getSession().stream().findFirst().orElse(-1);
-            System.out.println("Created session // " + sessionId);
+            Log.info("Created session // " + sessionId);
         }
-        System.out.println("Successfully joined to session " + sessionId + ", waiting for start");
+        Log.info("Successfully joined to session " + sessionId + ", waiting for start");
 
         // wait for start phase
         String phase = "";
         do {
-            System.out.println("Sending longpoll status request...");
+            Log.info("Sending longpoll status request...");
             request = client.prepareGet(host + "/api/longpoll/getSessionStatus");
             request.addQueryParam("token", token);
             request.addQueryParam("timeout", "55");
             requestLf = request.execute(new AsyncGetEventResult());
             lastResult = getResponse(requestLf);
             if (lastResult == null || !lastResult.getSuccess()) {
-                aiShutdown(lastResult == null ? "/api/getSessionStatus not respond" : lastResult.getInfo());
-                return;
+                return aiShutdown(lastResult == null ? "/api/getSessionStatus not respond" : lastResult.getInfo());
             }
             if (lastResult.getGameResult() != null)
                 phase = lastResult.getGameResult().getPhase();
         } while (!"PREPARE".equals(phase));
-        System.out.println("Entered game phase. Generating ships");
+        Log.info("Entered game phase. Generating ships");
 
         // place ships
         AiField myField = new AiField(useHeatMap, lastResult.getGameResult().getShips());
@@ -149,23 +155,27 @@ public class AiMain {
             requestLf = request.execute(new AsyncGetEventResult());
             lastResult = getResponse(requestLf);
             if (lastResult == null) {
-                aiShutdown("/api/placeShip not respond");
-                return;
+                return aiShutdown("/api/placeShip not respond");
             }
             if (lastResult.getSuccess()) {
                 myField.confirmPlace(ppos);
-                System.out.println("Placed ship: " + ppos);
+                Log.info("Placed ship: " + ppos);
             } else {
-                System.out.println("Try to place ship " + ppos);
-                System.out.println(lastResult.getInfo());
-                // todo handle severe errors (e.g. token / session expiration)
+                Log.info("Tried place ship " + ppos);
+                if ("Can't placeShip: unknown or expired token".equals(lastResult.getInfo())) {
+                    return aiShutdown(lastResult.getInfo());
+                }
+                Log.info(lastResult.getInfo());
             }
         }
-        System.out.println("Ships placed, check ready");
+        if (myField.ships.size() > 0) {
+            return aiShutdown("Failed place ships");
+        }
+        Log.info("Ships placed, check ready");
 
         // main loop
         do {
-            System.out.println("Wait for turn...");
+            Log.info("Wait for turn...");
             do {
                 request = client.prepareGet(host + "/api/longpoll/getSessionStatus");
                 request.addQueryParam("token", token);
@@ -173,8 +183,7 @@ public class AiMain {
                 requestLf = request.execute(new AsyncGetEventResult());
                 lastResult = getResponse(requestLf);
                 if (lastResult == null || !lastResult.getSuccess()) {
-                    aiShutdown(lastResult == null ? "/api/getSessionStatus not respond" : lastResult.getInfo());
-                    return;
+                    return aiShutdown(lastResult == null ? "/api/getSessionStatus not respond" : lastResult.getInfo());
                 }
                 if (lastResult.getGameResult() != null) {
                     phase = lastResult.getGameResult().getPhase();
@@ -183,11 +192,12 @@ public class AiMain {
                 }
             } while (!"ENDGAME".equals(phase));
             if ("ENDGAME".equals(phase)) {
-                System.out.println("Seems like defeat.");
+                Log.info("Seems like defeat.");
                 break;
             }
 
             // guess cell
+            int failures = 0;
             do {
                 String shootPos = enemyField.getShootPosition();
                 request = client.prepareGet(host + "/api/shoot");
@@ -196,46 +206,54 @@ public class AiMain {
                 requestLf = request.execute(new AsyncGetEventResult());
                 lastResult = getResponse(requestLf);
                 if (lastResult == null) {
-                    aiShutdown("/api/shoot not respond");
-                    return;
+                    return aiShutdown("/api/shoot not respond");
                 }
                 if (lastResult.getSuccess()) {
-                    System.out.println("Guess cell " + shootPos + ", result is " + lastResult.getInfo());
+                    Log.info("Guess cell " + shootPos + ", result is " + lastResult.getInfo());
                     enemyField.confirmShoot(shootPos, lastResult.getInfo());
                 } else {
-                    System.out.println("Try to guess cell " + shootPos);
-                    System.out.println(lastResult.getInfo());
-                    // todo check field if too many fails (already striked / etc)
-                    // todo handle severe errors (e.g. token / session expiration)
+                    Log.info("Tried to guess cell " + shootPos);
+                    if ("Can't shoot: unknown or expired token".equals(lastResult.getInfo())) {
+                        return aiShutdown(lastResult.getInfo());
+                    }
+                    Log.info(lastResult.getInfo());
+                    if (++failures > 10) {
+                        return aiShutdown("Too many failed shoot attempts");
+                    }
                 }
             } while ("hit".equals(lastResult.getInfo()) || "kill".equals(lastResult.getInfo()));
         } while (!"win".equals(lastResult.getInfo()));
 
         if (analyzePost) {
-            System.out.println("Post-game action: analyze enemy field and update heat map");
+            Log.info("Post-game action: analyze enemy field and update heat map");
             AiHeatData.analyze(lastResult.getGameResult().getEnemyField());
         }
 
         //exit
-        aiShutdown("Done.");
+        return aiShutdown("Done.", true);
     }
 
     private static <T> T getResponse(ListenableFuture<T> req) {
         try {
             return req.get();
         } catch (InterruptedException | ExecutionException e) {
-            System.out.println("Failed get response");
+            Log.info("Failed get response");
             e.printStackTrace();
             return null;
         }
     }
 
-    private static void aiShutdown(String cause) {
-        System.out.println(cause + "\nStopping...");
+    private boolean aiShutdown(String cause) {
+        return aiShutdown(cause, false);
+    }
+
+    private boolean aiShutdown(String cause, boolean success) {
+        Log.info(cause + "\nStopping...");
         try {
             client.close();
         } catch (IOException e) {
-            System.out.println("HTTP client cannot stop normally");
+            Log.info("HTTP client cannot stop normally");
         }
+        return success;
     }
 }
