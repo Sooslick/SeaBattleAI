@@ -11,8 +11,8 @@ function getTokenHandler() {
         storedToken = obj.token;
         document.cookie = "au=" + storedToken + "; max-age=3000";
         document.getElementById("debugToken").innerText = storedToken;
-        if (queuedAction != undefined) {
-            queuedAction.call();
+        if (queuedAction == "gs") {
+            getSessions(storedToken);
             queuedAction = null;
         }
         return;
@@ -32,7 +32,7 @@ function getSessionsHandler() {
         obj = JSON.parse(this.responseText);
         if (!obj.success) {
             handleFault(obj.info)
-            queuedAction = getSessions;
+            queuedAction = "gs";
             getToken();
             return;
         }
@@ -42,7 +42,9 @@ function getSessionsHandler() {
             obj.sessionInfos.forEach(info => {
                 let divSes = listGames.appendChild(document.createElement('div'));
                 divSes.className = "clickable";
-                divSes.innerHTML = "Join " + info.sessionId;
+                let prefix = info.lookup ? "Join " : "Watch ";
+                let postfix = info.passworded ? " <img src='lock-icon.png'/>" : "";
+                divSes.innerHTML = prefix + info.sessionId + postfix;
                 divSes.setAttribute("onclick", "loadGame(" + info.sessionId + ")");
             })
         }
@@ -53,9 +55,13 @@ function getSessionsHandler() {
 }
 
 function createSession(token) {
+    pwParam = "";
+    pwValue = document.getElementById("pwdContent").value;
+    if (pwdEnable && pwValue != null)
+        pwParam = "&pw=" + pwValue;
     xhr = new XMLHttpRequest();
 	xhr.onload = createSessionHandler;
-	xhr.open('GET', '/api/registerSession?token=' + token, true);
+	xhr.open('GET', '/api/registerSession?token=' + token + pwParam, true);
 	xhr.send();
 }
 
@@ -74,9 +80,13 @@ function createSessionHandler() {
 }
 
 function joinSession(token, sid) {
+    pwParam = "";
+    pwValue = document.getElementById("pwdContent").value;
+    if (pwdEnable && pwValue != null)
+        pwParam = "&pw=" + pwValue;
     xhr = new XMLHttpRequest();
 	xhr.onload = joinSessionHandler;
-	xhr.open('GET', '/api/joinSession?token=' + token + "&sessionId=" + sid, true);
+	xhr.open('GET', '/api/joinSession?token=' + token + "&sessionId=" + sid + pwParam, true);
 	xhr.send();
 	storedSessionId = sid;
 }

@@ -12,6 +12,7 @@ function init(startMenu) {
         document.getElementById("debugSid").innerText = storedSessionId;
         document.getElementById("bRefreshToken").hidden = true;
     }
+    document.getElementById("pwdContent").value = makeId(4);
 }
 
 function loadMenu(newMenuId) {
@@ -38,6 +39,7 @@ function loadGame(sid) {
 function startSessionInterval(sid) {
     document.cookie = "sessionId=" + storedSessionId + "; max-age=3000";
     document.getElementById("debugSid").innerText = storedSessionId;
+    getSessionStatus(storedToken);
     storedTimer = setInterval(getSessionStatus, 5000, storedToken);
 }
 
@@ -48,6 +50,7 @@ function phasePrepare() {
 }
 
 function phaseTurn(myTurn) {
+    document.getElementById("shipSelector").innerHTML = "";
     document.getElementById("lobbyStatus").innerText = myTurn ? "Your turn: guess opponent's ship" : "Wait for opponent's turn";
     document.getElementById("myField").className = myTurn ? "field" : "field highlight";
     document.getElementById("enemyField").className = myTurn ? "field highlight" : "field";
@@ -69,11 +72,44 @@ function leave() {
     document.location.reload();
 }
 
+function pwdSelClck() {
+    document.getElementById("pwdContent").hidden = pwdEnable;
+    pwdEnable = !pwdEnable;
+    if (pwdEnable) {
+        document.getElementById("pwdSelector").style.backgroundColor = "#242";
+        document.getElementById("pwdPosition").style.margin = "0 0 0 27";
+        document.getElementById("pwdLabel").innerHTML = "Disable password";
+    } else {
+        document.getElementById("pwdSelector").style.backgroundColor = "#222";
+        document.getElementById("pwdPosition").style.margin = "0";
+        document.getElementById("pwdLabel").innerHTML = "Enable password";
+    }
+}
+
+function pwdInputClck() {
+    if (pwdFirstClick) {
+        pwdFirstClick = false;
+        document.getElementById("pwdContent").value = "";
+    }
+}
+
+function makeId(length) {
+    let result = '';
+    let characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let charactersLength = characters.length;
+    for (let i = 0; i < length; i++)
+        result+= characters.charAt(Math.floor(Math.random() * charactersLength));
+    return result;
+}
+
 // onload /////
 
 storedToken = getCookie('au');
 storedSessionId = getCookie('sessionId');
 storedPhase = "LOOKUP";
+queuedAction = null;
+pwdEnable = false;
+pwdFirstClick = true;
 if (storedToken == undefined) {
     getToken();
     storedSessionId = null;

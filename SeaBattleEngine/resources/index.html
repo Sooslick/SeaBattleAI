@@ -20,6 +20,13 @@
 </div>
 <div id="mainmenu" hidden>
     <div class="clickable" id="bCreate" onclick="loadGame(-1)">Start new game</div>
+    <div class="pwdWrapper">
+        <div id="pwdSelector" onclick="pwdSelClck()">
+            <div id="pwdPosition"></div>
+        </div>
+        <div id="pwdLabel">Enable password</div>
+    </div>
+    <input type="text" id="pwdContent" onclick="pwdInputClck()" hidden/>
     <div id="listGames"></div>
     <div class="clickable" id="bRefreshSessions">Refresh</div>
     <div class="clickable" id="bBack" onclick="loadMenu('start')">Back</div>

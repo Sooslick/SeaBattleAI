@@ -103,7 +103,40 @@ div.clickable {
     right: 50px;
 }
 
-#shiprotate {
+#pwdLabel {
+    position: relative;
+    top: -6px;
+    display: inline-block;
+    margin: auto;
+    text-align: left;
+    width: 175px;
+}
+#pwdSelector {
+    display: inline-block;
+    background-color: #111;
+    border: 2px solid #444;
+    border-radius: 16px;
+    margin: auto 10px auto auto;
+    transition-duration: 100ms;
+    width: 50px;
+    height: 20px;
+    z-index: 1;
+}
+#pwdPosition {
+    background-color: #444;
+    border: 2px solid #666;
+    border-radius: 16px;
+    margin-left: 0px;
+    transition-duration: 100ms;
+    position: relative;
+    top: -2px;
+    left: 0px;
+    width: 20px;
+    height: 20px;
+    z-index: 5;
+}
+
+#shipRotate {
     border-radius: 22px;
     font-family: 'Courier New';
     margin-right: 10px;

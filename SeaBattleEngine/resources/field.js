@@ -5,17 +5,25 @@ function updateSelector(shipArray) {
     });
     let selector = document.getElementById("shipSelector");
     selector.innerHTML = "";
+    let selRequired = true;
+    let lastAvailable = null;
     Object.entries(shipCounts).forEach(entry => {
+        lastAvailable = entry[0];
         let span = document.createElement('span');
         span.setAttribute("id", "ship" + entry[0]);
         span.setAttribute("onclick", "select(" + entry[0] + ")");
         let className = "clickable";
-        if (entry[0] == storedSelector)
+        if (entry[0] == storedSelector) {
             className+= " selected";
+            containsSelector = false;
+        }
         span.className = className;
         span.innerHTML = "&#18;" + entry[0] + " x" + entry[1];
         selector.appendChild(span);
     });
+    if (selRequired && lastAvailable != null) {
+        select(lastAvailable);
+    }
 }
 
 function select(newval) {
