@@ -21,7 +21,7 @@ public class EventsTest {
         Assert.assertNotNull("Result does not contain token", er.getToken());
         Assert.assertNotNull("Token does not match any player", SeaBattleMain.getPlayer(er.getToken()));
         Assert.assertNull("Unexpected value in response", er.getInfo());
-        Assert.assertNull("Unexpected value in response", er.getSession());
+        Assert.assertNull("Unexpected value in response", er.getSessionInfos());
         Assert.assertNull("Unexpected value in response", er.getGameResult());
     }
 
@@ -33,7 +33,7 @@ public class EventsTest {
         Assert.assertTrue("Unexpected operation result", er.getSuccess());
         Assert.assertNotNull("Rules not specified", er.getInfo());
         Assert.assertNull("Unexpected value in response", er.getToken());
-        Assert.assertNull("Unexpected value in response", er.getSession());
+        Assert.assertNull("Unexpected value in response", er.getSessionInfos());
         Assert.assertNull("Unexpected value in response", er.getGameResult());
     }
 
@@ -51,12 +51,14 @@ public class EventsTest {
         Assert.assertTrue("Unexpected operation result", er.getSuccess());
         Assert.assertNull("Unexpected value in response", er.getToken());
         Assert.assertNull("Unexpected value in response", er.getInfo());
-        Assert.assertNotNull("Session tag not found", er.getSession());
+        Assert.assertNotNull("Session tag not found", er.getSessionInfos());
         Assert.assertNull("Unexpected value in response", er.getGameResult());
-        List<Integer> sessionIds = er.getSession();
-        Assert.assertEquals("unexpected sessions count", 1, sessionIds.size());
+        List<EventResult.SessionInfo> sessionInfos = er.getSessionInfos();
+        Assert.assertEquals("unexpected sessions count", 1, sessionInfos.size());
         Assert.assertEquals("Token does not linked to created session",
-                SeaBattleMain.getPlayer(token).getSession(), SeaBattleMain.getSession(sessionIds.get(0)));
+                SeaBattleMain.getPlayer(token).getSession(), SeaBattleMain.getSession(sessionInfos.get(0).getSessionId()));
+        Assert.assertTrue("Session marked as started", sessionInfos.get(0).isLookup());
+        Assert.assertTrue("Session is not private", sessionInfos.get(0).isPassworded());
     }
 
     @Test
@@ -86,7 +88,7 @@ public class EventsTest {
         Assert.assertTrue("Unexpected operation result", er.getSuccess());
         Assert.assertNull("Unexpected value in response", er.getToken());
         Assert.assertNull("Unexpected value in response", er.getInfo());
-        Assert.assertNull("Unexpected value in response", er.getSession());
+        Assert.assertNull("Unexpected value in response", er.getSessionInfos());
         Assert.assertNull("Unexpected value in response", er.getGameResult());
         Assert.assertEquals("Token does not linked to created session",
                 SeaBattleMain.getPlayer(token).getSession(), session);
@@ -104,22 +106,31 @@ public class EventsTest {
         Assert.assertTrue("Unexpected operation result", er.getSuccess());
         Assert.assertNull("Unexpected value in response", er.getToken());
         Assert.assertNull("Unexpected value in response", er.getInfo());
-        Assert.assertNotNull("Session tag not found", er.getSession());
+        Assert.assertNotNull("Session tag not found", er.getSessionInfos());
         Assert.assertNull("Unexpected value in response", er.getGameResult());
-        List<Integer> sessionIds = er.getSession();
-        Assert.assertEquals("unexpected sessions count", 0, sessionIds.size());
+        List<EventResult.SessionInfo> sessionInfos = er.getSessionInfos();
+        Assert.assertEquals("unexpected sessions count", 0, sessionInfos.size());
 
         SeaBattlePlayer p1 = new SeaBattlePlayer();
-        List<Integer> roomIds = Arrays.asList(
-                new SeaBattleSession(p1, null).getId(),
-                new SeaBattleSession(p1, "").getId(),
-                new SeaBattleSession(p1, "q").getId()
+        SeaBattlePlayer p2 = new SeaBattlePlayer();
+        SeaBattleSession session = new SeaBattleSession(p1, "");
+        session.joinPlayer(p2);
+        List<EventResult.SessionInfo> expectedInfos = Arrays.asList(
+                new EventResult.SessionInfo(session),
+                new EventResult.SessionInfo(new SeaBattleSession(p1, null)),
+                new EventResult.SessionInfo(new SeaBattleSession(p1, "q"))
         );
         er = EventListener.getSessions(token);
         Assert.assertTrue("Unexpected operation result", er.getSuccess());
-        sessionIds = er.getSession();
-        Assert.assertEquals("unexpected sessions count", 3, sessionIds.size());
-        Assert.assertTrue("session list does not match existing sessions", sessionIds.containsAll(roomIds));
+        sessionInfos = er.getSessionInfos();
+        Assert.assertEquals("unexpected sessions count", 3, sessionInfos.size());
+        for (int i = 0; i < 3; i++) {
+            EventResult.SessionInfo expectedInfo = expectedInfos.get(i);
+            EventResult.SessionInfo actualInfo = sessionInfos.get(i);
+            Assert.assertEquals("session ID does not match existing session", expectedInfo.getSessionId(), actualInfo.getSessionId());
+            Assert.assertEquals("Unexpected privacy", expectedInfo.isPassworded(), actualInfo.isPassworded());
+            Assert.assertEquals("Unexpected availability", expectedInfo.isLookup(), actualInfo.isLookup());
+        }
     }
 
     @Test
@@ -139,14 +150,14 @@ public class EventsTest {
         er = EventListener.getSessionStatus(token, Integer.toString(session.getId()));
         Assert.assertTrue("Unexpected operation result", er.getSuccess());
         Assert.assertNull("Unexpected value in response", er.getToken());
-        Assert.assertNull("Unexpected value in response", er.getSession());
+        Assert.assertNull("Unexpected value in response", er.getSessionInfos());
         Assert.assertNull("Unexpected value in response", er.getInfo());
         Assert.assertNotNull("GameResult not presented", er.getGameResult());
 
         er = EventListener.getSessionStatus(p1.getToken(), null);
         Assert.assertTrue("Unexpected operation result", er.getSuccess());
         Assert.assertNull("Unexpected value in response", er.getToken());
-        Assert.assertNull("Unexpected value in response", er.getSession());
+        Assert.assertNull("Unexpected value in response", er.getSessionInfos());
         Assert.assertNotNull("Info not presented", er.getInfo());
         Assert.assertNotNull("GameResult not presented", er.getGameResult());
     }
@@ -191,7 +202,7 @@ public class EventsTest {
         Assert.assertFalse("Unexpected event result", er.getSuccess());
         Assert.assertEquals("Unexpected event info", info, er.getInfo());
         Assert.assertNull("Unexpected value in response", er.getToken());
-        Assert.assertNull("Unexpected value in response", er.getSession());
+        Assert.assertNull("Unexpected value in response", er.getSessionInfos());
         Assert.assertNull("Unexpected value in response", er.getGameResult());
     }
 }

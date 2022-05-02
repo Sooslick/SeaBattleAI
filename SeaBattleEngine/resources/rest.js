@@ -38,12 +38,12 @@ function getSessionsHandler() {
         }
         let listGames = document.getElementById("listGames");
         listGames.innerHTML = "";
-        if (obj.session != null) {
-            obj.session.forEach(sid => {
+        if (obj.sessionInfos != null) {
+            obj.sessionInfos.forEach(info => {
                 let divSes = listGames.appendChild(document.createElement('div'));
                 divSes.className = "clickable";
-                divSes.innerHTML = "Join " + sid;
-                divSes.setAttribute("onclick", "loadGame(" + sid + ")");
+                divSes.innerHTML = "Join " + info.sessionId;
+                divSes.setAttribute("onclick", "loadGame(" + info.sessionId + ")");
             })
         }
         document.getElementById("loading").hidden = true;
@@ -66,7 +66,7 @@ function createSessionHandler() {
             handleFault(obj.info)
             return;
         }
-        storedSessionId = obj.session[0];
+        storedSessionId = obj.sessionInfos[0].sessionId;
         startSessionInterval(storedSessionId);
         return;
     }

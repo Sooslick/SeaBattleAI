@@ -6,7 +6,7 @@
 
     <groupId>sea-battle-ai</groupId>
     <artifactId>SeaBattleEngine</artifactId>
-    <version>b0.9</version>
+    <version>b0.9.1</version>
 
     <dependencies>
         <dependency>

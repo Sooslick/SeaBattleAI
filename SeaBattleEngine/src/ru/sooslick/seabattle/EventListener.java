@@ -28,7 +28,7 @@ public class EventListener {
         if (player.getSession() != null)
             return new EventResult(false).info("Failed registerSession: token have linked to session already");
         SeaBattleSession session = new SeaBattleSession(player, pw);
-        return new EventResult(true).session(session.getId());
+        return new EventResult(true).session(session);
     }
 
     public static EventResult joinSession(@Nullable String token, @Nullable String sessionId, @Nullable String pw) {
@@ -56,7 +56,7 @@ public class EventListener {
         if (player == null)
             return new EventResult(false).info("Failed getSessions: unknown or expired token");
         EventResult result = new EventResult(true).emptySession();
-        SeaBattleMain.getActiveSessions().forEach(session -> result.session(session.getId()));
+        SeaBattleMain.getActiveSessions().forEach(result::session);
         return result;
     }
 

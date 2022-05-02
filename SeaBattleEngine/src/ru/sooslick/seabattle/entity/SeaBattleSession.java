@@ -112,7 +112,6 @@ public class SeaBattleSession {
                     .matchLog(formatLog(requester)));
         }
 
-        updateLastAction();
         SeaBattleField myField;
         SeaBattleField enemyField;
         if (requester == p1) {

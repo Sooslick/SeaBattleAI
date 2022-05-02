@@ -1,12 +1,14 @@
 package ru.sooslick.seabattle.result;
 
+import ru.sooslick.seabattle.entity.SeaBattleSession;
+
 import java.util.LinkedList;
 import java.util.List;
 
 public class EventResult {
     private Boolean success;
     private String token;
-    private List<Integer> session;
+    private List<SessionInfo> sessionInfos;
     private String info;
     private GameResult gameResult;
 
@@ -32,19 +34,19 @@ public class EventResult {
     }
 
     public EventResult emptySession() {
-        this.session = new LinkedList<>();
+        this.sessionInfos = new LinkedList<>();
         return this;
     }
 
-    public EventResult session(Integer session) {
-        if (this.session == null)
-            this.session = new LinkedList<>();
-        this.session.add(session);
+    public EventResult session(SeaBattleSession session) {
+        if (this.sessionInfos == null)
+            this.sessionInfos = new LinkedList<>();
+        this.sessionInfos.add(new SessionInfo(session));
         return this;
     }
 
-    public List<Integer> getSession() {
-        return session;
+    public List<SessionInfo> getSessionInfos() {
+        return sessionInfos;
     }
 
     public EventResult info(String info) {
@@ -63,5 +65,31 @@ public class EventResult {
 
     public GameResult getGameResult() {
         return gameResult;
+    }
+
+    public static class SessionInfo {
+        private Integer sessionId;
+        private boolean passworded;
+        private boolean lookup;
+
+        public SessionInfo() {}
+
+        public SessionInfo(SeaBattleSession session) {
+            this.sessionId = session.getId();
+            this.passworded = !session.testPw(null);
+            this.lookup = session.getPhase() == SeaBattleSession.SessionPhase.LOOKUP;
+        }
+
+        public Integer getSessionId() {
+            return sessionId;
+        }
+
+        public boolean isPassworded() {
+            return passworded;
+        }
+
+        public boolean isLookup() {
+            return lookup;
+        }
     }
 }

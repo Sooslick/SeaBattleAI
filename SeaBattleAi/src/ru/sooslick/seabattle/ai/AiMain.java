@@ -119,8 +119,8 @@ public class AiMain {
             return aiShutdown(lastResult == null ? "Host does not respond" : lastResult.getInfo());
         }
         if (create) {
-            if (lastResult.getSession() != null)
-                sessionId = lastResult.getSession().stream().findFirst().orElse(-1);
+            if (lastResult.getSessionInfos() != null)
+                sessionId = lastResult.getSessionInfos().stream().map(EventResult.SessionInfo::getSessionId).findFirst().orElse(-1);
             Log.info("Created session // " + sessionId);
         }
         Log.info("Successfully joined to session " + sessionId + ", waiting for start");
