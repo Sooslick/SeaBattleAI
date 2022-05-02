@@ -95,8 +95,7 @@ function joinSessionHandler() {
     if (this.status == 200) {
         obj = JSON.parse(this.responseText);
         if (!obj.success) {
-            storedSessionId = null;
-            handleFault(obj.info)
+            getLongpollSessionStatus(storedToken, storedSessionId);
             return;
         }
         startSessionInterval(storedSessionId);
@@ -114,15 +113,22 @@ function getSessionStatus(token, scheduleNext) {
     xhr = new XMLHttpRequest();
     xhr.onload = getStatusHandler;
     xhr.scheduleNext = scheduleNext;
+    xhr.spectateMode = false;
     xhr.open('GET', '/api/getSessionStatus?token=' + token, true);
     xhr.send();
 }
 
 function getLongpollSessionStatus(token) {
+    getLongpollSessionStatus(token, null);
+}
+
+function getLongpollSessionStatus(token, sessionId) {
+    let sidParam = sessionId == null ? "" : "&sessionId=" + sessionId;
     xhr = new XMLHttpRequest();
     xhr.onload = getStatusHandler;
     xhr.scheduleNext = true;
-    xhr.open('GET', '/api/longpoll/getSessionStatus?token=' + token, true);
+    xhr.spectateMode = sessionId != null;
+    xhr.open('GET', '/api/longpoll/getSessionStatus?token=' + token + sidParam, true);
     xhr.send();
 }
 
@@ -136,6 +142,10 @@ function getStatusHandler() {
         if (obj.gameResult.phase == "PREPARE") {
             if (storedPhase != "PREPARE")
                 phasePrepare();
+            if (this.spectateMode) {
+                getLongpollSessionStatus(storedToken, storedSessionId);
+                return;
+            }
             updateSelector(obj.gameResult.ships);
             if (reqUpdate) {
                 updateField(true, obj.gameResult.myField);
@@ -150,7 +160,7 @@ function getStatusHandler() {
                 phaseTurn(my);
             }
             if (!my && this.scheduleNext) {
-                getLongpollSessionStatus(storedToken);
+                getLongpollSessionStatus(storedToken, this.spectateMode ? storedSessionId : null);
             }
             updateField(true, obj.gameResult.myField);
             updateField(false, obj.gameResult.enemyField);
