@@ -13,8 +13,10 @@ function getTokenHandler() {
         document.getElementById("debugToken").innerText = storedToken;
         if (queuedAction == "gs") {
             getSessions(storedToken);
-            queuedAction = null;
+        } else if (queuedAction == "jg") {
+            joinSession(storedToken, storedSessionId);
         }
+        queuedAction = null;
         return;
     }
     httpFault();
@@ -95,6 +97,7 @@ function joinSessionHandler() {
     if (this.status == 200) {
         obj = JSON.parse(this.responseText);
         if (!obj.success) {
+            handleFault(obj.info)
             getLongpollSessionStatus(storedToken, storedSessionId);
             return;
         }

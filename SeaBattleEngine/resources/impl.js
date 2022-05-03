@@ -38,18 +38,22 @@ function loadGame(sid) {
 
 function startSessionInterval(sid) {
     document.cookie = "sessionId=" + storedSessionId + "; max-age=3000";
+    document.cookie = "rpw=" + document.getElementById("pwdContent").value + "; max-age=600";
+    storedRpw = getCookie('rpw');
     document.getElementById("debugSid").innerText = storedSessionId;
     getSessionStatus(storedToken);
     storedTimer = setInterval(getSessionStatus, 5000, storedToken);
 }
 
 function phasePrepare() {
+    document.getElementById("bInvite").hidden = true;
     document.getElementById("lobbyStatus").innerText = "Prepare your ships";
     document.getElementById("myField").hidden = false;
     storedPhase = "PREPARE";
 }
 
 function phaseTurn(myTurn) {
+    document.getElementById("bInvite").hidden = true;
     document.getElementById("shipSelector").innerHTML = "";
     document.getElementById("lobbyStatus").innerText = myTurn ? "Your turn: guess opponent's ship" : "Wait for opponent's turn";
     document.getElementById("myField").className = myTurn ? "field" : "field highlight";
@@ -59,6 +63,7 @@ function phaseTurn(myTurn) {
 }
 
 function phaseEnd() {
+    document.getElementById("bInvite").hidden = true;
     document.getElementById("lobbyStatus").innerText = "Game over";
     document.getElementById("myField").hidden = false;
     document.getElementById("enemyField").hidden = false;
@@ -69,7 +74,8 @@ function phaseEnd() {
 function leave() {
     document.cookie = "au=; max-age=0";
     document.cookie = "sessionId=; max-age=0";
-    document.location.reload();
+    document.cookie = "rpw=; max-age=0";
+    window.location = window.location.href.split("?")[0];
 }
 
 function pwdSelClck() {
@@ -93,6 +99,14 @@ function pwdInputClck() {
     }
 }
 
+function inviteLink(e) {
+    let link = window.location.href + "?invite=" + storedSessionId + (pwdEnable ? "&rpw=" + storedRpw : "");
+    e.preventDefault();
+    if (e.clipboardData) {
+        e.clipboardData.setData("text/plain", link);
+    }
+}
+
 function makeId(length) {
     let result = '';
     let characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -106,15 +120,29 @@ function makeId(length) {
 
 storedToken = getCookie('au');
 storedSessionId = getCookie('sessionId');
+storedRpw = getCookie('rpw');
 storedPhase = "LOOKUP";
 queuedAction = null;
 pwdEnable = false;
 pwdFirstClick = true;
-if (storedToken == undefined) {
+document.getElementById("bInvite").oncopy = inviteLink;
+params = new Proxy(new URLSearchParams(window.location.search), {
+    get: (searchParams, prop) => searchParams.get(prop),
+});
+if (params.invite) {
+    init("game");
+    if (params.rpw) {
+        document.getElementById("pwdContent").value = params.rpw;
+        pwdEnable = true;
+    }
+    storedSessionId = params.invite;
+    queuedAction = "jg";
+    getToken();
+} else if (storedToken == undefined) {
     getToken();
     storedSessionId = null;
-}
-if (storedSessionId != undefined) {
+    init("start");
+} else if (storedSessionId != undefined) {
     init("game");
     reqUpdate = true;
     startSessionInterval(storedSessionId);
