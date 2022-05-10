@@ -10,7 +10,8 @@ public enum ApiMethod {
     GET_SESSIONS("/api/getSessions"),
     GET_SESSION_STATUS("/api/getSessionStatus"),
     PLACE_SHIP("/api/placeShip"),
-    SHOOT("/api/shoot");
+    SHOOT("/api/shoot"),
+    INIT_AI("/api/initAI");
 
     private final String path;
 

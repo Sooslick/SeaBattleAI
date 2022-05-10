@@ -75,6 +75,10 @@ function createSessionHandler() {
             return;
         }
         storedSessionId = obj.sessionInfos[0].sessionId;
+        if (queuedAction != null) {
+            initAi(queuedAction);
+            queuedAction = null;
+        }
         startSessionInterval(storedSessionId);
         return;
     }
@@ -219,6 +223,28 @@ function shootHandler() {
         }
         document.getElementById('shipRotate').innerHTML = obj.info;
         getSessionStatus(true);
+        return;
+    }
+    httpFault();
+}
+
+function initAi(aiType) {
+    xhr = new XMLHttpRequest();
+    xhr.onload = aiHandler;
+    xhr.open('GET', '/api/initAI?token=' + storedToken
+            + "&sessionId=" + storedSessionId
+            + "&sessionPw=" + storedRpw
+            + (aiType == "ah" ? "&skill=true" : ""), true);
+    xhr.send();
+}
+
+// todo handler duplications
+function aiHandler() {
+    if (this.status == 200) {
+        obj = JSON.parse(this.responseText);
+        if (!obj.success) {
+            handleFault(obj.info)
+        }
         return;
     }
     httpFault();

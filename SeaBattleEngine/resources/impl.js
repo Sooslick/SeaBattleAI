@@ -30,6 +30,16 @@ function loadMainMenu() {
     getSessions();
 }
 
+// switch to ai game menu
+function loadAi(skill) {
+    loadMenu("game");
+    document.getElementById("loading").hidden = false;
+    document.getElementById("bRefreshToken").hidden = true; // todo loadgame dublicates
+    storedRpw = makeId(4);
+    queuedAction = skill ? "ah" : "as";
+    createSession();
+}
+
 // switch to game menu
 function loadGame(sid) {
     loadMenu("game");

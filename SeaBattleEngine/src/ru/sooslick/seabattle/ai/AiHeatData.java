@@ -1,6 +1,7 @@
 package ru.sooslick.seabattle.ai;
 
 import org.apache.commons.io.FileUtils;
+import ru.sooslick.seabattle.Log;
 import ru.sooslick.seabattle.entity.SeaBattlePosition;
 import ru.sooslick.seabattle.result.FieldResult;
 
@@ -33,7 +34,7 @@ public class AiHeatData implements Serializable {
     public static void analyze() {
         File workDir = new File(analyzeDir);
         if (!workDir.exists()) {
-            System.out.println("Cannot analyze: folder not exist");
+            Log.warn("Cannot analyze: folder not exist");
             return;
         }
         try {
@@ -42,7 +43,7 @@ public class AiHeatData implements Serializable {
                 try {
                     content = Files.readAllLines(path).get(0);
                 } catch (Exception e) {
-                    System.out.println("Error reading file " + path.toString() + ": " + e.getMessage());
+                    Log.warn("Error reading file " + path.toString() + ": " + e.getMessage());
                     return;
                 }
                 int row = 0;
@@ -58,13 +59,13 @@ public class AiHeatData implements Serializable {
                 instance.total++;
             });
         } catch (IOException e) {
-            System.out.println("Error reading analyze directory");
+            Log.warn("Error reading analyze directory");
             return;
         }
         try {
             FileUtils.cleanDirectory(workDir);
         } catch (IOException e) {
-            System.out.println("Cannot clean directory after analyze, plz do it manually");
+            Log.warn("Cannot clean directory after analyze, plz do it manually");
         }
         save();
     }
@@ -81,7 +82,7 @@ public class AiHeatData implements Serializable {
             }
             i++;
         }
-        System.out.println("Saving FieldResult to heatmap");
+        Log.info("Saving FieldResult to heatmap");
         save();
     }
 
@@ -95,7 +96,7 @@ public class AiHeatData implements Serializable {
         File workDir = new File(dataDir);
         if (!workDir.exists()) {
             if (!workDir.mkdirs()) {
-                System.out.println("Cannot create data folder! Head data will not be saved");
+                Log.warn("Cannot create data folder! Head data will not be saved");
                 saveEnable = false;
                 instance = new AiHeatData();
                 return;
@@ -106,7 +107,7 @@ public class AiHeatData implements Serializable {
             instance = (AiHeatData) ois.readObject();
             ois.close();
         } catch (Exception e) {
-            System.out.println("Cannot deserialize data: " + e.getMessage());
+            Log.warn("Cannot deserialize data: " + e.getMessage());
             instance = new AiHeatData();
         }
     }
@@ -118,9 +119,9 @@ public class AiHeatData implements Serializable {
             ObjectOutputStream ois = new ObjectOutputStream(new FileOutputStream(dataDir + File.separator + dataName));
             ois.writeObject(instance);
             ois.close();
-            System.out.println("Saved heat to file heatmap.dat");
+            Log.info("Saved heat to file heatmap.dat");
         } catch (Exception e) {
-            System.out.println("Cannot serialize data: " + e.getMessage());
+            Log.warn("Cannot serialize data: " + e.getMessage());
         }
     }
 

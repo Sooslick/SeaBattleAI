@@ -23,6 +23,7 @@ public class SeaBattleProperties {
     public static boolean GAME_CORNER_COLLISION_ENABLE = false;
     public static boolean GAME_STRIKE_CHECK_ENABLE = true;
     public static boolean GAME_STRIKE_AFTER_KILL = true;
+    public static String AI_DATA_DIR = "aiData";
 
     static {
         // rd version
@@ -92,6 +93,7 @@ public class SeaBattleProperties {
         GAME_CORNER_COLLISION_ENABLE = Boolean.parseBoolean(properties.getProperty("game.corner.collision.enable", "false"));
         GAME_STRIKE_CHECK_ENABLE = Boolean.parseBoolean(properties.getProperty("game.strike.check.enable", "true"));
         GAME_STRIKE_AFTER_KILL = Boolean.parseBoolean(properties.getProperty("game.strike.after.kill", "true"));
+        AI_DATA_DIR = properties.getProperty("ai.data.dir", "aiData");
     }
     
     private static int tryParse(Properties props, String property, int dflt) {

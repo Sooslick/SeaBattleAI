@@ -22,13 +22,13 @@ public class AiMain {
         new AiMain().run(args);
     }
 
-    public boolean run(String @NotNull [] args) {
+    public void run(String @NotNull [] args) {
         boolean create = true;
         int sessionId = -1;
         String sessionPw = null;
         String host = "localhost:65535";
         boolean useHeatMap = false;
-        String heatDir = "out/workspace";
+        String heatDir = "aiData";
         boolean analyzePre = false;
         boolean analyzePost = true;
 
@@ -52,8 +52,10 @@ public class AiMain {
             sessionPw = parsedArgs.get("sessionpw");
 
         //check ai type
-        if (parsedArgs.containsKey("useheatmap"))
+        if (parsedArgs.containsKey("useheatmap")) {
+            Log.info("Using heat map");
             useHeatMap = true;
+        }
 
         //check custom data folder
         if (parsedArgs.containsKey("heatdir"))
@@ -94,7 +96,8 @@ public class AiMain {
         // get token
         EventResult lastResult = getResponse(requestLf);
         if (lastResult == null || !lastResult.getSuccess()) {
-            return aiShutdown(lastResult == null ? "/api/getToken not respond" : lastResult.getInfo());
+            aiShutdown(lastResult == null ? "/api/getToken not respond" : lastResult.getInfo());
+            return;
         }
         String token = lastResult.getToken();
         Log.info("Token is received // " + token);
@@ -116,7 +119,8 @@ public class AiMain {
         // get session id if present
         lastResult = getResponse(requestLf);
         if (lastResult == null || !lastResult.getSuccess()) {
-            return aiShutdown(lastResult == null ? "Host does not respond" : lastResult.getInfo());
+            aiShutdown(lastResult == null ? "Host does not respond" : lastResult.getInfo());
+            return;
         }
         if (create) {
             if (lastResult.getSessionInfos() != null)
@@ -135,7 +139,8 @@ public class AiMain {
             requestLf = request.execute(new AsyncGetEventResult());
             lastResult = getResponse(requestLf);
             if (lastResult == null || !lastResult.getSuccess()) {
-                return aiShutdown(lastResult == null ? "/api/getSessionStatus not respond" : lastResult.getInfo());
+                aiShutdown(lastResult == null ? "/api/getSessionStatus not respond" : lastResult.getInfo());
+                return;
             }
             if (lastResult.getGameResult() != null)
                 phase = lastResult.getGameResult().getPhase();
@@ -155,7 +160,8 @@ public class AiMain {
             requestLf = request.execute(new AsyncGetEventResult());
             lastResult = getResponse(requestLf);
             if (lastResult == null) {
-                return aiShutdown("/api/placeShip not respond");
+                aiShutdown("/api/placeShip not respond");
+                return;
             }
             if (lastResult.getSuccess()) {
                 myField.confirmPlace(ppos);
@@ -163,13 +169,15 @@ public class AiMain {
             } else {
                 Log.info("Tried place ship " + ppos);
                 if ("Can't placeShip: unknown or expired token".equals(lastResult.getInfo())) {
-                    return aiShutdown(lastResult.getInfo());
+                    aiShutdown(lastResult.getInfo());
+                    return;
                 }
                 Log.info(lastResult.getInfo());
             }
         }
         if (myField.ships.size() > 0) {
-            return aiShutdown("Failed place ships");
+            aiShutdown("Failed place ships");
+            return;
         }
         Log.info("Ships placed, check ready");
 
@@ -183,7 +191,8 @@ public class AiMain {
                 requestLf = request.execute(new AsyncGetEventResult());
                 lastResult = getResponse(requestLf);
                 if (lastResult == null || !lastResult.getSuccess()) {
-                    return aiShutdown(lastResult == null ? "/api/getSessionStatus not respond" : lastResult.getInfo());
+                    aiShutdown(lastResult == null ? "/api/getSessionStatus not respond" : lastResult.getInfo());
+                    return;
                 }
                 if (lastResult.getGameResult() != null) {
                     phase = lastResult.getGameResult().getPhase();
@@ -206,7 +215,8 @@ public class AiMain {
                 requestLf = request.execute(new AsyncGetEventResult());
                 lastResult = getResponse(requestLf);
                 if (lastResult == null) {
-                    return aiShutdown("/api/shoot not respond");
+                    aiShutdown("/api/shoot not respond");
+                    return;
                 }
                 if (lastResult.getSuccess()) {
                     Log.info("Guess cell " + shootPos + ", result is " + lastResult.getInfo());
@@ -214,11 +224,13 @@ public class AiMain {
                 } else {
                     Log.info("Tried to guess cell " + shootPos);
                     if ("Can't shoot: unknown or expired token".equals(lastResult.getInfo())) {
-                        return aiShutdown(lastResult.getInfo());
+                        aiShutdown(lastResult.getInfo());
+                        return;
                     }
                     Log.info(lastResult.getInfo());
                     if (++failures > 10) {
-                        return aiShutdown("Too many failed shoot attempts");
+                        aiShutdown("Too many failed shoot attempts");
+                        return;
                     }
                 }
             } while ("hit".equals(lastResult.getInfo()) || "kill".equals(lastResult.getInfo()));
@@ -230,7 +242,7 @@ public class AiMain {
         }
 
         //exit
-        return aiShutdown("Done.", true);
+        aiShutdown("Done.");
     }
 
     private static <T> T getResponse(ListenableFuture<T> req) {
@@ -243,17 +255,12 @@ public class AiMain {
         }
     }
 
-    private boolean aiShutdown(String cause) {
-        return aiShutdown(cause, false);
-    }
-
-    private boolean aiShutdown(String cause, boolean success) {
-        Log.info(cause + "\nStopping...");
+    private void aiShutdown(String cause) {
+        Log.info(cause + "\nAI thread finished");
         try {
             client.close();
         } catch (IOException e) {
             Log.info("HTTP client cannot stop normally");
         }
-        return success;
     }
 }

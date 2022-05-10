@@ -79,6 +79,8 @@ public class ApiHandler implements HttpHandler {
                     return EventListener.placeShip(getParameters.get("token"), getParameters.get("position"), getParameters.get("size"), getParameters.get("vertical"));
                 case SHOOT:
                     return EventListener.shoot(getParameters.get("token"), getParameters.get("position"));
+                case INIT_AI:
+                    return EventListener.initAi(getParameters.get("token"), getParameters.get("sessionid"), getParameters.get("pw"), getParameters.get("skill"));
             }
         }
         return null;

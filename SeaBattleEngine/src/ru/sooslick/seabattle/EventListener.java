@@ -4,6 +4,7 @@ import org.jetbrains.annotations.Nullable;
 import ru.sooslick.seabattle.entity.SeaBattlePlayer;
 import ru.sooslick.seabattle.entity.SeaBattlePosition;
 import ru.sooslick.seabattle.entity.SeaBattleSession;
+import ru.sooslick.seabattle.job.AiKeeper;
 import ru.sooslick.seabattle.result.EventResult;
 
 import java.util.function.Supplier;
@@ -104,6 +105,24 @@ public class EventListener {
         if (!SeaBattlePosition.isValid(position))
             return new EventResult(false).info("Can't shoot: wrong position format");
         return player.getSession().shoot(player, SeaBattlePosition.convertPosition(position));
+    }
+
+    public static EventResult initAi(@Nullable String token, @Nullable String sessionId, @Nullable String pw, @Nullable String skill) {
+        Integer id = tryParse(sessionId);
+        if (id == null)
+            return new EventResult(false).info("Can't init AI: wrong sessionId format");
+        SeaBattlePlayer player = SeaBattleMain.getPlayer(token);
+        if (player == null)
+            return new EventResult(false).info("Can't init AI: unknown or expired token");
+        SeaBattleSession session = SeaBattleMain.getSession(id);
+        if (session == null)
+            return new EventResult(false).info("Can't init AI: session with provided id is not exist");
+        if (session.getPhase() != SeaBattleSession.SessionPhase.LOOKUP)
+            return new EventResult(false).info("Can't init AI: game have started already");
+        if (!session.testPw(pw))
+            return new EventResult(false).info("Can't init AI: wrong session password");
+        AiKeeper.launchAi(id, pw, skill != null);
+        return new EventResult(true);
     }
 
     private EventListener() {}
