@@ -3,15 +3,7 @@ package ru.sooslick.seabattle.test;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import ru.sooslick.seabattle.Log;
-import ru.sooslick.seabattle.test.scenarios.CellTest;
-import ru.sooslick.seabattle.test.scenarios.EventsTest;
-import ru.sooslick.seabattle.test.scenarios.FieldTest;
-import ru.sooslick.seabattle.test.scenarios.HandlerTest;
-import ru.sooslick.seabattle.test.scenarios.MainTest;
-import ru.sooslick.seabattle.test.scenarios.PlayerTest;
-import ru.sooslick.seabattle.test.scenarios.PositionTest;
-import ru.sooslick.seabattle.test.scenarios.PromptTest;
-import ru.sooslick.seabattle.test.scenarios.SessionTest;
+import ru.sooslick.seabattle.test.scenarios.*;
 
 public class TestRunner {
     public static void main(String[] args) {

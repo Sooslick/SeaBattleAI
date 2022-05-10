@@ -12,9 +12,9 @@ function getTokenHandler() {
         document.cookie = "au=" + storedToken + "; max-age=3000";
         document.getElementById("debugToken").innerText = storedToken;
         if (queuedAction == "gs") {
-            getSessions(storedToken);
+            getSessions();
         } else if (queuedAction == "jg") {
-            joinSession(storedToken, storedSessionId);
+            joinSession(storedSessionId);
         }
         queuedAction = null;
         return;
@@ -22,10 +22,10 @@ function getTokenHandler() {
     httpFault();
 }
 
-function getSessions(token) {
+function getSessions() {
     xhr = new XMLHttpRequest();
 	xhr.onload = getSessionsHandler;
-	xhr.open('GET', '/api/getSessions?token=' + token, true);
+	xhr.open('GET', '/api/getSessions?token=' + storedToken, true);
 	xhr.send();
 }
 
@@ -56,14 +56,14 @@ function getSessionsHandler() {
     httpFault();
 }
 
-function createSession(token) {
+function createSession() {
     pwParam = "";
     pwValue = document.getElementById("pwdContent").value;
     if (pwdEnable && pwValue != null)
         pwParam = "&pw=" + pwValue;
     xhr = new XMLHttpRequest();
 	xhr.onload = createSessionHandler;
-	xhr.open('GET', '/api/registerSession?token=' + token + pwParam, true);
+	xhr.open('GET', '/api/registerSession?token=' + storedToken + pwParam, true);
 	xhr.send();
 }
 
@@ -81,14 +81,13 @@ function createSessionHandler() {
     httpFault();
 }
 
-function joinSession(token, sid) {
+function joinSession(sid) {
     pwParam = "";
-    pwValue = document.getElementById("pwdContent").value;
-    if (pwdEnable && pwValue != null)
-        pwParam = "&pw=" + pwValue;
+    if (pwdEnable && storedRpw != null)
+        pwParam = "&pw=" + storedRpw;
     xhr = new XMLHttpRequest();
 	xhr.onload = joinSessionHandler;
-	xhr.open('GET', '/api/joinSession?token=' + token + "&sessionId=" + sid + pwParam, true);
+	xhr.open('GET', '/api/joinSession?token=' + storedToken + "&sessionId=" + sid + pwParam, true);
 	xhr.send();
 	storedSessionId = sid;
 }
@@ -98,7 +97,7 @@ function joinSessionHandler() {
         obj = JSON.parse(this.responseText);
         if (!obj.success) {
             handleFault(obj.info)
-            getLongpollSessionStatus(storedToken, storedSessionId);
+            getLongpollSessionStatus(storedSessionId);
             return;
         }
         startSessionInterval(storedSessionId);
@@ -108,30 +107,30 @@ function joinSessionHandler() {
     httpFault();
 }
 
-function getSessionStatus(token) {
-    getSessionStatus(token, false);
+function getSessionStatus() {
+    getSessionStatus(false);
 }
 
-function getSessionStatus(token, scheduleNext) {
+function getSessionStatus(scheduleNext) {
     xhr = new XMLHttpRequest();
     xhr.onload = getStatusHandler;
     xhr.scheduleNext = scheduleNext;
     xhr.spectateMode = false;
-    xhr.open('GET', '/api/getSessionStatus?token=' + token, true);
+    xhr.open('GET', '/api/getSessionStatus?token=' + storedToken, true);
     xhr.send();
 }
 
-function getLongpollSessionStatus(token) {
-    getLongpollSessionStatus(token, null);
+function getLongpollSessionStatus() {
+    getLongpollSessionStatus(null);
 }
 
-function getLongpollSessionStatus(token, sessionId) {
+function getLongpollSessionStatus(sessionId) {
     let sidParam = sessionId == null ? "" : "&sessionId=" + sessionId;
     xhr = new XMLHttpRequest();
     xhr.onload = getStatusHandler;
     xhr.scheduleNext = true;
     xhr.spectateMode = sessionId != null;
-    xhr.open('GET', '/api/longpoll/getSessionStatus?token=' + token + sidParam, true);
+    xhr.open('GET', '/api/longpoll/getSessionStatus?token=' + storedToken + sidParam, true);
     xhr.send();
 }
 
@@ -146,7 +145,7 @@ function getStatusHandler() {
             if (storedPhase != "PREPARE")
                 phasePrepare();
             if (this.spectateMode) {
-                getLongpollSessionStatus(storedToken, storedSessionId);
+                getLongpollSessionStatus(storedSessionId);
                 return;
             }
             updateSelector(obj.gameResult.ships);
@@ -155,7 +154,7 @@ function getStatusHandler() {
                 reqUpdate = false;
             }
             if (!obj.gameResult.myTurn && this.scheduleNext) {
-                getLongpollSessionStatus(storedToken);
+                getLongpollSessionStatus();
             }
         } else if (obj.gameResult.phase.includes("TURN")) {
             let my = obj.gameResult.myTurn;
@@ -163,7 +162,7 @@ function getStatusHandler() {
                 phaseTurn(my);
             }
             if (!my && this.scheduleNext) {
-                getLongpollSessionStatus(storedToken, this.spectateMode ? storedSessionId : null);
+                getLongpollSessionStatus(this.spectateMode ? storedSessionId : null);
             }
             updateField(true, obj.gameResult.myField);
             updateField(false, obj.gameResult.enemyField);
@@ -178,10 +177,10 @@ function getStatusHandler() {
     httpFault();
 }
 
-function placeShip(token, pos, size, vert) {
+function placeShip(pos, size, vert) {
     xhr = new XMLHttpRequest();
     xhr.onload = placeShipHandler;
-    xhr.open('GET', '/api/placeShip?token=' + token
+    xhr.open('GET', '/api/placeShip?token=' + storedToken
             + "&position=" + pos
             + "&size=" + size
             + "&vertical=" + vert, true);
@@ -196,16 +195,16 @@ function placeShipHandler() {
             handleFault(obj.info)
             return;
         }
-        getSessionStatus(storedToken, true);
+        getSessionStatus(true);
         return;
     }
     httpFault();
 }
 
-function tryShoot(token, pos) {
+function tryShoot(pos) {
     xhr = new XMLHttpRequest();
     xhr.onload = shootHandler;
-    xhr.open('GET', '/api/shoot?token=' + token
+    xhr.open('GET', '/api/shoot?token=' + storedToken
             + "&position=" + pos, true);
     xhr.send();
 }
@@ -219,7 +218,7 @@ function shootHandler() {
             return;
         }
         document.getElementById('shipRotate').innerHTML = obj.info;
-        getSessionStatus(storedToken, true);
+        getSessionStatus(true);
         return;
     }
     httpFault();
@@ -232,5 +231,3 @@ function handleFault(msg) {
 function httpFault() {
     document.getElementById("debugStatus").innerHTML = "Service error. Page reloading probably help to fix this issue.";
 }
-
-reqUpdate = false;

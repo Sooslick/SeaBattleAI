@@ -22,7 +22,7 @@ function updateSelector(shipArray) {
         selector.appendChild(span);
     });
     if (selRequired && lastAvailable != null) {
-        select(lastAvailable);
+        selDesel(() => select(lastAvailable));
     }
 }
 
@@ -35,14 +35,10 @@ function select(newval) {
 }
 
 function rotate() {
-    let x = storedX;
-    let y = storedY;
-    if (x >= 0)
-        hover(false, x, y);
-    storedDirection = !storedDirection;
-    document.getElementById("shipRotate").innerHTML = storedDirection ? "|" : "-";
-    if (x >= 0)
-        hover(true, x, y);
+    selDesel(() => {
+        storedDirection = !storedDirection;
+        document.getElementById("shipRotate").innerHTML = storedDirection ? "|" : "-";
+    });
 }
 
 function hover(enable, x, y) {
@@ -68,11 +64,21 @@ function hover(enable, x, y) {
     }
 }
 
+function selDesel(action) {
+    let x = storedX;
+    let y = storedY;
+    if (x >= 0)
+        hover(false, x, y);
+    action();
+    if (x >= 0)
+        hover(true, x, y);
+}
+
 function clickOwn(x, y) {
     if (storedPhase != "PREPARE")
         return;
     let pos = String.fromCharCode(y + 97) + (x+1);
-    placeShip(storedToken, pos, storedSelector, storedDirection);
+    placeShip(pos, storedSelector, storedDirection);
     let xmult = storedDirection ? 1 : 0;
     let ymult = storedDirection ? 0 : 1;
     let xlimiter = x + (storedSelector - 1) * xmult;
@@ -91,7 +97,7 @@ function clickEnemy(x, y) {
     if (!storedPhase.includes("TURN"))
         return;
     let pos = String.fromCharCode(y + 97) + (x+1);
-    tryShoot(storedToken, pos);
+    tryShoot(pos);
     let cellObj = document.getElementById(x + ", " + y);
     cellObj.className = cellObj.className + " shot";
 }

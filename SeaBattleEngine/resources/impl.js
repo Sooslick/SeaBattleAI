@@ -1,9 +1,10 @@
 function getCookie(name) {
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) return parts.pop().split(';').shift();
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
 }
 
+// fill fields with init values and show entry point menu
 function init(startMenu) {
     currentMenu = "loading";
     loadMenu(startMenu);
@@ -15,60 +16,64 @@ function init(startMenu) {
     document.getElementById("pwdContent").value = makeId(4);
 }
 
+// hide previous menu and show new menu
 function loadMenu(newMenuId) {
     document.getElementById(currentMenu).hidden = true;
     currentMenu = newMenuId;
     document.getElementById(currentMenu).hidden = false;
 }
 
+// call session list menu
 function loadMainMenu() {
     loadMenu('mainmenu');
     document.getElementById("loading").hidden = false;
-    getSessions(storedToken);
+    getSessions();
 }
 
+// switch to game menu
 function loadGame(sid) {
     loadMenu("game");
+    document.getElementById("loading").hidden = false;
     document.getElementById("bRefreshToken").hidden = true;
-    if (sid < 0)
-        createSession(storedToken);
-    else
-        joinSession(storedToken, sid);
+    if (sid < 0) {
+        storedRpw = document.getElementById("pwdContent").value;
+        document.cookie = "rpw=" + storedRpw + "; max-age=600";
+        createSession();
+    } else {
+        storedRpw = document.getElementById("pwdContent").value;
+        joinSession(sid);
+    }
 }
 
+// init game menu and init status requests
 function startSessionInterval(sid) {
     document.cookie = "sessionId=" + storedSessionId + "; max-age=3000";
-    document.cookie = "rpw=" + document.getElementById("pwdContent").value + "; max-age=600";
-    storedRpw = getCookie('rpw');
     document.getElementById("debugSid").innerText = storedSessionId;
-    getSessionStatus(storedToken);
-    storedTimer = setInterval(getSessionStatus, 5000, storedToken);
+    getLongpollSessionStatus();
+    document.getElementById("loading").hidden = true;
 }
 
 function phasePrepare() {
-    document.getElementById("bInvite").hidden = true;
-    document.getElementById("lobbyStatus").innerText = "Prepare your ships";
-    document.getElementById("myField").hidden = false;
-    storedPhase = "PREPARE";
+    phase("PREPARE", "Prepare your ships");
+    document.getElementById("myField").className = "field highlight";
 }
 
 function phaseTurn(myTurn) {
-    document.getElementById("bInvite").hidden = true;
+    phase("TURN", myTurn ? "Your turn: guess opponent's ship" : "Wait for opponent's turn");
     document.getElementById("shipSelector").innerHTML = "";
-    document.getElementById("lobbyStatus").innerText = myTurn ? "Your turn: guess opponent's ship" : "Wait for opponent's turn";
-    document.getElementById("myField").className = myTurn ? "field" : "field highlight";
+    document.getElementById("myField").className = "field";
     document.getElementById("enemyField").className = myTurn ? "field highlight" : "field";
-    document.getElementById("myField").hidden = false;
-    document.getElementById("enemyField").hidden = false;
 }
 
 function phaseEnd() {
-    document.getElementById("bInvite").hidden = true;
-    document.getElementById("lobbyStatus").innerText = "Game over";
-    document.getElementById("myField").hidden = false;
-    document.getElementById("enemyField").hidden = false;
-    storedPhase = "ENDGAME";
+    phase("ENDGAME", "Game over");
     clearInterval(storedTimer);
+}
+
+function phase(phaseName, phaseText) {
+    document.getElementById("bInvite").hidden = true;
+    document.getElementById("lobbyStatus").innerText = phaseText;
+    storedPhase = phaseName;
 }
 
 function leave() {
@@ -78,6 +83,7 @@ function leave() {
     window.location = window.location.href.split("?")[0];
 }
 
+// switch animation from themegen
 function pwdSelClck() {
     document.getElementById("pwdContent").hidden = pwdEnable;
     pwdEnable = !pwdEnable;
@@ -92,6 +98,7 @@ function pwdSelClck() {
     }
 }
 
+// clear generated pwd for user prompt
 function pwdInputClck() {
     if (pwdFirstClick) {
         pwdFirstClick = false;
@@ -99,11 +106,13 @@ function pwdInputClck() {
     }
 }
 
+// custom event handler for copy event
 function inviteLink(e) {
     let link = window.location.href + "?invite=" + storedSessionId + (pwdEnable ? "&rpw=" + storedRpw : "");
     e.preventDefault();
     if (e.clipboardData) {
         e.clipboardData.setData("text/plain", link);
+        document.getElementById("bInvite").innerHTML = "Copied!";
     }
 }
 
@@ -118,33 +127,48 @@ function makeId(length) {
 
 // onload /////
 
+// init variables
 storedToken = getCookie('au');
 storedSessionId = getCookie('sessionId');
-storedRpw = getCookie('rpw');
+storedRpw = null;
 storedPhase = "LOOKUP";
 queuedAction = null;
 pwdEnable = false;
 pwdFirstClick = true;
+reqUpdate = false;
+
+// read query
 document.getElementById("bInvite").oncopy = inviteLink;
 params = new Proxy(new URLSearchParams(window.location.search), {
     get: (searchParams, prop) => searchParams.get(prop),
 });
+
+// join by invite
 if (params.invite) {
     init("game");
     if (params.rpw) {
-        document.getElementById("pwdContent").value = params.rpw;
+        storedRpw = params.rpw;
         pwdEnable = true;
     }
     storedSessionId = params.invite;
     queuedAction = "jg";
     getToken();
-} else if (storedToken == undefined) {
+}
+// fresh load (no token cookie)
+else if (storedToken == undefined) {
     getToken();
     storedSessionId = null;
     init("start");
-} else if (storedSessionId != undefined) {
+}
+// token & session cookies present
+else if (storedSessionId != undefined) {
     init("game");
+    storedRpw = getCookie('rpw')
+    if (storedRpw != null)
+        pwdEnable = true;
     reqUpdate = true;
     startSessionInterval(storedSessionId);
-} else
+}
+// only token cookie presents
+else
     init("start");

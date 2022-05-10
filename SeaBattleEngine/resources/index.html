@@ -28,12 +28,12 @@
     </div>
     <input type="text" id="pwdContent" onclick="pwdInputClck()" hidden/>
     <div id="listGames"></div>
-    <div class="clickable" id="bRefreshSessions">Refresh</div>
+    <div class="clickable" id="bRefreshSessions" onclick="getSessions()">Refresh</div>
     <div class="clickable" id="bBack" onclick="loadMenu('start')">Back</div>
 </div>
 <div id="game" hidden>
     <div class="lobby" id="lobbyStatus">Waiting for second player</div>
-    <div class="field" id="myField" hidden>
+    <div class="field" id="myField">
         You<br>
         <table>
             <tbody>
@@ -183,7 +183,7 @@
             </tbody>
         </table>
     </div>
-    <div class="field" id="enemyField" hidden>
+    <div class="field" id="enemyField">
         Opponent<br>
         <table>
             <tbody>
@@ -340,6 +340,8 @@
     <div class="clickable" onclick="leave()">Leave</div>
 </div>
 <div class="debug">
+    <span>App version: ${project.version}</span>
+    <br>
     <span>User authenticator:</span>
     <span id="debugToken"></span>
     <span id="bRefreshToken" class="linkBtn" onclick="getToken()">(refresh)</span>
