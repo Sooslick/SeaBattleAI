@@ -32,6 +32,7 @@ public class AiHeatData implements Serializable {
     }
 
     public static void analyze() {
+        // todo restore merge heatdats
         File workDir = new File(analyzeDir);
         if (!workDir.exists()) {
             Log.warn("Cannot analyze: folder not exist");
