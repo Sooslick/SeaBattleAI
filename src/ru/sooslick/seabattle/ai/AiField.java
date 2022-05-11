@@ -1,6 +1,6 @@
 package ru.sooslick.seabattle.ai;
 
-import javafx.util.Pair;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import ru.sooslick.seabattle.entity.SeaBattleCell;
 import ru.sooslick.seabattle.entity.SeaBattlePosition;
 
@@ -256,9 +256,9 @@ public class AiField {
             double maxScore = 0;
             for (SeaBattlePosition sbPos : positions) {
                 double cScore = calcShootScore(sbPos, useHeatMult);
-                List<Pair<Integer, Integer>> directions = Arrays.asList(
-                        new Pair<>(-1, 0), new Pair<>(1, 0), new Pair<>(0, -1), new Pair<>(0, 1));
-                for (Pair<Integer, Integer> direction : directions) {
+                List<ImmutablePair<Integer, Integer>> directions = Arrays.asList(
+                        new ImmutablePair<>(-1, 0), new ImmutablePair<>(1, 0), new ImmutablePair<>(0, -1), new ImmutablePair<>(0, 1));
+                for (ImmutablePair<Integer, Integer> direction : directions) {
                     for (int i = 1; i < maxShip; i++) {
                         SeaBattlePosition relPos = sbPos.getRelative(i * direction.getKey(), i * direction.getValue());
                         SeaBattleCell check = getCell(relPos);
