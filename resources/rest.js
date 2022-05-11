@@ -15,6 +15,8 @@ function getTokenHandler() {
             getSessions();
         } else if (queuedAction == "jg") {
             joinSession(storedSessionId);
+        } else if (queuedAction == "gr") {
+            getRules();
         }
         queuedAction = null;
         return;
@@ -145,6 +147,7 @@ function getStatusHandler() {
             handleFault(obj.info)
             return;
         }
+        document.getElementById("matchLog").innerHTML = obj.gameResult.matchLog.replaceAll("\n", "<br>");
         if (obj.gameResult.phase == "PREPARE") {
             if (storedPhase != "PREPARE")
                 phasePrepare();
@@ -245,6 +248,25 @@ function aiHandler() {
         if (!obj.success) {
             handleFault(obj.info)
         }
+        return;
+    }
+    httpFault();
+}
+
+function getRules() {
+    xhr = new XMLHttpRequest();
+    xhr.onload = rulesHandler;
+    xhr.open('GET', '/api/getRules?token=' + storedToken, true);
+    xhr.send();
+}
+
+function rulesHandler() {
+    if (this.status == 200) {
+        obj = JSON.parse(this.responseText);
+        if (!obj.success) {
+            handleFault(obj.info)
+        }
+        document.getElementById("debugRules").innerHTML = obj.info.replaceAll("\n", "<br>");
         return;
     }
     httpFault();

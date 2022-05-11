@@ -142,7 +142,7 @@ storedToken = getCookie('au');
 storedSessionId = getCookie('sessionId');
 storedRpw = null;
 storedPhase = "LOOKUP";
-queuedAction = null;
+queuedAction = "gr";
 pwdEnable = false;
 pwdFirstClick = true;
 reqUpdate = false;
@@ -182,3 +182,4 @@ else if (storedSessionId != undefined) {
 // only token cookie presents
 else
     init("start");
+    // todo variables visibility fix

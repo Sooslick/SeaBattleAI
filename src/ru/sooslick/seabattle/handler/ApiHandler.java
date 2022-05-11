@@ -50,9 +50,9 @@ public class ApiHandler implements HttpHandler {
             Log.warn(e.getMessage());
             e.printStackTrace();
         }
-        String answer = ow.writeValueAsString(er);
-        httpExchange.sendResponseHeaders(200, answer.length());
-        httpExchange.getResponseBody().write(answer.getBytes());
+        byte[] answer = ow.writeValueAsString(er).getBytes();
+        httpExchange.sendResponseHeaders(200, answer.length);
+        httpExchange.getResponseBody().write(answer);
         httpExchange.close();
     }
 

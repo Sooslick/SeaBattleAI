@@ -72,6 +72,7 @@ div.clickable {
 
 .field {
     display: inline-block;
+    vertical-align: top;
 }
 
 .highlight {
@@ -101,6 +102,18 @@ div.clickable {
     position: fixed;
     top: 50px;
     right: 50px;
+}
+
+#matchLog {
+    border: 1px solid #888;
+    display: flex;
+    flex-direction: column-reverse;
+    font-family: 'Courier New';
+    font-size: 80%;
+    overflow-y: hidden;
+    text-align: left;
+    width: 108px;
+    height: 432px;
 }
 
 #pwdLabel {
