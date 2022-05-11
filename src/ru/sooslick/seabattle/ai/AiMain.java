@@ -236,7 +236,12 @@ public class AiMain {
             } while ("hit".equals(lastResult.getInfo()) || "kill".equals(lastResult.getInfo()));
         } while (!"win".equals(lastResult.getInfo()));
 
-        if (analyzePost) {
+        request = client.prepareGet(host + "/api/getSessionStatus");
+        request.addQueryParam("token", token);
+        requestLf = request.execute(new AsyncGetEventResult());
+        lastResult = getResponse(requestLf);
+
+        if (analyzePost && lastResult != null) {
             Log.info("Post-game action: analyze enemy field and update heat map");
             AiHeatData.analyze(lastResult.getGameResult().getEnemyField());
         }

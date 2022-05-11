@@ -32,7 +32,6 @@ public class AiHeatData implements Serializable {
     }
 
     public static void analyze() {
-        // todo restore merge heatdats
         File workDir = new File(analyzeDir);
         if (!workDir.exists()) {
             Log.warn("Cannot analyze: folder not exist");
@@ -40,11 +39,28 @@ public class AiHeatData implements Serializable {
         }
         try {
             Files.walk(workDir.toPath()).forEach(path -> {
+                File f = path.toFile();
+                if (!f.exists() || f.isDirectory())
+                    return;
+                // merge another heatmap
+                if (path.toString().toLowerCase().endsWith(".dat")) {
+                    try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(f))) {
+                        AiHeatData victim = (AiHeatData) ois.readObject();
+                        instance.total+= victim.total;
+                        for (int i = 0; i < 10; i++)
+                            for (int j = 0; j < 10; j++)
+                                instance.scores[i][j]+= victim.scores[i][j];
+                    } catch (ClassNotFoundException | IOException e) {
+                        Log.warn("Can't merge heat data from " + path + ": " + e.getMessage());
+                    }
+                    return;
+                }
+                // read normal datafile
                 String content;
                 try {
                     content = Files.readAllLines(path).get(0);
                 } catch (Exception e) {
-                    Log.warn("Error reading file " + path.toString() + ": " + e.getMessage());
+                    Log.warn("Error reading file " + path + ": " + e.getMessage());
                     return;
                 }
                 int row = 0;
@@ -103,10 +119,8 @@ public class AiHeatData implements Serializable {
                 return;
             }
         }
-        try {
-            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(dataDir + File.separator + dataName));
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(dataDir + File.separator + dataName))) {
             instance = (AiHeatData) ois.readObject();
-            ois.close();
         } catch (Exception e) {
             Log.warn("Cannot deserialize data: " + e.getMessage());
             instance = new AiHeatData();
@@ -116,10 +130,8 @@ public class AiHeatData implements Serializable {
     private static void save() {
         if (!saveEnable)
             return;
-        try {
-            ObjectOutputStream ois = new ObjectOutputStream(new FileOutputStream(dataDir + File.separator + dataName));
+        try (ObjectOutputStream ois = new ObjectOutputStream(new FileOutputStream(dataDir + File.separator + dataName))) {
             ois.writeObject(instance);
-            ois.close();
             Log.info("Saved heat to file heatmap.dat");
         } catch (Exception e) {
             Log.warn("Cannot serialize data: " + e.getMessage());

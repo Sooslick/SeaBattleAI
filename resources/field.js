@@ -15,7 +15,7 @@ function updateSelector(shipArray) {
         let className = "clickable";
         if (entry[0] == storedSelector) {
             className+= " selected";
-            containsSelector = false;
+            selRequired = false;
         }
         span.className = className;
         span.innerHTML = "&#18;" + entry[0] + " x" + entry[1];
