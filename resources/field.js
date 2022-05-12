@@ -118,7 +118,7 @@ function updateField(my, field) {
     }
 }
 
-storedSelector = 1;
+storedSelector = 4;
 storedDirection = false;
 storedX = -1;
 storedY = -1;

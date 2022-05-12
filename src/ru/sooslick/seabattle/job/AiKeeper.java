@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class AiKeeper {
+    private static int analyzeSkips = 0;
+
     private static final List<Thread> aInstances = new LinkedList<>();
 
     public static void launchAi(int sessionId, @Nullable String pw, boolean skill) {
@@ -22,9 +24,15 @@ public class AiKeeper {
             argList.add("useheatmap");
         argList.add("heatdir=" + SeaBattleProperties.AI_DATA_DIR);
         String[] args = argList.toArray(new String[0]);
-        Thread aiThread = new Thread(() -> new AiMain().run(args));
-        aiThread.start();
-        aInstances.add(aiThread);
+        aiThread(args);
+    }
+
+    public static void analyze() {
+        if (analyzeSkips-- > 0)
+            return;
+        String[] args = new String[] {"-analyze", "heatdir=" + SeaBattleProperties.AI_DATA_DIR};
+        aiThread(args);
+        analyzeSkips = 86400 / SeaBattleProperties.APP_CLEANUP_INTERVAL;    // one day at least
     }
 
     public static void cleanup() {
@@ -38,6 +46,12 @@ public class AiKeeper {
 
     public static void kill() {
         aInstances.stream().filter(Thread::isAlive).forEach(Thread::interrupt);
+    }
+
+    private static void aiThread(String[] args) {
+        Thread aiThread = new Thread(() -> new AiMain().run(args));
+        aiThread.start();
+        aInstances.add(aiThread);
     }
 
     private AiKeeper() {}

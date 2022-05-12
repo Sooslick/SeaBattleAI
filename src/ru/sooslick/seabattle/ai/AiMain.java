@@ -16,8 +16,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class AiMain {
-    private AsyncHttpClient client;
-
     public static void main(String[] args) {
         new AiMain().run(args);
     }
@@ -26,7 +24,7 @@ public class AiMain {
         boolean create = true;
         int sessionId = -1;
         String sessionPw = null;
-        String host = "localhost:65535";
+        String host = "http://localhost:65535";
         boolean useHeatMap = false;
         String heatDir = "aiData";
         boolean analyzePre = false;
@@ -80,6 +78,8 @@ public class AiMain {
         if (analyzePre) {
             Log.info("-analyze flag presents, update heat map");
             AiHeatData.analyze();
+            Log.info("Analyze completed.");
+            return;
         }
 
         if (create) {
@@ -88,166 +88,172 @@ public class AiMain {
             Log.info("Selected session: " + sessionId);
 
         // init http client and request token
-        client = Dsl.asyncHttpClient();
-        BoundRequestBuilder request = client.prepareGet(host + "/api/getToken");
-        ListenableFuture<EventResult> requestLf = request.execute(new AsyncGetEventResult());
-        Log.info("Request new player token");
+        try (AsyncHttpClient client = Dsl.asyncHttpClient()) {
+            BoundRequestBuilder request = client.prepareGet(host + "/api/getToken");
+            ListenableFuture<EventResult> requestLf = request.execute(new AsyncGetEventResult());
+            Log.info("Request new player token");
 
-        // get token
-        EventResult lastResult = getResponse(requestLf);
-        if (lastResult == null || !lastResult.getSuccess()) {
-            aiShutdown(lastResult == null ? "/api/getToken not respond" : lastResult.getInfo());
-            return;
-        }
-        String token = lastResult.getToken();
-        Log.info("Token is received // " + token);
+            // get token
+            EventResult lastResult = getResponse(requestLf);
+            if (lastResult == null || !lastResult.getSuccess()) {
+                Log.warn(lastResult == null ? "/api/getToken not respond" : lastResult.getInfo());
+                return;
+            }
+            String token = lastResult.getToken();
+            Log.info("Token is received // " + token);
 
-        // request session
-        if (create) {
-            request = client.prepareGet(host + "/api/registerSession");
-            Log.info("Request new game session");
-        } else {
-            request = client.prepareGet(host + "/api/joinSession");
-            request.addQueryParam("sessionId", Integer.toString(sessionId));
-            Log.info("Trying to join session " + sessionId + " with password \"" + sessionPw + "\"");
-        }
-        request.addQueryParam("token", token);
-        if (sessionPw != null)
-            request.addQueryParam("pw", sessionPw);
-        requestLf = request.execute(new AsyncGetEventResult());
-
-        // get session id if present
-        lastResult = getResponse(requestLf);
-        if (lastResult == null || !lastResult.getSuccess()) {
-            aiShutdown(lastResult == null ? "Host does not respond" : lastResult.getInfo());
-            return;
-        }
-        if (create) {
-            if (lastResult.getSessionInfos() != null)
-                sessionId = lastResult.getSessionInfos().stream().map(EventResult.SessionInfo::getSessionId).findFirst().orElse(-1);
-            Log.info("Created session // " + sessionId);
-        }
-        Log.info("Successfully joined to session " + sessionId + ", waiting for start");
-
-        // wait for start phase
-        String phase = "";
-        do {
-            Log.info("Sending longpoll status request...");
-            request = client.prepareGet(host + "/api/longpoll/getSessionStatus");
+            // request session
+            if (create) {
+                request = client.prepareGet(host + "/api/registerSession");
+                Log.info("Request new game session");
+            } else {
+                request = client.prepareGet(host + "/api/joinSession");
+                request.addQueryParam("sessionId", Integer.toString(sessionId));
+                Log.info("Trying to join session " + sessionId + " with password \"" + sessionPw + "\"");
+            }
             request.addQueryParam("token", token);
-            request.addQueryParam("timeout", "55");
+            if (sessionPw != null)
+                request.addQueryParam("pw", sessionPw);
             requestLf = request.execute(new AsyncGetEventResult());
+
+            // get session id if present
             lastResult = getResponse(requestLf);
             if (lastResult == null || !lastResult.getSuccess()) {
-                aiShutdown(lastResult == null ? "/api/getSessionStatus not respond" : lastResult.getInfo());
+                Log.warn(lastResult == null ? "Host does not respond" : lastResult.getInfo());
                 return;
             }
-            if (lastResult.getGameResult() != null)
-                phase = lastResult.getGameResult().getPhase();
-        } while (!"PREPARE".equals(phase));
-        Log.info("Entered game phase. Generating ships");
-
-        // place ships
-        AiField myField = new AiField(useHeatMap, lastResult.getGameResult().getShips());
-        AiField enemyField = new AiField(useHeatMap, lastResult.getGameResult().getShips());
-        AiField.PlacePosition ppos;
-        while ((ppos = myField.getPlacePosition()) != null) {
-            request = client.prepareGet(host + "/api/placeShip");
-            request.addQueryParam("token", token);
-            request.addQueryParam("position", ppos.getPosition());
-            request.addQueryParam("size", Integer.toString(ppos.getSize()));
-            request.addQueryParam("vertical", Boolean.toString(ppos.isVert()));
-            requestLf = request.execute(new AsyncGetEventResult());
-            lastResult = getResponse(requestLf);
-            if (lastResult == null) {
-                aiShutdown("/api/placeShip not respond");
-                return;
+            if (create) {
+                if (lastResult.getSessionInfos() != null)
+                    sessionId = lastResult.getSessionInfos().stream().map(EventResult.SessionInfo::getSessionId).findFirst().orElse(-1);
+                Log.info("Created session // " + sessionId);
             }
-            if (lastResult.getSuccess()) {
-                myField.confirmPlace(ppos);
-                Log.info("Placed ship: " + ppos);
-            } else {
-                Log.info("Tried place ship " + ppos);
-                if ("Can't placeShip: unknown or expired token".equals(lastResult.getInfo())) {
-                    aiShutdown(lastResult.getInfo());
-                    return;
-                }
-                Log.info(lastResult.getInfo());
-            }
-        }
-        if (myField.ships.size() > 0) {
-            aiShutdown("Failed place ships");
-            return;
-        }
-        Log.info("Ships placed, check ready");
+            Log.info("Successfully joined to session " + sessionId + ", waiting for start");
 
-        // main loop
-        do {
-            Log.info("Wait for turn...");
+            // wait for start phase
+            String phase = "";
             do {
+                Log.info("Sending longpoll status request...");
                 request = client.prepareGet(host + "/api/longpoll/getSessionStatus");
                 request.addQueryParam("token", token);
                 request.addQueryParam("timeout", "55");
                 requestLf = request.execute(new AsyncGetEventResult());
                 lastResult = getResponse(requestLf);
                 if (lastResult == null || !lastResult.getSuccess()) {
-                    aiShutdown(lastResult == null ? "/api/getSessionStatus not respond" : lastResult.getInfo());
+                    Log.warn(lastResult == null ? "/api/getSessionStatus not respond" : lastResult.getInfo());
                     return;
                 }
-                if (lastResult.getGameResult() != null) {
+                if (lastResult.getGameResult() != null)
                     phase = lastResult.getGameResult().getPhase();
-                    if (Boolean.TRUE.equals(lastResult.getGameResult().isMyTurn()))
-                        break;
-                }
-            } while (!"ENDGAME".equals(phase));
-            if ("ENDGAME".equals(phase)) {
-                Log.info("Seems like defeat.");
-                break;
-            }
+            } while (!"PREPARE".equals(phase));
+            Log.info("Entered game phase. Generating ships");
 
-            // guess cell
-            int failures = 0;
-            do {
-                String shootPos = enemyField.getShootPosition();
-                request = client.prepareGet(host + "/api/shoot");
+            // place ships
+            AiField myField = new AiField(useHeatMap, lastResult.getGameResult().getShips());
+            AiField enemyField = new AiField(useHeatMap, lastResult.getGameResult().getShips());
+            AiField.PlacePosition ppos;
+            while ((ppos = myField.getPlacePosition()) != null) {
+                request = client.prepareGet(host + "/api/placeShip");
                 request.addQueryParam("token", token);
-                request.addQueryParam("position", shootPos);
+                request.addQueryParam("position", ppos.getPosition());
+                request.addQueryParam("size", Integer.toString(ppos.getSize()));
+                request.addQueryParam("vertical", Boolean.toString(ppos.isVert()));
                 requestLf = request.execute(new AsyncGetEventResult());
                 lastResult = getResponse(requestLf);
                 if (lastResult == null) {
-                    aiShutdown("/api/shoot not respond");
+                    Log.warn("/api/placeShip not respond");
                     return;
                 }
                 if (lastResult.getSuccess()) {
-                    Log.info("Guess cell " + shootPos + ", result is " + lastResult.getInfo());
-                    enemyField.confirmShoot(shootPos, lastResult.getInfo());
+                    myField.confirmPlace(ppos);
+                    Log.info("Placed ship: " + ppos);
                 } else {
-                    Log.info("Tried to guess cell " + shootPos);
-                    if ("Can't shoot: unknown or expired token".equals(lastResult.getInfo())) {
-                        aiShutdown(lastResult.getInfo());
+                    Log.info("Tried place ship " + ppos);
+                    if ("Can't placeShip: unknown or expired token".equals(lastResult.getInfo())) {
+                        Log.warn(lastResult.getInfo());
                         return;
                     }
                     Log.info(lastResult.getInfo());
-                    if (++failures > 10) {
-                        aiShutdown("Too many failed shoot attempts");
+                }
+            }
+            if (myField.ships.size() > 0) {
+                Log.warn("Failed place ships");
+                return;
+            }
+            Log.info("Ships placed, check ready");
+
+            // main loop
+            do {
+                Log.info("Wait for turn...");
+                do {
+                    request = client.prepareGet(host + "/api/longpoll/getSessionStatus");
+                    request.addQueryParam("token", token);
+                    request.addQueryParam("timeout", "55");
+                    requestLf = request.execute(new AsyncGetEventResult());
+                    lastResult = getResponse(requestLf);
+                    if (lastResult == null || !lastResult.getSuccess()) {
+                        Log.warn(lastResult == null ? "/api/getSessionStatus not respond" : lastResult.getInfo());
                         return;
                     }
+                    if (lastResult.getGameResult() != null) {
+                        phase = lastResult.getGameResult().getPhase();
+                        if (Boolean.TRUE.equals(lastResult.getGameResult().isMyTurn()))
+                            break;
+                    }
+                } while (!"ENDGAME".equals(phase));
+                if ("ENDGAME".equals(phase)) {
+                    Log.info("Seems like defeat.");
+                    break;
                 }
-            } while ("hit".equals(lastResult.getInfo()) || "kill".equals(lastResult.getInfo()));
-        } while (!"win".equals(lastResult.getInfo()));
 
-        request = client.prepareGet(host + "/api/getSessionStatus");
-        request.addQueryParam("token", token);
-        requestLf = request.execute(new AsyncGetEventResult());
-        lastResult = getResponse(requestLf);
+                // guess cell
+                int failures = 0;
+                do {
+                    String shootPos = enemyField.getShootPosition();
+                    request = client.prepareGet(host + "/api/shoot");
+                    request.addQueryParam("token", token);
+                    request.addQueryParam("position", shootPos);
+                    requestLf = request.execute(new AsyncGetEventResult());
+                    lastResult = getResponse(requestLf);
+                    if (lastResult == null) {
+                        Log.warn("/api/shoot not respond");
+                        return;
+                    }
+                    if (lastResult.getSuccess()) {
+                        Log.info("Guess cell " + shootPos + ", result is " + lastResult.getInfo());
+                        enemyField.confirmShoot(shootPos, lastResult.getInfo());
+                    } else {
+                        Log.info("Tried to guess cell " + shootPos);
+                        if ("Can't shoot: unknown or expired token".equals(lastResult.getInfo())) {
+                            Log.warn(lastResult.getInfo());
+                            return;
+                        }
+                        Log.info(lastResult.getInfo());
+                        if (++failures > 10) {
+                            Log.warn("Too many failed shoot attempts");
+                            return;
+                        }
+                    }
+                } while ("hit".equals(lastResult.getInfo()) || "kill".equals(lastResult.getInfo()));
+            } while (!"win".equals(lastResult.getInfo()));
 
-        if (analyzePost && lastResult != null) {
-            Log.info("Post-game action: analyze enemy field and update heat map");
-            AiHeatData.analyze(lastResult.getGameResult().getEnemyField());
+            request = client.prepareGet(host + "/api/getSessionStatus");
+            request.addQueryParam("token", token);
+            requestLf = request.execute(new AsyncGetEventResult());
+            lastResult = getResponse(requestLf);
+
+            if (analyzePost && lastResult != null) {
+                Log.info("Post-game action: analyze enemy field and update heat map");
+                AiHeatData.analyze(lastResult.getGameResult().getEnemyField());
+            }
+
+            //exit
+            Log.info("Done.");
+        } catch (IOException e) {
+            Log.warn("HTTP client error: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            Log.info("AI thread finished");
         }
-
-        //exit
-        aiShutdown("Done.");
     }
 
     private static <T> T getResponse(ListenableFuture<T> req) {
@@ -257,15 +263,6 @@ public class AiMain {
             Log.info("Failed get response");
             e.printStackTrace();
             return null;
-        }
-    }
-
-    private void aiShutdown(String cause) {
-        Log.info(cause + "\nAI thread finished");
-        try {
-            client.close();
-        } catch (IOException e) {
-            Log.info("HTTP client cannot stop normally");
         }
     }
 }

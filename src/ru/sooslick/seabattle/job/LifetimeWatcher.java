@@ -29,6 +29,7 @@ public class LifetimeWatcher extends Thread {
             SeaBattleMain.purgePlayers(inactivePlayers);
 
             AiKeeper.cleanup();
+            AiKeeper.analyze();
 
             if (inactiveSessions.size() > 0)
                 Log.info("LifetimeWatcher report: " + inactiveSessions.size() + " sessions expired");

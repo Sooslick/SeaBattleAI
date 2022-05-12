@@ -1,13 +1,19 @@
 package ru.sooslick.seabattle.entity;
 
+import org.apache.commons.io.FileUtils;
+import ru.sooslick.seabattle.Log;
 import ru.sooslick.seabattle.SeaBattleProperties;
 import ru.sooslick.seabattle.result.EventResult;
 import ru.sooslick.seabattle.result.FieldResult;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 public class SeaBattleField {
     private final List<Integer> availableShips = new LinkedList<>(Arrays.asList(4, 3, 3, 2, 2, 2, 1, 1, 1, 1));
@@ -53,6 +59,25 @@ public class SeaBattleField {
         removeShip(size);
         toCheck.forEach(pos -> getCell(pos).placeShip());
         return new EventResult(true);
+    }
+
+    public void saveAnalyzeFile() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < 10; i++) {
+            for (int j = 0; j < 10; j++)
+                sb.append(cells[i][j].hasShip() ? '1' : '0');
+            sb.append('.');
+        }
+        String analyzeDir = SeaBattleProperties.AI_DATA_DIR + File.separator + "analyze";
+        String fname = UUID.randomUUID().toString().substring(0, 8);
+        File file = new File(analyzeDir + File.separator + fname);
+        try {
+            //noinspection ResultOfMethodCallIgnored
+            new File(analyzeDir).mkdirs();
+            FileUtils.writeStringToFile(file, sb.toString(), Charset.defaultCharset());
+        } catch (IOException e) {
+            Log.warn("Cannot save playfield data: " + e.getMessage());
+        }
     }
 
     public EventResult shoot(SeaBattlePosition position) {

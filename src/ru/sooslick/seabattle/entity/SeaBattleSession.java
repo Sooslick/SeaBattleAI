@@ -26,6 +26,7 @@ public class SeaBattleSession {
     private SeaBattlePlayer p2;
     private SessionPhase phase = SessionPhase.LOOKUP;
     private long lastActionTime;
+    private boolean ai = false;
 
     private static int getNextId() {
         return Math.abs(UUID.randomUUID().toString().substring(0, 8).hashCode());
@@ -190,12 +191,21 @@ public class SeaBattleSession {
         // post-shoot action
         if (result.getSuccess())
             matchLog.append(p).append(position).append(" ").append(result.getInfo()).append("\n");
-        if ("win".equals(result.getInfo()))
+        if ("win".equals(result.getInfo())) {
             phase = SessionPhase.ENDGAME;
+            if (!ai) {
+                p1Field.saveAnalyzeFile();
+                p2Field.saveAnalyzeFile();
+            }
+        }
         else if ("miss".equals(result.getInfo()))
             switchTurn();
         notifyAction();
         return result;
+    }
+
+    public void markAi() {
+        ai = true;
     }
 
     public void waitForStatus(SeaBattlePlayer player, long timeout) {

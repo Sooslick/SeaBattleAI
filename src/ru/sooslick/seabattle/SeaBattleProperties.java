@@ -28,9 +28,9 @@ public class SeaBattleProperties {
     static {
         // rd version
         String tempVer = "unknown";
-        try {
+        try (InputStream is = SeaBattleProperties.class.getResourceAsStream("/version.properties")) {
             Properties properties = new Properties();
-            properties.load(SeaBattleProperties.class.getResourceAsStream("/version.properties"));
+            properties.load(is);
             tempVer = properties.getProperty("app.version", tempVer);
         } catch (IOException e) {
             e.printStackTrace();

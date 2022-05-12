@@ -122,6 +122,7 @@ public class EventListener {
         if (!session.testPw(pw))
             return new EventResult(false).info("Can't init AI: wrong session password");
         AiKeeper.launchAi(id, pw, skill != null);
+        session.markAi();
         return new EventResult(true);
     }
 

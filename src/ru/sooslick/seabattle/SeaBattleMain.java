@@ -61,23 +61,30 @@ public class SeaBattleMain {
         ACTIVE_PLAYERS.removeAll(inactivePlayers);
     }
 
-    public static void main(String[] args) throws IOException, InterruptedException {
+    public static void main(String[] args) throws InterruptedException {
         parseArgs(args);
         Log.info("Starting app in " + System.getProperty("user.dir"));
-        LifetimeWatcher lifetimeWatcher = new LifetimeWatcher();
-        lifetimeWatcher.start();
 
-        HttpHandler eventHandler = new ApiHandler(ApiHandler.DEFAULT_API);
-        HttpServer server = HttpServer.create();
         Log.info("Starting server on port " + SeaBattleProperties.APP_SERVER_PORT);
-        server.bind(new InetSocketAddress(SeaBattleProperties.APP_SERVER_PORT), SeaBattleProperties.APP_SERVER_CONNECTIONS);
+        HttpServer server;
+        try {
+            server = HttpServer.create();
+            server.bind(new InetSocketAddress(SeaBattleProperties.APP_SERVER_PORT), SeaBattleProperties.APP_SERVER_CONNECTIONS);
+        } catch (IOException e) {
+            Log.warn("Unable to start HTTP server: " + e.getMessage());
+            return;
+        }
         server.createContext("/", new IndexHandler());
         server.createContext("/api/longpoll/getSessionStatus", new ApiHandler(ApiHandler.LONG_POLL_STATUS));
+        HttpHandler apiHandler = new ApiHandler(ApiHandler.DEFAULT_API);
         Arrays.stream(ApiMethod.values())
-                .forEach(m -> server.createContext(m.getPath(), eventHandler));
+                .forEach(m -> server.createContext(m.getPath(), apiHandler));
         ExecutorService exec = Executors.newFixedThreadPool(SeaBattleProperties.APP_SERVER_CONNECTIONS);
         server.setExecutor(exec);
         server.start();
+
+        LifetimeWatcher lifetimeWatcher = new LifetimeWatcher();
+        lifetimeWatcher.start();
 
         UserPromptListener upl = new UserPromptListener();
         upl.start();
