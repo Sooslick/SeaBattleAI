@@ -8,28 +8,32 @@
 <div id="loading">
     <img src="loading.gif">
 </div>
-<div id="start" hidden>
+<div class="ui" id="start" hidden>
     <div class="clickable" id="bPlayer" onclick="loadMainMenu()">Play with friend</div>
     <div class="clickable" id="bAi" onclick="loadMenu('startAi')">Play with computer</div>
 </div>
-<div id="startAi" hidden>
-    <div class="captionText">Select computer skill</div>
-    <div class="clickable" id="bAiHeat" onclick="loadAi(true)">Smart</div>
-    <div class="clickable" id="bAiRand" onclick="loadAi(false)">Simple</div>
-    <div class="clickable" id="bAiBack" onclick="loadMenu('start')">Back</div>
+<div class="ui" id="startAi" hidden>
+    <div class="clickable" id="bAiHeat" onclick="loadAi(true)">Smart AI</div>
+    <div class="clickable" id="bAiRand" onclick="loadAi(false)">Simple AI</div>
+    <div class="clickable" id="bAiBack" onclick="loadMenu('start')" style="margin-top: 25px">Back</div>
 </div>
-<div id="mainmenu" hidden>
-    <div class="clickable" id="bCreate" onclick="loadGame(-1)">Start new game</div>
-    <div class="pwdWrapper">
-        <div id="pwdSelector" onclick="pwdSelClck()">
-            <div id="pwdPosition"></div>
+<div class="ui" id="mainmenu" hidden>
+    <div class="mmInline">
+        <div class="clickable" id="bCreate" onclick="loadGame(-1)">Start new game</div>
+        <div class="pwdWrapper">
+            <div id="pwdSelector" onclick="pwdSelClck()">
+                <div id="pwdPosition"></div>
+            </div>
+            <div id="pwdLabel">Enable password</div>
+            <br><input class="clickable" type="text" id="pwdContent" onclick="pwdInputClck()" hidden/>
         </div>
-        <div id="pwdLabel">Enable password</div>
+        <div class="clickable" id="bRefreshSessions" onclick="getSessions()">Refresh</div>
+        <div class="clickable" id="bBack" onclick="loadMenu('start')">Back</div>
     </div>
-    <input type="text" id="pwdContent" onclick="pwdInputClck()" hidden/>
-    <div id="listGames"></div>
-    <div class="clickable" id="bRefreshSessions" onclick="getSessions()">Refresh</div>
-    <div class="clickable" id="bBack" onclick="loadMenu('start')">Back</div>
+    <div class="mmInline" style="padding-left: 40px;">
+        <div class="listHeader">&#160;Available games&#160;</div>
+        <div id="listGames"></div>
+    </div>
 </div>
 <div id="game" hidden>
     <div class="lobby" id="lobbyStatus">Waiting for second player</div>
@@ -52,133 +56,233 @@
             </tr>
             <tr>
                 <td>1</td>
-                <td class="cell" id="0-0" onclick="clickOwn(0, 0)" onmouseenter="hover(true, 0, 0)" onmouseleave="hover(false, 0, 0)"></td>
-                <td class="cell" id="0-1" onclick="clickOwn(0, 1)" onmouseenter="hover(true, 0, 1)" onmouseleave="hover(false, 0, 1)"></td>
-                <td class="cell" id="0-2" onclick="clickOwn(0, 2)" onmouseenter="hover(true, 0, 2)" onmouseleave="hover(false, 0, 2)"></td>
-                <td class="cell" id="0-3" onclick="clickOwn(0, 3)" onmouseenter="hover(true, 0, 3)" onmouseleave="hover(false, 0, 3)"></td>
-                <td class="cell" id="0-4" onclick="clickOwn(0, 4)" onmouseenter="hover(true, 0, 4)" onmouseleave="hover(false, 0, 4)"></td>
-                <td class="cell" id="0-5" onclick="clickOwn(0, 5)" onmouseenter="hover(true, 0, 5)" onmouseleave="hover(false, 0, 5)"></td>
-                <td class="cell" id="0-6" onclick="clickOwn(0, 6)" onmouseenter="hover(true, 0, 6)" onmouseleave="hover(false, 0, 6)"></td>
-                <td class="cell" id="0-7" onclick="clickOwn(0, 7)" onmouseenter="hover(true, 0, 7)" onmouseleave="hover(false, 0, 7)"></td>
-                <td class="cell" id="0-8" onclick="clickOwn(0, 8)" onmouseenter="hover(true, 0, 8)" onmouseleave="hover(false, 0, 8)"></td>
-                <td class="cell" id="0-9" onclick="clickOwn(0, 9)" onmouseenter="hover(true, 0, 9)" onmouseleave="hover(false, 0, 9)"></td>
+                <td class="cell" id="0-0" onclick="clickOwn(0, 0)" onmouseenter="hover(true, 0, 0)"
+                    onmouseleave="hover(false, 0, 0)"></td>
+                <td class="cell" id="0-1" onclick="clickOwn(0, 1)" onmouseenter="hover(true, 0, 1)"
+                    onmouseleave="hover(false, 0, 1)"></td>
+                <td class="cell" id="0-2" onclick="clickOwn(0, 2)" onmouseenter="hover(true, 0, 2)"
+                    onmouseleave="hover(false, 0, 2)"></td>
+                <td class="cell" id="0-3" onclick="clickOwn(0, 3)" onmouseenter="hover(true, 0, 3)"
+                    onmouseleave="hover(false, 0, 3)"></td>
+                <td class="cell" id="0-4" onclick="clickOwn(0, 4)" onmouseenter="hover(true, 0, 4)"
+                    onmouseleave="hover(false, 0, 4)"></td>
+                <td class="cell" id="0-5" onclick="clickOwn(0, 5)" onmouseenter="hover(true, 0, 5)"
+                    onmouseleave="hover(false, 0, 5)"></td>
+                <td class="cell" id="0-6" onclick="clickOwn(0, 6)" onmouseenter="hover(true, 0, 6)"
+                    onmouseleave="hover(false, 0, 6)"></td>
+                <td class="cell" id="0-7" onclick="clickOwn(0, 7)" onmouseenter="hover(true, 0, 7)"
+                    onmouseleave="hover(false, 0, 7)"></td>
+                <td class="cell" id="0-8" onclick="clickOwn(0, 8)" onmouseenter="hover(true, 0, 8)"
+                    onmouseleave="hover(false, 0, 8)"></td>
+                <td class="cell" id="0-9" onclick="clickOwn(0, 9)" onmouseenter="hover(true, 0, 9)"
+                    onmouseleave="hover(false, 0, 9)"></td>
             </tr>
             <tr>
                 <td>2</td>
-                <td class="cell" id="1-0" onclick="clickOwn(1, 0)" onmouseenter="hover(true, 1, 0)" onmouseleave="hover(false, 1, 0)"></td>
-                <td class="cell" id="1-1" onclick="clickOwn(1, 1)" onmouseenter="hover(true, 1, 1)" onmouseleave="hover(false, 1, 1)"></td>
-                <td class="cell" id="1-2" onclick="clickOwn(1, 2)" onmouseenter="hover(true, 1, 2)" onmouseleave="hover(false, 1, 2)"></td>
-                <td class="cell" id="1-3" onclick="clickOwn(1, 3)" onmouseenter="hover(true, 1, 3)" onmouseleave="hover(false, 1, 3)"></td>
-                <td class="cell" id="1-4" onclick="clickOwn(1, 4)" onmouseenter="hover(true, 1, 4)" onmouseleave="hover(false, 1, 4)"></td>
-                <td class="cell" id="1-5" onclick="clickOwn(1, 5)" onmouseenter="hover(true, 1, 5)" onmouseleave="hover(false, 1, 5)"></td>
-                <td class="cell" id="1-6" onclick="clickOwn(1, 6)" onmouseenter="hover(true, 1, 6)" onmouseleave="hover(false, 1, 6)"></td>
-                <td class="cell" id="1-7" onclick="clickOwn(1, 7)" onmouseenter="hover(true, 1, 7)" onmouseleave="hover(false, 1, 7)"></td>
-                <td class="cell" id="1-8" onclick="clickOwn(1, 8)" onmouseenter="hover(true, 1, 8)" onmouseleave="hover(false, 1, 8)"></td>
-                <td class="cell" id="1-9" onclick="clickOwn(1, 9)" onmouseenter="hover(true, 1, 9)" onmouseleave="hover(false, 1, 9)"></td>
+                <td class="cell" id="1-0" onclick="clickOwn(1, 0)" onmouseenter="hover(true, 1, 0)"
+                    onmouseleave="hover(false, 1, 0)"></td>
+                <td class="cell" id="1-1" onclick="clickOwn(1, 1)" onmouseenter="hover(true, 1, 1)"
+                    onmouseleave="hover(false, 1, 1)"></td>
+                <td class="cell" id="1-2" onclick="clickOwn(1, 2)" onmouseenter="hover(true, 1, 2)"
+                    onmouseleave="hover(false, 1, 2)"></td>
+                <td class="cell" id="1-3" onclick="clickOwn(1, 3)" onmouseenter="hover(true, 1, 3)"
+                    onmouseleave="hover(false, 1, 3)"></td>
+                <td class="cell" id="1-4" onclick="clickOwn(1, 4)" onmouseenter="hover(true, 1, 4)"
+                    onmouseleave="hover(false, 1, 4)"></td>
+                <td class="cell" id="1-5" onclick="clickOwn(1, 5)" onmouseenter="hover(true, 1, 5)"
+                    onmouseleave="hover(false, 1, 5)"></td>
+                <td class="cell" id="1-6" onclick="clickOwn(1, 6)" onmouseenter="hover(true, 1, 6)"
+                    onmouseleave="hover(false, 1, 6)"></td>
+                <td class="cell" id="1-7" onclick="clickOwn(1, 7)" onmouseenter="hover(true, 1, 7)"
+                    onmouseleave="hover(false, 1, 7)"></td>
+                <td class="cell" id="1-8" onclick="clickOwn(1, 8)" onmouseenter="hover(true, 1, 8)"
+                    onmouseleave="hover(false, 1, 8)"></td>
+                <td class="cell" id="1-9" onclick="clickOwn(1, 9)" onmouseenter="hover(true, 1, 9)"
+                    onmouseleave="hover(false, 1, 9)"></td>
             </tr>
             <tr>
                 <td>3</td>
-                <td class="cell" id="2-0" onclick="clickOwn(2, 0)" onmouseenter="hover(true, 2, 0)" onmouseleave="hover(false, 2, 0)"></td>
-                <td class="cell" id="2-1" onclick="clickOwn(2, 1)" onmouseenter="hover(true, 2, 1)" onmouseleave="hover(false, 2, 1)"></td>
-                <td class="cell" id="2-2" onclick="clickOwn(2, 2)" onmouseenter="hover(true, 2, 2)" onmouseleave="hover(false, 2, 2)"></td>
-                <td class="cell" id="2-3" onclick="clickOwn(2, 3)" onmouseenter="hover(true, 2, 3)" onmouseleave="hover(false, 2, 3)"></td>
-                <td class="cell" id="2-4" onclick="clickOwn(2, 4)" onmouseenter="hover(true, 2, 4)" onmouseleave="hover(false, 2, 4)"></td>
-                <td class="cell" id="2-5" onclick="clickOwn(2, 5)" onmouseenter="hover(true, 2, 5)" onmouseleave="hover(false, 2, 5)"></td>
-                <td class="cell" id="2-6" onclick="clickOwn(2, 6)" onmouseenter="hover(true, 2, 6)" onmouseleave="hover(false, 2, 6)"></td>
-                <td class="cell" id="2-7" onclick="clickOwn(2, 7)" onmouseenter="hover(true, 2, 7)" onmouseleave="hover(false, 2, 7)"></td>
-                <td class="cell" id="2-8" onclick="clickOwn(2, 8)" onmouseenter="hover(true, 2, 8)" onmouseleave="hover(false, 2, 8)"></td>
-                <td class="cell" id="2-9" onclick="clickOwn(2, 9)" onmouseenter="hover(true, 2, 9)" onmouseleave="hover(false, 2, 9)"></td>
+                <td class="cell" id="2-0" onclick="clickOwn(2, 0)" onmouseenter="hover(true, 2, 0)"
+                    onmouseleave="hover(false, 2, 0)"></td>
+                <td class="cell" id="2-1" onclick="clickOwn(2, 1)" onmouseenter="hover(true, 2, 1)"
+                    onmouseleave="hover(false, 2, 1)"></td>
+                <td class="cell" id="2-2" onclick="clickOwn(2, 2)" onmouseenter="hover(true, 2, 2)"
+                    onmouseleave="hover(false, 2, 2)"></td>
+                <td class="cell" id="2-3" onclick="clickOwn(2, 3)" onmouseenter="hover(true, 2, 3)"
+                    onmouseleave="hover(false, 2, 3)"></td>
+                <td class="cell" id="2-4" onclick="clickOwn(2, 4)" onmouseenter="hover(true, 2, 4)"
+                    onmouseleave="hover(false, 2, 4)"></td>
+                <td class="cell" id="2-5" onclick="clickOwn(2, 5)" onmouseenter="hover(true, 2, 5)"
+                    onmouseleave="hover(false, 2, 5)"></td>
+                <td class="cell" id="2-6" onclick="clickOwn(2, 6)" onmouseenter="hover(true, 2, 6)"
+                    onmouseleave="hover(false, 2, 6)"></td>
+                <td class="cell" id="2-7" onclick="clickOwn(2, 7)" onmouseenter="hover(true, 2, 7)"
+                    onmouseleave="hover(false, 2, 7)"></td>
+                <td class="cell" id="2-8" onclick="clickOwn(2, 8)" onmouseenter="hover(true, 2, 8)"
+                    onmouseleave="hover(false, 2, 8)"></td>
+                <td class="cell" id="2-9" onclick="clickOwn(2, 9)" onmouseenter="hover(true, 2, 9)"
+                    onmouseleave="hover(false, 2, 9)"></td>
             </tr>
             <tr>
                 <td>4</td>
-                <td class="cell" id="3-0" onclick="clickOwn(3, 0)" onmouseenter="hover(true, 3, 0)" onmouseleave="hover(false, 3, 0)"></td>
-                <td class="cell" id="3-1" onclick="clickOwn(3, 1)" onmouseenter="hover(true, 3, 1)" onmouseleave="hover(false, 3, 1)"></td>
-                <td class="cell" id="3-2" onclick="clickOwn(3, 2)" onmouseenter="hover(true, 3, 2)" onmouseleave="hover(false, 3, 2)"></td>
-                <td class="cell" id="3-3" onclick="clickOwn(3, 3)" onmouseenter="hover(true, 3, 3)" onmouseleave="hover(false, 3, 3)"></td>
-                <td class="cell" id="3-4" onclick="clickOwn(3, 4)" onmouseenter="hover(true, 3, 4)" onmouseleave="hover(false, 3, 4)"></td>
-                <td class="cell" id="3-5" onclick="clickOwn(3, 5)" onmouseenter="hover(true, 3, 5)" onmouseleave="hover(false, 3, 5)"></td>
-                <td class="cell" id="3-6" onclick="clickOwn(3, 6)" onmouseenter="hover(true, 3, 6)" onmouseleave="hover(false, 3, 6)"></td>
-                <td class="cell" id="3-7" onclick="clickOwn(3, 7)" onmouseenter="hover(true, 3, 7)" onmouseleave="hover(false, 3, 7)"></td>
-                <td class="cell" id="3-8" onclick="clickOwn(3, 8)" onmouseenter="hover(true, 3, 8)" onmouseleave="hover(false, 3, 8)"></td>
-                <td class="cell" id="3-9" onclick="clickOwn(3, 9)" onmouseenter="hover(true, 3, 9)" onmouseleave="hover(false, 3, 9)"></td>
+                <td class="cell" id="3-0" onclick="clickOwn(3, 0)" onmouseenter="hover(true, 3, 0)"
+                    onmouseleave="hover(false, 3, 0)"></td>
+                <td class="cell" id="3-1" onclick="clickOwn(3, 1)" onmouseenter="hover(true, 3, 1)"
+                    onmouseleave="hover(false, 3, 1)"></td>
+                <td class="cell" id="3-2" onclick="clickOwn(3, 2)" onmouseenter="hover(true, 3, 2)"
+                    onmouseleave="hover(false, 3, 2)"></td>
+                <td class="cell" id="3-3" onclick="clickOwn(3, 3)" onmouseenter="hover(true, 3, 3)"
+                    onmouseleave="hover(false, 3, 3)"></td>
+                <td class="cell" id="3-4" onclick="clickOwn(3, 4)" onmouseenter="hover(true, 3, 4)"
+                    onmouseleave="hover(false, 3, 4)"></td>
+                <td class="cell" id="3-5" onclick="clickOwn(3, 5)" onmouseenter="hover(true, 3, 5)"
+                    onmouseleave="hover(false, 3, 5)"></td>
+                <td class="cell" id="3-6" onclick="clickOwn(3, 6)" onmouseenter="hover(true, 3, 6)"
+                    onmouseleave="hover(false, 3, 6)"></td>
+                <td class="cell" id="3-7" onclick="clickOwn(3, 7)" onmouseenter="hover(true, 3, 7)"
+                    onmouseleave="hover(false, 3, 7)"></td>
+                <td class="cell" id="3-8" onclick="clickOwn(3, 8)" onmouseenter="hover(true, 3, 8)"
+                    onmouseleave="hover(false, 3, 8)"></td>
+                <td class="cell" id="3-9" onclick="clickOwn(3, 9)" onmouseenter="hover(true, 3, 9)"
+                    onmouseleave="hover(false, 3, 9)"></td>
             </tr>
             <tr>
                 <td>5</td>
-                <td class="cell" id="4-0" onclick="clickOwn(4, 0)" onmouseenter="hover(true, 4, 0)" onmouseleave="hover(false, 4, 0)"></td>
-                <td class="cell" id="4-1" onclick="clickOwn(4, 1)" onmouseenter="hover(true, 4, 1)" onmouseleave="hover(false, 4, 1)"></td>
-                <td class="cell" id="4-2" onclick="clickOwn(4, 2)" onmouseenter="hover(true, 4, 2)" onmouseleave="hover(false, 4, 2)"></td>
-                <td class="cell" id="4-3" onclick="clickOwn(4, 3)" onmouseenter="hover(true, 4, 3)" onmouseleave="hover(false, 4, 3)"></td>
-                <td class="cell" id="4-4" onclick="clickOwn(4, 4)" onmouseenter="hover(true, 4, 4)" onmouseleave="hover(false, 4, 4)"></td>
-                <td class="cell" id="4-5" onclick="clickOwn(4, 5)" onmouseenter="hover(true, 4, 5)" onmouseleave="hover(false, 4, 5)"></td>
-                <td class="cell" id="4-6" onclick="clickOwn(4, 6)" onmouseenter="hover(true, 4, 6)" onmouseleave="hover(false, 4, 6)"></td>
-                <td class="cell" id="4-7" onclick="clickOwn(4, 7)" onmouseenter="hover(true, 4, 7)" onmouseleave="hover(false, 4, 7)"></td>
-                <td class="cell" id="4-8" onclick="clickOwn(4, 8)" onmouseenter="hover(true, 4, 8)" onmouseleave="hover(false, 4, 8)"></td>
-                <td class="cell" id="4-9" onclick="clickOwn(4, 9)" onmouseenter="hover(true, 4, 9)" onmouseleave="hover(false, 4, 9)"></td>
+                <td class="cell" id="4-0" onclick="clickOwn(4, 0)" onmouseenter="hover(true, 4, 0)"
+                    onmouseleave="hover(false, 4, 0)"></td>
+                <td class="cell" id="4-1" onclick="clickOwn(4, 1)" onmouseenter="hover(true, 4, 1)"
+                    onmouseleave="hover(false, 4, 1)"></td>
+                <td class="cell" id="4-2" onclick="clickOwn(4, 2)" onmouseenter="hover(true, 4, 2)"
+                    onmouseleave="hover(false, 4, 2)"></td>
+                <td class="cell" id="4-3" onclick="clickOwn(4, 3)" onmouseenter="hover(true, 4, 3)"
+                    onmouseleave="hover(false, 4, 3)"></td>
+                <td class="cell" id="4-4" onclick="clickOwn(4, 4)" onmouseenter="hover(true, 4, 4)"
+                    onmouseleave="hover(false, 4, 4)"></td>
+                <td class="cell" id="4-5" onclick="clickOwn(4, 5)" onmouseenter="hover(true, 4, 5)"
+                    onmouseleave="hover(false, 4, 5)"></td>
+                <td class="cell" id="4-6" onclick="clickOwn(4, 6)" onmouseenter="hover(true, 4, 6)"
+                    onmouseleave="hover(false, 4, 6)"></td>
+                <td class="cell" id="4-7" onclick="clickOwn(4, 7)" onmouseenter="hover(true, 4, 7)"
+                    onmouseleave="hover(false, 4, 7)"></td>
+                <td class="cell" id="4-8" onclick="clickOwn(4, 8)" onmouseenter="hover(true, 4, 8)"
+                    onmouseleave="hover(false, 4, 8)"></td>
+                <td class="cell" id="4-9" onclick="clickOwn(4, 9)" onmouseenter="hover(true, 4, 9)"
+                    onmouseleave="hover(false, 4, 9)"></td>
             </tr>
             <tr>
                 <td>6</td>
-                <td class="cell" id="5-0" onclick="clickOwn(5, 0)" onmouseenter="hover(true, 5, 0)" onmouseleave="hover(false, 5, 0)"></td>
-                <td class="cell" id="5-1" onclick="clickOwn(5, 1)" onmouseenter="hover(true, 5, 1)" onmouseleave="hover(false, 5, 1)"></td>
-                <td class="cell" id="5-2" onclick="clickOwn(5, 2)" onmouseenter="hover(true, 5, 2)" onmouseleave="hover(false, 5, 2)"></td>
-                <td class="cell" id="5-3" onclick="clickOwn(5, 3)" onmouseenter="hover(true, 5, 3)" onmouseleave="hover(false, 5, 3)"></td>
-                <td class="cell" id="5-4" onclick="clickOwn(5, 4)" onmouseenter="hover(true, 5, 4)" onmouseleave="hover(false, 5, 4)"></td>
-                <td class="cell" id="5-5" onclick="clickOwn(5, 5)" onmouseenter="hover(true, 5, 5)" onmouseleave="hover(false, 5, 5)"></td>
-                <td class="cell" id="5-6" onclick="clickOwn(5, 6)" onmouseenter="hover(true, 5, 6)" onmouseleave="hover(false, 5, 6)"></td>
-                <td class="cell" id="5-7" onclick="clickOwn(5, 7)" onmouseenter="hover(true, 5, 7)" onmouseleave="hover(false, 5, 7)"></td>
-                <td class="cell" id="5-8" onclick="clickOwn(5, 8)" onmouseenter="hover(true, 5, 8)" onmouseleave="hover(false, 5, 8)"></td>
-                <td class="cell" id="5-9" onclick="clickOwn(5, 9)" onmouseenter="hover(true, 5, 9)" onmouseleave="hover(false, 5, 9)"></td>
+                <td class="cell" id="5-0" onclick="clickOwn(5, 0)" onmouseenter="hover(true, 5, 0)"
+                    onmouseleave="hover(false, 5, 0)"></td>
+                <td class="cell" id="5-1" onclick="clickOwn(5, 1)" onmouseenter="hover(true, 5, 1)"
+                    onmouseleave="hover(false, 5, 1)"></td>
+                <td class="cell" id="5-2" onclick="clickOwn(5, 2)" onmouseenter="hover(true, 5, 2)"
+                    onmouseleave="hover(false, 5, 2)"></td>
+                <td class="cell" id="5-3" onclick="clickOwn(5, 3)" onmouseenter="hover(true, 5, 3)"
+                    onmouseleave="hover(false, 5, 3)"></td>
+                <td class="cell" id="5-4" onclick="clickOwn(5, 4)" onmouseenter="hover(true, 5, 4)"
+                    onmouseleave="hover(false, 5, 4)"></td>
+                <td class="cell" id="5-5" onclick="clickOwn(5, 5)" onmouseenter="hover(true, 5, 5)"
+                    onmouseleave="hover(false, 5, 5)"></td>
+                <td class="cell" id="5-6" onclick="clickOwn(5, 6)" onmouseenter="hover(true, 5, 6)"
+                    onmouseleave="hover(false, 5, 6)"></td>
+                <td class="cell" id="5-7" onclick="clickOwn(5, 7)" onmouseenter="hover(true, 5, 7)"
+                    onmouseleave="hover(false, 5, 7)"></td>
+                <td class="cell" id="5-8" onclick="clickOwn(5, 8)" onmouseenter="hover(true, 5, 8)"
+                    onmouseleave="hover(false, 5, 8)"></td>
+                <td class="cell" id="5-9" onclick="clickOwn(5, 9)" onmouseenter="hover(true, 5, 9)"
+                    onmouseleave="hover(false, 5, 9)"></td>
             </tr>
             <tr>
                 <td>7</td>
-                <td class="cell" id="6-0" onclick="clickOwn(6, 0)" onmouseenter="hover(true, 6, 0)" onmouseleave="hover(false, 6, 0)"></td>
-                <td class="cell" id="6-1" onclick="clickOwn(6, 1)" onmouseenter="hover(true, 6, 1)" onmouseleave="hover(false, 6, 1)"></td>
-                <td class="cell" id="6-2" onclick="clickOwn(6, 2)" onmouseenter="hover(true, 6, 2)" onmouseleave="hover(false, 6, 2)"></td>
-                <td class="cell" id="6-3" onclick="clickOwn(6, 3)" onmouseenter="hover(true, 6, 3)" onmouseleave="hover(false, 6, 3)"></td>
-                <td class="cell" id="6-4" onclick="clickOwn(6, 4)" onmouseenter="hover(true, 6, 4)" onmouseleave="hover(false, 6, 4)"></td>
-                <td class="cell" id="6-5" onclick="clickOwn(6, 5)" onmouseenter="hover(true, 6, 5)" onmouseleave="hover(false, 6, 5)"></td>
-                <td class="cell" id="6-6" onclick="clickOwn(6, 6)" onmouseenter="hover(true, 6, 6)" onmouseleave="hover(false, 6, 6)"></td>
-                <td class="cell" id="6-7" onclick="clickOwn(6, 7)" onmouseenter="hover(true, 6, 7)" onmouseleave="hover(false, 6, 7)"></td>
-                <td class="cell" id="6-8" onclick="clickOwn(6, 8)" onmouseenter="hover(true, 6, 8)" onmouseleave="hover(false, 6, 8)"></td>
-                <td class="cell" id="6-9" onclick="clickOwn(6, 9)" onmouseenter="hover(true, 6, 9)" onmouseleave="hover(false, 6, 9)"></td>
+                <td class="cell" id="6-0" onclick="clickOwn(6, 0)" onmouseenter="hover(true, 6, 0)"
+                    onmouseleave="hover(false, 6, 0)"></td>
+                <td class="cell" id="6-1" onclick="clickOwn(6, 1)" onmouseenter="hover(true, 6, 1)"
+                    onmouseleave="hover(false, 6, 1)"></td>
+                <td class="cell" id="6-2" onclick="clickOwn(6, 2)" onmouseenter="hover(true, 6, 2)"
+                    onmouseleave="hover(false, 6, 2)"></td>
+                <td class="cell" id="6-3" onclick="clickOwn(6, 3)" onmouseenter="hover(true, 6, 3)"
+                    onmouseleave="hover(false, 6, 3)"></td>
+                <td class="cell" id="6-4" onclick="clickOwn(6, 4)" onmouseenter="hover(true, 6, 4)"
+                    onmouseleave="hover(false, 6, 4)"></td>
+                <td class="cell" id="6-5" onclick="clickOwn(6, 5)" onmouseenter="hover(true, 6, 5)"
+                    onmouseleave="hover(false, 6, 5)"></td>
+                <td class="cell" id="6-6" onclick="clickOwn(6, 6)" onmouseenter="hover(true, 6, 6)"
+                    onmouseleave="hover(false, 6, 6)"></td>
+                <td class="cell" id="6-7" onclick="clickOwn(6, 7)" onmouseenter="hover(true, 6, 7)"
+                    onmouseleave="hover(false, 6, 7)"></td>
+                <td class="cell" id="6-8" onclick="clickOwn(6, 8)" onmouseenter="hover(true, 6, 8)"
+                    onmouseleave="hover(false, 6, 8)"></td>
+                <td class="cell" id="6-9" onclick="clickOwn(6, 9)" onmouseenter="hover(true, 6, 9)"
+                    onmouseleave="hover(false, 6, 9)"></td>
             </tr>
             <tr>
                 <td>8</td>
-                <td class="cell" id="7-0" onclick="clickOwn(7, 0)" onmouseenter="hover(true, 7, 0)" onmouseleave="hover(false, 7, 0)"></td>
-                <td class="cell" id="7-1" onclick="clickOwn(7, 1)" onmouseenter="hover(true, 7, 1)" onmouseleave="hover(false, 7, 1)"></td>
-                <td class="cell" id="7-2" onclick="clickOwn(7, 2)" onmouseenter="hover(true, 7, 2)" onmouseleave="hover(false, 7, 2)"></td>
-                <td class="cell" id="7-3" onclick="clickOwn(7, 3)" onmouseenter="hover(true, 7, 3)" onmouseleave="hover(false, 7, 3)"></td>
-                <td class="cell" id="7-4" onclick="clickOwn(7, 4)" onmouseenter="hover(true, 7, 4)" onmouseleave="hover(false, 7, 4)"></td>
-                <td class="cell" id="7-5" onclick="clickOwn(7, 5)" onmouseenter="hover(true, 7, 5)" onmouseleave="hover(false, 7, 5)"></td>
-                <td class="cell" id="7-6" onclick="clickOwn(7, 6)" onmouseenter="hover(true, 7, 6)" onmouseleave="hover(false, 7, 6)"></td>
-                <td class="cell" id="7-7" onclick="clickOwn(7, 7)" onmouseenter="hover(true, 7, 7)" onmouseleave="hover(false, 7, 7)"></td>
-                <td class="cell" id="7-8" onclick="clickOwn(7, 8)" onmouseenter="hover(true, 7, 8)" onmouseleave="hover(false, 7, 8)"></td>
-                <td class="cell" id="7-9" onclick="clickOwn(7, 9)" onmouseenter="hover(true, 7, 9)" onmouseleave="hover(false, 7, 9)"></td>
+                <td class="cell" id="7-0" onclick="clickOwn(7, 0)" onmouseenter="hover(true, 7, 0)"
+                    onmouseleave="hover(false, 7, 0)"></td>
+                <td class="cell" id="7-1" onclick="clickOwn(7, 1)" onmouseenter="hover(true, 7, 1)"
+                    onmouseleave="hover(false, 7, 1)"></td>
+                <td class="cell" id="7-2" onclick="clickOwn(7, 2)" onmouseenter="hover(true, 7, 2)"
+                    onmouseleave="hover(false, 7, 2)"></td>
+                <td class="cell" id="7-3" onclick="clickOwn(7, 3)" onmouseenter="hover(true, 7, 3)"
+                    onmouseleave="hover(false, 7, 3)"></td>
+                <td class="cell" id="7-4" onclick="clickOwn(7, 4)" onmouseenter="hover(true, 7, 4)"
+                    onmouseleave="hover(false, 7, 4)"></td>
+                <td class="cell" id="7-5" onclick="clickOwn(7, 5)" onmouseenter="hover(true, 7, 5)"
+                    onmouseleave="hover(false, 7, 5)"></td>
+                <td class="cell" id="7-6" onclick="clickOwn(7, 6)" onmouseenter="hover(true, 7, 6)"
+                    onmouseleave="hover(false, 7, 6)"></td>
+                <td class="cell" id="7-7" onclick="clickOwn(7, 7)" onmouseenter="hover(true, 7, 7)"
+                    onmouseleave="hover(false, 7, 7)"></td>
+                <td class="cell" id="7-8" onclick="clickOwn(7, 8)" onmouseenter="hover(true, 7, 8)"
+                    onmouseleave="hover(false, 7, 8)"></td>
+                <td class="cell" id="7-9" onclick="clickOwn(7, 9)" onmouseenter="hover(true, 7, 9)"
+                    onmouseleave="hover(false, 7, 9)"></td>
             </tr>
             <tr>
                 <td>9</td>
-                <td class="cell" id="8-0" onclick="clickOwn(8, 0)" onmouseenter="hover(true, 8, 0)" onmouseleave="hover(false, 8, 0)"></td>
-                <td class="cell" id="8-1" onclick="clickOwn(8, 1)" onmouseenter="hover(true, 8, 1)" onmouseleave="hover(false, 8, 1)"></td>
-                <td class="cell" id="8-2" onclick="clickOwn(8, 2)" onmouseenter="hover(true, 8, 2)" onmouseleave="hover(false, 8, 2)"></td>
-                <td class="cell" id="8-3" onclick="clickOwn(8, 3)" onmouseenter="hover(true, 8, 3)" onmouseleave="hover(false, 8, 3)"></td>
-                <td class="cell" id="8-4" onclick="clickOwn(8, 4)" onmouseenter="hover(true, 8, 4)" onmouseleave="hover(false, 8, 4)"></td>
-                <td class="cell" id="8-5" onclick="clickOwn(8, 5)" onmouseenter="hover(true, 8, 5)" onmouseleave="hover(false, 8, 5)"></td>
-                <td class="cell" id="8-6" onclick="clickOwn(8, 6)" onmouseenter="hover(true, 8, 6)" onmouseleave="hover(false, 8, 6)"></td>
-                <td class="cell" id="8-7" onclick="clickOwn(8, 7)" onmouseenter="hover(true, 8, 7)" onmouseleave="hover(false, 8, 7)"></td>
-                <td class="cell" id="8-8" onclick="clickOwn(8, 8)" onmouseenter="hover(true, 8, 8)" onmouseleave="hover(false, 8, 8)"></td>
-                <td class="cell" id="8-9" onclick="clickOwn(8, 9)" onmouseenter="hover(true, 8, 9)" onmouseleave="hover(false, 8, 9)"></td>
+                <td class="cell" id="8-0" onclick="clickOwn(8, 0)" onmouseenter="hover(true, 8, 0)"
+                    onmouseleave="hover(false, 8, 0)"></td>
+                <td class="cell" id="8-1" onclick="clickOwn(8, 1)" onmouseenter="hover(true, 8, 1)"
+                    onmouseleave="hover(false, 8, 1)"></td>
+                <td class="cell" id="8-2" onclick="clickOwn(8, 2)" onmouseenter="hover(true, 8, 2)"
+                    onmouseleave="hover(false, 8, 2)"></td>
+                <td class="cell" id="8-3" onclick="clickOwn(8, 3)" onmouseenter="hover(true, 8, 3)"
+                    onmouseleave="hover(false, 8, 3)"></td>
+                <td class="cell" id="8-4" onclick="clickOwn(8, 4)" onmouseenter="hover(true, 8, 4)"
+                    onmouseleave="hover(false, 8, 4)"></td>
+                <td class="cell" id="8-5" onclick="clickOwn(8, 5)" onmouseenter="hover(true, 8, 5)"
+                    onmouseleave="hover(false, 8, 5)"></td>
+                <td class="cell" id="8-6" onclick="clickOwn(8, 6)" onmouseenter="hover(true, 8, 6)"
+                    onmouseleave="hover(false, 8, 6)"></td>
+                <td class="cell" id="8-7" onclick="clickOwn(8, 7)" onmouseenter="hover(true, 8, 7)"
+                    onmouseleave="hover(false, 8, 7)"></td>
+                <td class="cell" id="8-8" onclick="clickOwn(8, 8)" onmouseenter="hover(true, 8, 8)"
+                    onmouseleave="hover(false, 8, 8)"></td>
+                <td class="cell" id="8-9" onclick="clickOwn(8, 9)" onmouseenter="hover(true, 8, 9)"
+                    onmouseleave="hover(false, 8, 9)"></td>
             </tr>
             <tr>
                 <td>10</td>
-                <td class="cell" id="9-0" onclick="clickOwn(9, 0)" onmouseenter="hover(true, 9, 0)" onmouseleave="hover(false, 9, 0)"></td>
-                <td class="cell" id="9-1" onclick="clickOwn(9, 1)" onmouseenter="hover(true, 9, 1)" onmouseleave="hover(false, 9, 1)"></td>
-                <td class="cell" id="9-2" onclick="clickOwn(9, 2)" onmouseenter="hover(true, 9, 2)" onmouseleave="hover(false, 9, 2)"></td>
-                <td class="cell" id="9-3" onclick="clickOwn(9, 3)" onmouseenter="hover(true, 9, 3)" onmouseleave="hover(false, 9, 3)"></td>
-                <td class="cell" id="9-4" onclick="clickOwn(9, 4)" onmouseenter="hover(true, 9, 4)" onmouseleave="hover(false, 9, 4)"></td>
-                <td class="cell" id="9-5" onclick="clickOwn(9, 5)" onmouseenter="hover(true, 9, 5)" onmouseleave="hover(false, 9, 5)"></td>
-                <td class="cell" id="9-6" onclick="clickOwn(9, 6)" onmouseenter="hover(true, 9, 6)" onmouseleave="hover(false, 9, 6)"></td>
-                <td class="cell" id="9-7" onclick="clickOwn(9, 7)" onmouseenter="hover(true, 9, 7)" onmouseleave="hover(false, 9, 7)"></td>
-                <td class="cell" id="9-8" onclick="clickOwn(9, 8)" onmouseenter="hover(true, 9, 8)" onmouseleave="hover(false, 9, 8)"></td>
-                <td class="cell" id="9-9" onclick="clickOwn(9, 9)" onmouseenter="hover(true, 9, 9)" onmouseleave="hover(false, 9, 9)"></td>
+                <td class="cell" id="9-0" onclick="clickOwn(9, 0)" onmouseenter="hover(true, 9, 0)"
+                    onmouseleave="hover(false, 9, 0)"></td>
+                <td class="cell" id="9-1" onclick="clickOwn(9, 1)" onmouseenter="hover(true, 9, 1)"
+                    onmouseleave="hover(false, 9, 1)"></td>
+                <td class="cell" id="9-2" onclick="clickOwn(9, 2)" onmouseenter="hover(true, 9, 2)"
+                    onmouseleave="hover(false, 9, 2)"></td>
+                <td class="cell" id="9-3" onclick="clickOwn(9, 3)" onmouseenter="hover(true, 9, 3)"
+                    onmouseleave="hover(false, 9, 3)"></td>
+                <td class="cell" id="9-4" onclick="clickOwn(9, 4)" onmouseenter="hover(true, 9, 4)"
+                    onmouseleave="hover(false, 9, 4)"></td>
+                <td class="cell" id="9-5" onclick="clickOwn(9, 5)" onmouseenter="hover(true, 9, 5)"
+                    onmouseleave="hover(false, 9, 5)"></td>
+                <td class="cell" id="9-6" onclick="clickOwn(9, 6)" onmouseenter="hover(true, 9, 6)"
+                    onmouseleave="hover(false, 9, 6)"></td>
+                <td class="cell" id="9-7" onclick="clickOwn(9, 7)" onmouseenter="hover(true, 9, 7)"
+                    onmouseleave="hover(false, 9, 7)"></td>
+                <td class="cell" id="9-8" onclick="clickOwn(9, 8)" onmouseenter="hover(true, 9, 8)"
+                    onmouseleave="hover(false, 9, 8)"></td>
+                <td class="cell" id="9-9" onclick="clickOwn(9, 9)" onmouseenter="hover(true, 9, 9)"
+                    onmouseleave="hover(false, 9, 9)"></td>
             </tr>
             </tbody>
         </table>
@@ -333,7 +437,9 @@
             </tbody>
         </table>
     </div>
-    <div class="field"><div id="matchLog"></div></div>
+    <div class="field">
+        <div id="matchLog"></div>
+    </div>
     <br>
     <span class="clickable" id="shipRotate" onclick="rotate()">-</span>
     <span id="shipSelector"></span>

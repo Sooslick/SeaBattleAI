@@ -94,7 +94,7 @@ function clickOwn(x, y) {
 }
 
 function clickEnemy(x, y) {
-    if (!storedPhase.includes("TURN"))
+    if (!storedPhase.includes("TURN") || !document.getElementById("enemyField").className.includes("highlight"))
         return;
     let pos = String.fromCharCode(y + 97) + (x+1);
     tryShoot(pos);

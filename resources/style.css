@@ -45,21 +45,21 @@ td.cell:hover {
 .captionText {
     font-size: 200%;
     text-align: center;
-    margin-top: 20px;
-    margin-bottom: 30px;
+    margin-top: 15px;
+    margin-bottom: 35px;
 }
 
 .clickable {
+    background-color: #180618;
     border: 2px solid gray;
-    margin: 2px;
+    border-radius: 2px;
+    margin: 3px auto;
     padding: 10px;
     width: 200px;
 }
 .clickable:hover {
+    background-color: #181008;
     border: 2px solid #803;
-}
-div.clickable {
-    margin-left: 100px;
 }
 
 .debug {
@@ -90,8 +90,34 @@ div.clickable {
     font-style: italic;
 }
 
+.mmInline {
+    display: inline-block;
+    vertical-align: top;
+}
+#listGames .clickable {
+    border-left-width: 10px;
+}
+.mmInline .listHeader {
+    font-size: 140%;
+    font-style: oblique;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    height: 45px;
+}
+
 .selected {
     color: #a05;
+}
+
+.ui {
+    background-color: #080820;
+    border: 1px solid #444;
+    border-radius: 2px;
+    border-top-width: 5px;
+    margin-left: 70px;
+    padding: 20px 160px;
+    width: fit-content;
+    min-height: 270px;
 }
 
 #debugStatus {
@@ -116,18 +142,24 @@ div.clickable {
     height: 432px;
 }
 
+#pwdContent {
+    color: white;
+    cursor: text;
+    font-family: 'Courier New';
+    padding: 5px 10px;
+}
 #pwdLabel {
     position: relative;
     top: -6px;
     display: inline-block;
     margin: auto;
     text-align: left;
-    width: 175px;
+    user-select: none;
 }
 #pwdSelector {
     display: inline-block;
     background-color: #111;
-    border: 2px solid #444;
+    border: 2px solid gray;
     border-radius: 16px;
     margin: auto 10px auto auto;
     transition-duration: 100ms;
@@ -135,9 +167,12 @@ div.clickable {
     height: 20px;
     z-index: 1;
 }
+#pwdSelector:hover {
+    border-color: #803;
+}
 #pwdPosition {
-    background-color: #444;
-    border: 2px solid #666;
+    background-color: #180618;
+    border: 2px solid gray;
     border-radius: 16px;
     margin-left: 0px;
     transition-duration: 100ms;
@@ -147,6 +182,13 @@ div.clickable {
     width: 20px;
     height: 20px;
     z-index: 5;
+}
+#pwdPosition:hover {
+    background-color: #321;
+}
+.pwdWrapper {
+    margin: 10px auto;
+    min-height: 75px;
 }
 
 #shipRotate {
