@@ -11,16 +11,16 @@ table {
 }
 
 td {
-    background: #212;
+    background: #300c30;
     border: 1px solid #444;
     width: 32px;
     height: 32px;
 }
 td.cell {
-    background: #101;
+    background: #180618;
 }
 td.place {
-    background: #403;
+    background: #481248;
 }
 .shot {
     position: relative;
@@ -109,12 +109,21 @@ td.cell:hover {
     color: #a05;
 }
 
+.selectorWrapper {
+    display: inline-block;
+    font-family: 'Courier New';
+    margin-top: 10px;
+    margin-bottom: 35px;
+    text-align: left;
+    width: 88%
+}
+
 .ui {
     background-color: #080820;
     border: 1px solid #444;
     border-radius: 2px;
     border-top-width: 5px;
-    margin-left: 70px;
+    margin-left: 160px;
     padding: 20px 160px;
     width: fit-content;
     min-height: 270px;
@@ -124,6 +133,13 @@ td.cell:hover {
     color: #800;
 }
 
+#game {
+    width: fit-content;
+}
+#game div.clickable {
+    margin-left: 20px;
+}
+
 #loading {
     position: fixed;
     top: 50px;
@@ -131,15 +147,17 @@ td.cell:hover {
 }
 
 #matchLog {
-    border: 1px solid #888;
+    border: 2px solid #444;
+    border-radius: 2px;
+    border-top-width: 10px;
     display: flex;
     flex-direction: column-reverse;
     font-family: 'Courier New';
     font-size: 80%;
     overflow-y: hidden;
     text-align: left;
-    width: 108px;
-    height: 432px;
+    width: 115px;
+    height: 422px;
 }
 
 #pwdContent {
@@ -154,7 +172,7 @@ td.cell:hover {
     display: inline-block;
     margin: auto;
     text-align: left;
-    user-select: none;
+    min-width: 115px;
 }
 #pwdSelector {
     display: inline-block;
@@ -189,18 +207,16 @@ td.cell:hover {
 .pwdWrapper {
     margin: 10px auto;
     min-height: 75px;
+    user-select: none;
 }
 
 #shipRotate {
     border-radius: 22px;
-    font-family: 'Courier New';
-    margin-right: 10px;
     padding: 5px 10px;
 }
 
-#shipSelector {
-    font-family: 'Courier New';
-    margin-right: 420px;
+[id*="ship"] {
+    margin-right: 2px;
 }
 
 @keyframes flicker {

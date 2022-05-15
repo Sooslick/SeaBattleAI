@@ -166,10 +166,11 @@ public class AiField {
 
     private PlacePosition getHeatPlacePosition() {
         List<PlacePosition> positions = filterPlacePositions();
+        int maxShip = getMaxShip();
+        if (maxShip <= 0)
+            return null;
         for (PlacePosition pp : positions) {
-            pp.size = getMaxShip();
-            if (pp.size == 0)
-                return null;
+            pp.size = maxShip;
             double hScore = calcPlaceScore(pp, false);
             double vScore = calcPlaceScore(pp, true);
             if (Math.abs(hScore - vScore) < 0.001) {
@@ -308,14 +309,14 @@ public class AiField {
     }
 
     private double calcPlaceScore(PlacePosition pp, boolean vert) {
+        pp.vert = vert;
+        if (!canPlace(pp))
+            return -1;
         int imod = vert ? 1 : 0;
         int jmod = 1 - imod;
         double score = 10;
         for (int z = 0; z < pp.size; z++) {
             SeaBattlePosition sbPos = pp.positionRaw.getRelative(z * imod, z * jmod);
-            if (sbPos.getRow() >= 10 || sbPos.getCol() >= 10) {
-                return -1;
-            }
             score-= AiHeatData.getMultiplier(sbPos);
         }
         return score;

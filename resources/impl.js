@@ -35,6 +35,7 @@ function loadAi(skill) {
     loadMenu("game");
     document.getElementById("loading").hidden = false;
     document.getElementById("bRefreshToken").hidden = true; // todo loadgame dublicates
+    document.getElementById("game").style.display = 'inline-block';
     storedRpw = makeId(4);
     queuedAction = skill ? "ah" : "as";
     createSession();
@@ -45,6 +46,7 @@ function loadGame(sid) {
     loadMenu("game");
     document.getElementById("loading").hidden = false;
     document.getElementById("bRefreshToken").hidden = true;
+    document.getElementById("game").style.display = 'inline-block';
     if (sid < 0) {
         storedRpw = document.getElementById("pwdContent").value;
         document.cookie = "rpw=" + storedRpw + "; max-age=600";
@@ -61,6 +63,7 @@ function startSessionInterval(sid) {
     document.getElementById("debugSid").innerText = storedSessionId;
     getLongpollSessionStatus();
     document.getElementById("loading").hidden = true;
+    document.getElementById("game").style.display = 'inline-block';
 }
 
 function phasePrepare() {
