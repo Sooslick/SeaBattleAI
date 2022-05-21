@@ -48,8 +48,10 @@ function loadGame(sid) {
     document.getElementById("bRefreshToken").hidden = true;
     document.getElementById("game").style.display = 'inline-block';
     if (sid < 0) {
-        storedRpw = document.getElementById("pwdContent").value;
-        document.cookie = "rpw=" + storedRpw + "; max-age=600";
+        if (pwdEnable) {
+            storedRpw = document.getElementById("pwdContent").value;
+            document.cookie = "rpw=" + storedRpw + "; max-age=600";
+        }
         createSession();
     } else {
         storedRpw = document.getElementById("pwdContent").value;
@@ -60,6 +62,10 @@ function loadGame(sid) {
 // init game menu and init status requests
 function startSessionInterval(sid) {
     document.cookie = "sessionId=" + storedSessionId + "; max-age=3000";
+    if (queuedAction == "rl") {
+        window.location = window.location.href.split("?")[0];
+        return;
+    }
     document.getElementById("debugSid").innerText = storedSessionId;
     getLongpollSessionStatus();
     document.getElementById("loading").hidden = true;
@@ -183,6 +189,8 @@ else if (storedSessionId != undefined) {
     startSessionInterval(storedSessionId);
 }
 // only token cookie presents
-else
+else {
     init("start");
+    getRules();
     // todo variables visibility fix
+}

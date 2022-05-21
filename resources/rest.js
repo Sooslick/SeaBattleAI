@@ -14,7 +14,9 @@ function getTokenHandler() {
         if (queuedAction == "gs") {
             getSessions();
         } else if (queuedAction == "jg") {
+            queuedAction = "rl";
             joinSession(storedSessionId);
+            return;
         } else if (queuedAction == "gr") {
             getRules();
         }
@@ -264,6 +266,8 @@ function rulesHandler() {
     if (this.status == 200) {
         obj = JSON.parse(this.responseText);
         if (!obj.success) {
+            queuedAction = "gr";
+            getToken();
             handleFault(obj.info)
         }
         document.getElementById("debugRules").innerHTML = obj.info.replaceAll("\n", "<br>");

@@ -153,6 +153,8 @@ public class EventListener {
                 return new StatusSupplier(() -> new EventResult(false).info("Failed getSessionStatus: session with provided id is not exist"));
             return new StatusSupplier(session, () -> session.getStatus(player));
         }
+        if (SeaBattleMain.getSession(player.getSession().getId()) == null)
+            return new StatusSupplier(() -> new EventResult(false).info("Failed getSessionStatus: stale session"));
         return new StatusSupplier(player, () -> player.getSession().getStatus(player));
     }
 

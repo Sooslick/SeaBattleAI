@@ -26,6 +26,7 @@ public class AiField {
     protected final List<Integer> ships;
     private final int shipsTotal;
 
+    private int randomGuesses = 0;
     private SeaBattlePosition detectedShip;
     private Boolean detectedVert;
 
@@ -246,7 +247,7 @@ public class AiField {
                     positions.add(new SeaBattlePosition(i, j));
         // guess cell by random
         int maxShip = getMaxShip();
-        if (ships.size() >= shipsTotal || maxShip <= 1) {
+        if ((ships.size() >= shipsTotal && randomGuesses++ < 10) || maxShip <= 1) {
             double maxScore = positions.stream().mapToDouble(pos -> calcShootScore(pos, useHeatMult)).max().orElse(1);
             Collections.shuffle(positions);
             return positions.stream().filter(pos -> calcShootScore(pos, useHeatMult) >= maxScore).findAny().orElse(positions.get(0)).toString();
