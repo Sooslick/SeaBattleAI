@@ -6,8 +6,7 @@ function getToken() {
 }
 
 function getTokenHandler() {
-    if (this.status == 200) {
-        obj = JSON.parse(this.responseText);
+    handleApi(this, obj => {
         storedToken = obj.token;
         document.cookie = "au=" + storedToken + "; max-age=3000";
         document.getElementById("debugToken").innerText = storedToken;
@@ -21,9 +20,7 @@ function getTokenHandler() {
             getRules();
         }
         queuedAction = null;
-        return;
-    }
-    httpFault();
+    }, () => {});
 }
 
 function getSessions() {
@@ -34,14 +31,7 @@ function getSessions() {
 }
 
 function getSessionsHandler() {
-    if (this.status == 200) {
-        obj = JSON.parse(this.responseText);
-        if (!obj.success) {
-            handleFault(obj.info)
-            queuedAction = "gs";
-            getToken();
-            return;
-        }
+    handleApi(this, obj => {
         let listGames = document.getElementById("listGames");
         listGames.innerHTML = "";
         if (obj.sessionInfos != null) {
@@ -55,9 +45,10 @@ function getSessionsHandler() {
             })
         }
         document.getElementById("loading").hidden = true;
-        return;
-    }
-    httpFault();
+    }, () => {
+        queuedAction = "gs";
+        getToken();
+    });
 }
 
 function createSession() {
@@ -72,21 +63,14 @@ function createSession() {
 }
 
 function createSessionHandler() {
-    if (this.status == 200) {
-        obj = JSON.parse(this.responseText);
-        if (!obj.success) {
-            handleFault(obj.info)
-            return;
-        }
+    handleApi(this, obj => {
         storedSessionId = obj.sessionInfos[0].sessionId;
         if (queuedAction != null) {
             initAi(queuedAction);
             queuedAction = null;
         }
         startSessionInterval(storedSessionId);
-        return;
-    }
-    httpFault();
+    }, () => {});
 }
 
 function joinSession(sid) {
@@ -101,18 +85,12 @@ function joinSession(sid) {
 }
 
 function joinSessionHandler() {
-    if (this.status == 200) {
-        obj = JSON.parse(this.responseText);
-        if (!obj.success) {
-            handleFault(obj.info)
-            getLongpollSessionStatus(storedSessionId);
-            return;
-        }
+    handleApi(this, obj => {
         startSessionInterval(storedSessionId);
         return;
-    }
-    storedSessionId = null;
-    httpFault();
+    }, () => {
+        getLongpollSessionStatus(storedSessionId);
+    })
 }
 
 function getSessionStatus() {
@@ -197,17 +175,11 @@ function placeShip(pos, size, vert) {
 }
 
 function placeShipHandler() {
-    if (this.status == 200) {
-        obj = JSON.parse(this.responseText);
+    handleApi(this, obj => {
         reqUpdate = true;
-        if (!obj.success) {
-            handleFault(obj.info)
-            return;
-        }
         getSessionStatus(true);
         return;
-    }
-    httpFault();
+    }, () => {});
 }
 
 function tryShoot(pos) {
@@ -219,18 +191,11 @@ function tryShoot(pos) {
 }
 
 function shootHandler() {
-    if (this.status == 200) {
-        obj = JSON.parse(this.responseText);
+    handleApi(this, obj => {
         reqUpdate = true;
-        if (!obj.success) {
-            handleFault(obj.info)
-            return;
-        }
         document.getElementById('shipRotate').innerHTML = obj.info;
         getSessionStatus(true);
-        return;
-    }
-    httpFault();
+    }, () => {})
 }
 
 function initAi(aiType) {
@@ -243,16 +208,8 @@ function initAi(aiType) {
     xhr.send();
 }
 
-// todo handler duplications
 function aiHandler() {
-    if (this.status == 200) {
-        obj = JSON.parse(this.responseText);
-        if (!obj.success) {
-            handleFault(obj.info)
-        }
-        return;
-    }
-    httpFault();
+    handleApi(this, obj => {}, () => {});
 }
 
 function getRules() {
@@ -263,17 +220,12 @@ function getRules() {
 }
 
 function rulesHandler() {
-    if (this.status == 200) {
-        obj = JSON.parse(this.responseText);
-        if (!obj.success) {
-            queuedAction = "gr";
-            getToken();
-            handleFault(obj.info)
-        }
+    handleApi(this, obj => {
         document.getElementById("debugRules").innerHTML = obj.info.replaceAll("\n", "<br>");
-        return;
-    }
-    httpFault();
+    }, () => {
+        queuedAction = "gr";
+        getToken();
+    });
 }
 
 function handleFault(msg) {
@@ -282,4 +234,18 @@ function handleFault(msg) {
 
 function httpFault() {
     document.getElementById("debugStatus").innerHTML = "Service error. Page reloading probably help to fix this issue.";
+}
+
+function handleApi(response, main, fault) {
+    if (response.status == 200) {
+        obj = JSON.parse(response.responseText);
+        if (!obj.success) {
+            fault();
+            handleFault(obj.info);
+            return;
+        }
+        main(obj);
+        return;
+    }
+    httpFault();
 }
