@@ -1,5 +1,5 @@
 function getToken() {
-    xhr = new XMLHttpRequest();
+    let xhr = new XMLHttpRequest();
     xhr.onload = getTokenHandler;
     xhr.open('GET', '/api/getToken', true);
     xhr.send();
@@ -24,7 +24,7 @@ function getTokenHandler() {
 }
 
 function getSessions() {
-    xhr = new XMLHttpRequest();
+    let xhr = new XMLHttpRequest();
 	xhr.onload = getSessionsHandler;
 	xhr.open('GET', '/api/getSessions?token=' + storedToken, true);
 	xhr.send();
@@ -52,11 +52,11 @@ function getSessionsHandler() {
 }
 
 function createSession() {
-    pwParam = "";
-    pwValue = document.getElementById("pwdContent").value;
+    let pwParam = "";
+    let pwValue = document.getElementById("pwdContent").value;
     if (pwdEnable && pwValue != null)
         pwParam = "&pw=" + pwValue;
-    xhr = new XMLHttpRequest();
+    let xhr = new XMLHttpRequest();
 	xhr.onload = createSessionHandler;
 	xhr.open('GET', '/api/registerSession?token=' + storedToken + pwParam, true);
 	xhr.send();
@@ -74,10 +74,10 @@ function createSessionHandler() {
 }
 
 function joinSession(sid) {
-    pwParam = "";
+    let pwParam = "";
     if (pwdEnable && storedRpw != null)
         pwParam = "&pw=" + storedRpw;
-    xhr = new XMLHttpRequest();
+    let xhr = new XMLHttpRequest();
 	xhr.onload = joinSessionHandler;
 	xhr.open('GET', '/api/joinSession?token=' + storedToken + "&sessionId=" + sid + pwParam, true);
 	xhr.send();
@@ -98,7 +98,7 @@ function getSessionStatus() {
 }
 
 function getSessionStatus(scheduleNext) {
-    xhr = new XMLHttpRequest();
+    let xhr = new XMLHttpRequest();
     xhr.onload = getStatusHandler;
     xhr.scheduleNext = scheduleNext;
     xhr.spectateMode = false;
@@ -112,7 +112,7 @@ function getLongpollSessionStatus() {
 
 function getLongpollSessionStatus(sessionId) {
     let sidParam = sessionId == null ? "" : "&sessionId=" + sessionId;
-    xhr = new XMLHttpRequest();
+    let xhr = new XMLHttpRequest();
     xhr.onload = getStatusHandler;
     xhr.scheduleNext = true;
     xhr.spectateMode = sessionId != null;
@@ -122,7 +122,7 @@ function getLongpollSessionStatus(sessionId) {
 
 function getStatusHandler() {
     if (this.status == 200) {
-        obj = JSON.parse(this.responseText);
+        let obj = JSON.parse(this.responseText);
         if (!obj.success) {
             handleFault(obj.info)
             return;
@@ -165,7 +165,7 @@ function getStatusHandler() {
 }
 
 function placeShip(pos, size, vert) {
-    xhr = new XMLHttpRequest();
+    let xhr = new XMLHttpRequest();
     xhr.onload = placeShipHandler;
     xhr.open('GET', '/api/placeShip?token=' + storedToken
             + "&position=" + pos
@@ -183,7 +183,7 @@ function placeShipHandler() {
 }
 
 function tryShoot(pos) {
-    xhr = new XMLHttpRequest();
+    let xhr = new XMLHttpRequest();
     xhr.onload = shootHandler;
     xhr.open('GET', '/api/shoot?token=' + storedToken
             + "&position=" + pos, true);
@@ -199,7 +199,7 @@ function shootHandler() {
 }
 
 function initAi(aiType) {
-    xhr = new XMLHttpRequest();
+    let xhr = new XMLHttpRequest();
     xhr.onload = aiHandler;
     xhr.open('GET', '/api/initAI?token=' + storedToken
             + "&sessionId=" + storedSessionId
@@ -213,7 +213,7 @@ function aiHandler() {
 }
 
 function getRules() {
-    xhr = new XMLHttpRequest();
+    let xhr = new XMLHttpRequest();
     xhr.onload = rulesHandler;
     xhr.open('GET', '/api/getRules?token=' + storedToken, true);
     xhr.send();
@@ -238,7 +238,7 @@ function httpFault() {
 
 function handleApi(response, main, fault) {
     if (response.status == 200) {
-        obj = JSON.parse(response.responseText);
+        let obj = JSON.parse(response.responseText);
         if (!obj.success) {
             fault();
             handleFault(obj.info);

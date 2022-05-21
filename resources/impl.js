@@ -32,10 +32,7 @@ function loadMainMenu() {
 
 // switch to ai game menu
 function loadAi(skill) {
-    loadMenu("game");
-    document.getElementById("loading").hidden = false;
-    document.getElementById("bRefreshToken").hidden = true; // todo loadgame dublicates
-    document.getElementById("game").style.display = 'inline-block';
+    loadGameElements();
     storedRpw = makeId(4);
     queuedAction = skill ? "ah" : "as";
     createSession();
@@ -43,10 +40,7 @@ function loadAi(skill) {
 
 // switch to game menu
 function loadGame(sid) {
-    loadMenu("game");
-    document.getElementById("loading").hidden = false;
-    document.getElementById("bRefreshToken").hidden = true;
-    document.getElementById("game").style.display = 'inline-block';
+    loadGameElements();
     if (sid < 0) {
         if (pwdEnable) {
             storedRpw = document.getElementById("pwdContent").value;
@@ -57,6 +51,13 @@ function loadGame(sid) {
         storedRpw = document.getElementById("pwdContent").value;
         joinSession(sid);
     }
+}
+
+function loadGameElements() {
+    loadMenu("game");
+    document.getElementById("loading").hidden = false;
+    document.getElementById("bRefreshToken").hidden = true;
+    document.getElementById("game").style.display = 'inline-block';
 }
 
 // init game menu and init status requests
@@ -158,7 +159,7 @@ reqUpdate = false;
 
 // read query
 document.getElementById("bInvite").oncopy = inviteLink;
-params = new Proxy(new URLSearchParams(window.location.search), {
+let params = new Proxy(new URLSearchParams(window.location.search), {
     get: (searchParams, prop) => searchParams.get(prop),
 });
 
@@ -192,5 +193,4 @@ else if (storedSessionId != undefined) {
 else {
     init("start");
     getRules();
-    // todo variables visibility fix
 }

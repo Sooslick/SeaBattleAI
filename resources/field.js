@@ -87,8 +87,7 @@ function clickOwn(x, y) {
     if (ylimiter > 9) return;
     for (i = x; i <= xlimiter; i++) {
         for (j = y; j <= ylimiter; j++) {
-            let cellObj = document.getElementById(i + "-" + j);
-            cellObj.className = "cell place";
+            document.getElementById(i + "-" + j).className = "cell place";
         }
     }
 }
@@ -98,8 +97,7 @@ function clickEnemy(x, y) {
         return;
     let pos = String.fromCharCode(y + 97) + (x+1);
     tryShoot(pos);
-    let cellObj = document.getElementById(x + ", " + y);
-    cellObj.className = cellObj.className + " shot";
+    document.getElementById(x + ", " + y).className = cellObj.className + " shot";
 }
 
 function updateField(my, field) {
