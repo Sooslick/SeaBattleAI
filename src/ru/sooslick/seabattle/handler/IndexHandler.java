@@ -9,6 +9,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+/**
+ * HTTP handler for common web requests and UI
+ */
 public class IndexHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange httpExchange) throws IOException {

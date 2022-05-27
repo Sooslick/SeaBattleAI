@@ -10,6 +10,9 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+/**
+ * Players and sessions keeper
+ */
 public class LifetimeWatcher extends Thread {
     private static final long INTERVAL = SeaBattleProperties.APP_CLEANUP_INTERVAL;  //s
 

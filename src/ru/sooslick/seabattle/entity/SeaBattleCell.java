@@ -1,5 +1,8 @@
 package ru.sooslick.seabattle.entity;
 
+/**
+ * Field cell entity
+ */
 public class SeaBattleCell {
     private boolean ship = false;
     private boolean striked = false;
@@ -20,6 +23,11 @@ public class SeaBattleCell {
         striked = true;
     }
 
+    /**
+     * Get number value for cell state
+     * @param my true for own field. If false, ships aren't revealed before they are striked
+     * @return number value for cell state
+     */
     public Integer getResult(boolean my) {
         int b1 = striked ? 1 : 0;           //first byte: is striked
         int b2 = my ?                       //second byte: is ship revealed

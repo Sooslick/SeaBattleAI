@@ -101,13 +101,28 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>1.3.2</version>
-                <configuration>
-                    <mainClass>ru.sooslick.seabattle.SeaBattleMain</mainClass>
-                    <arguments>
-                        <argument>-jar</argument>
-                        <argument>target/${artifactId}-${project.version}-${assembly.descriptor}.jar</argument>
-                    </arguments>
-                </configuration>
+                <executions>
+                    <execution>
+                        <id>server</id>
+                        <configuration>
+                            <mainClass>ru.sooslick.seabattle.SeaBattleMain</mainClass>
+                            <arguments>
+                                <argument>-jar</argument>
+                                <argument>target/${artifactId}-${project.version}-${assembly.descriptor}.jar</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>ai</id>
+                        <configuration>
+                            <mainClass>ru.sooslick.seabattle.ai.AiMain</mainClass>
+                            <arguments>
+                                <argument>-jar</argument>
+                                <argument>target/${artifactId}-${project.version}-${assembly.descriptor}.jar</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

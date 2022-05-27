@@ -4,6 +4,9 @@ import ru.sooslick.seabattle.Log;
 
 import java.util.Scanner;
 
+/**
+ * Listen console commands. Only quit command available :)
+ */
 public class UserPromptListener extends Thread {
 
     @Override

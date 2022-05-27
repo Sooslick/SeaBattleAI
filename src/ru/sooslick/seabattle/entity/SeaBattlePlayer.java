@@ -6,6 +6,9 @@ import ru.sooslick.seabattle.SeaBattleProperties;
 
 import java.util.UUID;
 
+/**
+ * Player entity
+ */
 public class SeaBattlePlayer {
     private final String token;
 
@@ -28,14 +31,23 @@ public class SeaBattlePlayer {
         return session;
     }
 
+    /**
+     * @return true if token does not expire
+     */
     public boolean isAlive() {
         return getExpiration() > 0;
     }
 
+    /**
+     * @return milliseconds before token expiration
+     */
     public long getExpiration() {
         return SeaBattleProperties.TOKEN_LIFETIME_TOTAL * 1000L - (System.currentTimeMillis() - lastActionTime);
     }
 
+    /**
+     * Resets token expiration
+     */
     public void updateLastAction() {
         lastActionTime = System.currentTimeMillis();
     }

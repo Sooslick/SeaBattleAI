@@ -14,6 +14,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
+/**
+ * Game session entity
+ */
 public class SeaBattleSession {
     private final List<Object> activeLocks = new LinkedList<>();
     private final int id = getNextId();
@@ -32,6 +35,11 @@ public class SeaBattleSession {
         return Math.abs(UUID.randomUUID().toString().substring(0, 8).hashCode());
     }
 
+    /**
+     * Register new game and join initiator as player1
+     * @param initiator player1
+     * @param k session password
+     */
     public SeaBattleSession(@NotNull SeaBattlePlayer initiator, @Nullable String k) {
         p1 = initiator;
         pw = k;
@@ -50,6 +58,10 @@ public class SeaBattleSession {
         return phase;
     }
 
+    /**
+     * Join player2 and move to PREPARE phase
+     * @param player player2
+     */
     public void joinPlayer(@NotNull SeaBattlePlayer player) {
         if (p2 != null || player.equals(p1))
             return;
@@ -62,6 +74,9 @@ public class SeaBattleSession {
         notifyAction();
     }
 
+    /**
+     * @return is session currently playing
+     */
     public boolean isAlive() {
         long currentTime = System.currentTimeMillis();
         long msAlive = currentTime - startTime;
@@ -86,6 +101,9 @@ public class SeaBattleSession {
         return true;
     }
 
+    /**
+     * @return timeleft string
+     */
     public String getLifetimeInfo() {
         long currentTime = System.currentTimeMillis();
         long msAlive = currentTime - startTime;
@@ -98,10 +116,19 @@ public class SeaBattleSession {
         return ("Room expires in " + total + "s. Current phase timeleft: " + stage + "s");
     }
 
+    /**
+     * @param k password
+     * @return true when password is correct
+     */
     public boolean testPw(@Nullable String k) {
         return Objects.equals(pw, k);
     }
 
+    /**
+     * Returns complete session info for json response
+     * @param requester player who requests
+     * @return response entity
+     */
     public EventResult getStatus(SeaBattlePlayer requester) {
         requester.updateLastAction();
         // requester is spectator
@@ -141,6 +168,14 @@ public class SeaBattleSession {
                 .gameResult(phase == SessionPhase.PREPARE ? result.ships(myField.getShips()) : result);
     }
 
+    /**
+     * API method call
+     * @param player requester
+     * @param position placement
+     * @param size ship
+     * @param vertical ship orientation
+     * @return response entity
+     */
     public EventResult placeShip(SeaBattlePlayer player, SeaBattlePosition position, int size, boolean vertical) {
         player.updateLastAction();
         // requester is spectator
@@ -167,6 +202,12 @@ public class SeaBattleSession {
         return result;
     }
 
+    /**
+     * API method
+     * @param player requester
+     * @param position target
+     * @return response entity
+     */
     public EventResult shoot(SeaBattlePlayer player, SeaBattlePosition position) {
         player.updateLastAction();
         // requester is spectator
@@ -204,10 +245,18 @@ public class SeaBattleSession {
         return result;
     }
 
+    /**
+     * Mark session as bot session
+     */
     public void markAi() {
         ai = true;
     }
 
+    /**
+     * Lock longpoll request until timeout or game action happens
+     * @param player requester
+     * @param timeout wait diration
+     */
     public void waitForStatus(SeaBattlePlayer player, long timeout) {
         Object lock = new Object();
         // do not lock request if game ends or requester can perform any game action

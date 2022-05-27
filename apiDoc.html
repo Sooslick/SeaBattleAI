@@ -1,0 +1,396 @@
+<html>
+<body>
+<style>
+body {
+background: black;
+color: white;
+}
+code {
+font-size: 110%;
+}
+.c1 {
+background-color: #110;
+border: 1px solid #666;
+padding: 10px;
+}
+.c2 {
+background-color: #220810;
+border: 1px solid #666;
+padding: 10px;
+}
+</style>
+
+<div class="c2">
+<h2>Battleships API Doc</h2>
+Game server provides REST API, methods of which can be called using Get HTTP requests. For each method call you must specify player authenticator which can be obtained by getToken method.
+</div>
+
+<div class="c1">
+<h2>Response fields description</h2>
+<b><code>success: boolean</code></b></br>
+Method call success. For unsuccessful events server provides <code>info</code> field with detalization of failure.</br>
+</br>
+<b><code>info: string</code></b></br>
+Text description of event result.</br>
+</br>
+<b><code>token: string</code></b></br>
+Unique player authenticator for further use.</br>
+</br>
+<b><code>sessionInfos: object array</code></b></br>
+<div style="border: 1px solid #666; padding: 5px;">
+List of active game sessions.</br>
+</br>
+<b><code>sessionInfos[n].sessionId: integer</code></b></br>
+Unique session identificator.</br>
+</br>
+<b><code>sessionInfos[n].passworded: boolean</code></b></br>
+Is session private?</br>
+</br>
+<b><code>sessionInfos[n].lookup: boolean</code></b></br>
+Is session looking for a player?</br>
+</div>
+</br>
+<b><code>gameResult: object</code></b></br>
+<div style="border: 1px solid #666; padding: 5px;">
+Current session description.</br>
+</br>
+<b><code>gameResult.phase: string</code></b></br>
+Current game phase. Possible game phases are:</br>
+LOOKUP - session is looking for a player;</br>
+PREPARE - ships positioning phase;</br>
+TURN_P1, TURN_P2 - player turn to shoot;</br>
+ENDGAME - game is finished.</br>
+</br>
+<b><code>gameResult.myTurn: boolean</code></b></br>
+Is game waiting for player's action? True when player must place remaining ships in PREPARE phase or shoot in phases TURN_P1 / TURN_P2</br>
+</br>
+<b><code>gameResult.ships: integer array</code></b></br>
+Remaining ships to place in PREPARE phase.</br>
+</br>
+<b><code>gameResult.myField: object array</code></b></br>
+Player's field.</br>
+</br>
+<b><code>gameResult.enemyField: object array</code></b></br>
+Opponent's field.</br>
+</br>
+<b><code>gameResult.matchLog: string</code></b></br>
+Battle history in text format.</br>
+</br>
+Field is 10x10 matrix. Each cell contains a number between 0 and 3:</br>
+0: empty cell;</br>
+1: empty struck cell;</br>
+2: ship cell;</br>
+3: struck ship cell.
+</div>
+</div>
+
+<div class="c2">
+<h2>/api/getToken</h2>
+<b>Parameters: </b><i>empty</i></br>
+</br>
+<b>Response fields:</b></br>
+success: boolean</br>
+token: string</br>
+</br>
+Returns player authenticator for further use.</br>
+<details>
+<summary>Example</summary>
+/api/getToken
+<pre>
+{
+  "success" : true,
+  "token" : "dab820f5"
+}
+</pre>
+</details>
+</div>
+
+<div class="c1">
+<h2>/api/getRules</h2>
+<b>Parameters:</b></br>
+token: string <i>(required)</i></br>
+</br>
+<b>Response fields:</b></br>
+success: boolean</br>
+info: string</br>
+</br>
+Returns app version and current game rules.</br>
+<details>
+<summary>Example</summary>
+/api/getRules?token=802058b9
+<pre>
+{
+  "success" : true,
+  "info" : "SeaBattle ver b0.9.3\nToken expires in 588060\n\nGame rules:\nField size: 10x10\nAvailable ships: ↕4x1, ↕3x2, ↕2x3, ↕1x4\nAllow ships corner collision: false\nPrevent shooting marked cells: true\nMark nearby cells after kill: true"
+}
+</pre>
+</details>
+</div>
+
+<div class="c2">
+<h2>/api/registerSession</h2>
+
+<b>Parameters:</b></br>
+token: string <i>(required)</i></br>
+pw: string</br>
+</br>
+<b>Response fields:</b></br>
+success: boolean</br>
+sessionInfos: object array</br>
+</br>
+Register and join a new game session. If parameter <code>pw</code> is specified, new session will be private.</br>
+Returns sessionInfos array of one element containing session info.</br>
+<details>
+<summary>Example</summary>
+/api/registerSession?token=0824c595
+<pre>
+{
+  "success" : true,
+  "sessionInfos" : [ {
+    "sessionId" : 876040567,
+    "passworded" : false,
+    "lookup" : true
+  } ]
+}
+</pre>
+</details>
+</div>
+
+<div class="c1">
+<h2>/api/joinSession</h2>
+<b>Parameters:</b></br>
+token: string <i>(required)</i></br>
+sessionId: integer <i>(required)</i></br>
+pw: string</br>
+</br>
+<b>Response fields:</b></br>
+success: boolean</br>
+</br>
+Join a game session if this session is looking for a player. For joining a private session, <code>pw</code> parameter is required.</br>
+<details>
+<summary>Example</summary>
+/api/joinSession?token=dab820f5&sessionId=1
+<pre>
+{
+  "success" : true
+}
+</pre>
+</details>
+</div>
+
+<div class="c2">
+<h2>/api/getSessions</h2>
+
+<b>Parameters:</b></br>
+token: string <i>(required)</i></br>
+</br>
+<b>Response fields:</b></br>
+success: boolean</br>
+sessionInfos: object array</br>
+</br>
+Returns list of active game sessions.</br>
+<details>
+<summary>Example</summary>
+/api/getSessions?token=0824c595
+<pre>
+{
+  "success" : true,
+  "sessionInfos" : [ {
+    "sessionId" : 876040567,
+    "passworded" : false,
+    "lookup" : true
+  }, {
+    "sessionId" : 272896627,
+    "passworded" : true,
+    "lookup" : false
+  } ]
+}
+</pre>
+</details>
+</div>
+
+<div class="c1">
+<h2>/api/getSessionStatus</h2>
+<h2>/api/longpoll/getSessionStatus</h2>
+
+<b>Parameters:</b></br>
+token: string <i>(required)</i></br>
+sessionId: integer</br>
+timeout: integer</br>
+</br>
+<b>Response fields:</b></br>
+<pre>
+success: boolean
+info: string
+gameResult:
+  phase: string
+  myTurn: boolean
+  ships: integer array
+  myField: object array
+    cols: integer array
+  enemyField: object array
+    cols: integer array
+</pre>
+</br>
+Returns description of game state. If <code>sessionId</code> parameter is specified, game will be displayed as for spectator (ships aren't revealed before they were shot).</br>
+Longpoll request will wait until timeout or any game action happens.</br>
+<details>
+<summary>Example 1</summary>
+/api/getSessionStatus?token=07cc5364
+<pre>
+{
+  "success" : true,
+  "info" : "Room expires in 2970s. Current phase timeleft: 293s",
+  "gameResult" : {
+    "phase" : "PREPARE",
+    "myTurn" : true,
+    "ships" : [ 4, 3, 3, 2, 2, 2, 1, 1, 1, 1 ],
+    "myField" : {
+      "rows" : [ {
+        "cols" : [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
+      }, {
+        "cols" : [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
+      }, {
+        "cols" : [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
+      }, {
+        "cols" : [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
+      }, {
+        "cols" : [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
+      }, {
+        "cols" : [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
+      }, {
+        "cols" : [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
+      }, {
+        "cols" : [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
+      }, {
+        "cols" : [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
+      }, {
+        "cols" : [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
+      } ]
+    },
+    "matchLog" : ""
+  }
+}
+</pre>
+</details>
+<details>
+<summary>Example 2</summary>
+/api/getSessionStatus?token=5e56e0ef
+<pre>
+{
+  "success" : true,
+  "info" : "Room expires in 2913s. Current phase timeleft: 95s",
+  "gameResult" : {
+    "phase" : "TURN_P1",
+    "myTurn" : true,
+    "myField" : {
+      "rows" : [ {
+        "cols" : [ 1, 3, 3, 3, 3, 1, 0, 2, 0, 1 ]
+      }, {
+        "cols" : [ 1, 1, 1, 1, 1, 1, 1, 1, 0, 0 ]
+      }, {
+        "cols" : [ 0, 0, 0, 0, 2, 1, 3, 1, 0, 0 ]
+      }, {
+        "cols" : [ 1, 2, 2, 0, 0, 1, 1, 1, 2, 0 ]
+      }, {
+        "cols" : [ 0, 0, 0, 0, 1, 0, 0, 0, 0, 0 ]
+      }, {
+        "cols" : [ 0, 0, 1, 0, 2, 2, 0, 0, 0, 0 ]
+      }, {
+        "cols" : [ 1, 2, 0, 0, 0, 0, 1, 0, 2, 0 ]
+      }, {
+        "cols" : [ 0, 2, 0, 1, 0, 0, 0, 1, 2, 0 ]
+      }, {
+        "cols" : [ 0, 2, 0, 0, 2, 2, 0, 0, 2, 0 ]
+      }, {
+        "cols" : [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
+      } ]
+    },
+    "enemyField" : {
+      "rows" : [ {
+        "cols" : [ 0, 0, 0, 0, 0, 0, 1, 1, 1, 0 ]
+      }, {
+        "cols" : [ 0, 0, 0, 1, 0, 0, 1, 3, 1, 0 ]
+      }, {
+        "cols" : [ 0, 0, 1, 0, 0, 0, 1, 3, 1, 0 ]
+      }, {
+        "cols" : [ 0, 1, 0, 0, 0, 0, 1, 3, 1, 1 ]
+      }, {
+        "cols" : [ 0, 0, 0, 0, 1, 0, 1, 1, 1, 0 ]
+      }, {
+        "cols" : [ 0, 0, 0, 0, 0, 1, 0, 0, 0, 0 ]
+      }, {
+        "cols" : [ 0, 0, 0, 1, 0, 0, 0, 0, 0, 0 ]
+      }, {
+        "cols" : [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
+      }, {
+        "cols" : [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
+      }, {
+        "cols" : [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
+      } ]
+    },
+    "matchLog" : "p1: +b1 x4 -\np1: +i7 x3 |\np1: +b7 x3 |\np1: +e9 x2 -\np1: +e6 x2 -\np1: +b4 x2 -\np1: +i4 x1 -\np1: +h1 x1 -\np1: +g3 x1 -\np1: +e3 x1 -\np2: a4 miss\np1: e5 miss\np2: a7 miss\np1: h3 hit\np1: h2 hit\np1: h1 miss\np2: j1 miss\np1: h4 kill\np1: j4 miss\np2: d1 hit\np2: c1 hit\np2: b1 hit\np2: a1 miss\np1: c3 miss\np2: e1 kill\np2: g3 kill\np2: e5 miss\np1: d7 miss\np2: g7 miss\np1: f6 miss\np2: d8 miss\np1: d2 miss\np2: c6 miss\np1: b4 miss\np2: h8 miss\n"
+  }
+}
+</pre>
+</details>
+</div>
+
+<div class="c2">
+<h2>/api/placeShip</h2>
+
+<b>Parameters:</b></br>
+token: string <i>(required)</i></br>
+position: string <i>(required)</i></br>
+size: integer <i>(required)</i></br>
+vertical: boolean</br>
+</br>
+<b>Response fields:</b></br>
+success: boolean</br>
+</br>
+Places ship during PREPARE phase.</br>
+Requires <code>position</code> parameter as a top left cell for this ship. Position matches the a1 - j10 pattern where letter is a column and number is a row.</br>
+Size is amount of cells that ship will occupy. 10 ships are available by default: four 1-cell ships, TODO 3 ships of 2 cells, 2 ships of 3 cells and 1 ship of 4 cells.</br>
+Ship orientation is specified by <code>vertical</code> parameter. If parameter wasn't specified, the ship is horizontal by default.</br>
+<details>
+<summary>Example</summary>
+/api/placeShip?token=5e56e0ef&position=j1&size=1&vertical=true
+<pre>
+{
+  "success" : true
+}
+</pre>
+</details>
+</div>
+
+<div class="c1">
+<h2>/api/shoot</h2>
+
+<b>Parameters:</b></br>
+token: string <i>(required)</i></br>
+position: string <i>(required)</i></br>
+</br>
+<b>Response fields:</b></br>
+success: boolean</br>
+info: string</br>
+</br>
+Shoot the cell.</br>
+Response will contain <code>info</code> with one of following values:</br>
+- win: after successful shot opponent has no ships left. In this case session ends and goes to ENDGAME phase;</br>
+- kill: successful shot sinks enemy ship (all ship cells have been struck);</br>
+- hit: enemy ship cell is struck;</br>
+- miss: shot doesn't hit any ship cell.</br>
+In case of miss enemy turn begins.</br>
+<details>
+<summary>Example</summary>
+/api/shoot?token=5e56e0ef&position=b1
+<pre>
+{
+  "success" : true,
+  "info" : "miss"
+}
+</pre>
+</details>
+</div>
+</html>
+</body>

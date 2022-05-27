@@ -9,11 +9,20 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * AI threads keeper
+ */
 public class AiKeeper {
     private static int analyzeSkips = 0;
 
     private static final List<Thread> aInstances = new LinkedList<>();
 
+    /**
+     * Launch bot session via hidden api call
+     * @param sessionId player's game session
+     * @param pw password
+     * @param skill preferred AI mode
+     */
     public static void launchAi(int sessionId, @Nullable String pw, boolean skill) {
         List<String> argList = new LinkedList<>();
         argList.add("host=http://localhost:" + SeaBattleProperties.APP_SERVER_PORT);
@@ -27,6 +36,9 @@ public class AiKeeper {
         aiThread(args);
     }
 
+    /**
+     * Launch AI for analyze collected data
+     */
     public static void analyze() {
         if (analyzeSkips-- > 0)
             return;
@@ -35,6 +47,9 @@ public class AiKeeper {
         analyzeSkips = 86400 / SeaBattleProperties.APP_CLEANUP_INTERVAL;    // one day at least
     }
 
+    /**
+     * Kill and remove inactive threads
+     */
     public static void cleanup() {
         List<Thread> finishedThreads = aInstances.stream()
                 .filter(t -> !t.isAlive())
@@ -44,6 +59,9 @@ public class AiKeeper {
             Log.info(finishedThreads.size() + " AI instances removed");
     }
 
+    /**
+     * Kill all AIs
+     */
     public static void kill() {
         aInstances.stream().filter(Thread::isAlive).forEach(Thread::interrupt);
     }

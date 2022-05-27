@@ -16,6 +16,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+/**
+ * HTTP handler for API methods
+ */
 public class ApiHandler implements HttpHandler {
     private Function<Map<String, String>, EventResult> resultExtractor;
 

@@ -5,16 +5,27 @@ import org.jetbrains.annotations.Nullable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Field position entity
+ */
 public class SeaBattlePosition {
     public static final Pattern POSITION_REGEX = Pattern.compile("^([a-j])([1-9]|10)$");
 
     private final int row;
     private final int col;
 
+    /**
+     * @param position position string
+     * @return true of position matches a1 - j10 pattern
+     */
     public static boolean isValid(String position) {
         return position != null && POSITION_REGEX.matcher(position).matches();
     }
 
+    /**
+     * @param position position string
+     * @return Position entity or null if string has incorrect format
+     */
     public static @Nullable SeaBattlePosition convertPosition(String position) {
         Matcher m = POSITION_REGEX.matcher(position);
         return m.matches() ? new SeaBattlePosition(getPositionRow(m.group(2)), getPositionCol(m.group(1))) : null;

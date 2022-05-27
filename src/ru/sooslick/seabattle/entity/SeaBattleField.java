@@ -15,6 +15,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
+/**
+ * Game field
+ */
 public class SeaBattleField {
     private final List<Integer> availableShips = new LinkedList<>(Arrays.asList(4, 3, 3, 2, 2, 2, 1, 1, 1, 1));
     private final SeaBattleCell[][] cells = new SeaBattleCell[10][10];
@@ -25,6 +28,11 @@ public class SeaBattleField {
                 cells[i][j] = new SeaBattleCell();
     }
 
+    /**
+     * Get result entity for converting to json
+     * @param myField true for own field. If false, ships aren't revealed before they are striked
+     * @return result entity
+     */
     public FieldResult getResult(boolean myField) {
         List<FieldResult.Row> rows = new LinkedList<>();
         for (int i = 0; i < 10; i++) {
@@ -61,6 +69,9 @@ public class SeaBattleField {
         return new EventResult(true);
     }
 
+    /**
+     * Convert field to file format
+     */
     public void saveAnalyzeFile() {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < 10; i++) {
