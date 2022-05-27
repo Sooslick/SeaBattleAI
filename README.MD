@@ -13,7 +13,9 @@ As soon as app is started, service will be available at port 65535
 
 ### API Documentation
 
-[Documentation](apiDoc.html)
+[Documentation](https://htmlpreview.github.io/?https://github.com/Sooslick/SeaBattleAI/blob/master/apiDoc.html)
+
+[Local file doc](apiDoc.html)
 
 ### AI flags
 
@@ -25,7 +27,7 @@ Common parameters list:
 
 `host`: battleships server address. Default host is http://localhost:65535;
 
-`sessionId`: ID of session to join. If parameter not specified, AI will create new session;
+`sessionId`: ID of session to join. If parameter was not specified, AI will create new session;
 
 `sessionPw`: password of private session to join;
 
@@ -39,4 +41,4 @@ Smart mode collects and stores some game statistics, and you can use following p
 `ignorePost`: AI will not update collected game data if presents;
 
 `analyze`: AI will analyze collected datafiles that are stored in heatDir/analyze directory. If presents, AI will only update data
-and will have terminated after analyze is completed.
+and will stop after analysis.
