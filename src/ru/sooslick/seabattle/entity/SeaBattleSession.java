@@ -209,7 +209,6 @@ public class SeaBattleSession {
      * @return response entity
      */
     public EventResult shoot(SeaBattlePlayer player, SeaBattlePosition position) {
-        player.updateLastAction();
         // requester is spectator
         if (p1 != player && p2 != player)
             return new EventResult(false).info("Can't shoot: not a player");
@@ -217,8 +216,8 @@ public class SeaBattleSession {
             return new EventResult(false).info("Can't shoot: wrong game phase");
         if (!allowShoot(player))
             return new EventResult(false).info("Can't shoot: opponent turn");
+        player.updateLastAction();
 
-        updateLastAction();
         EventResult result;
         // shoot
         String p;
@@ -230,8 +229,10 @@ public class SeaBattleSession {
             result = p1Field.shoot(position);
         }
         // post-shoot action
-        if (result.getSuccess())
+        if (result.getSuccess()) {
+            updateLastAction();
             matchLog.append(p).append(position).append(" ").append(result.getInfo()).append("\n");
+        }
         if ("win".equals(result.getInfo())) {
             phase = SessionPhase.ENDGAME;
             if (!ai) {

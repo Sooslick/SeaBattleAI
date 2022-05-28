@@ -106,7 +106,8 @@ public class AiHeatData implements Serializable {
     public static double getMultiplier(SeaBattlePosition position) {
         if (position.getCol() < 0 || position.getRow() < 0 || position.getCol() >= 10 || position.getRow() >= 10)
             return 1;
-        return ((double) instance.scores[position.getRow()][position.getCol()] / instance.total) + 1;
+        double divider = Math.max(instance.total, 1);
+        return ((double) instance.scores[position.getRow()][position.getCol()] / divider) + 1;
     }
 
     private static void read() {

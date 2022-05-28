@@ -16,13 +16,15 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class AiMain {
+    public boolean win = false;
+    public int sessionId = -1;
+
     public static void main(String[] args) {
         new AiMain().run(args);
     }
 
     public void run(String @NotNull [] args) {
         boolean create = true;
-        int sessionId = -1;
         String sessionPw = null;
         String host = "http://localhost:65535";
         boolean useHeatMap = false;
@@ -235,6 +237,8 @@ public class AiMain {
                     }
                 } while ("hit".equals(lastResult.getInfo()) || "kill".equals(lastResult.getInfo()));
             } while (!"win".equals(lastResult.getInfo()));
+            if ("win".equals(lastResult.getInfo()))
+                win = true;
 
             request = client.prepareGet(host + "/api/getSessionStatus");
             request.addQueryParam("token", token);
