@@ -175,11 +175,13 @@ function placeShip(pos, size, vert) {
 }
 
 function placeShipHandler() {
+    let scheduleNext = false;
     handleApi(this, obj => {
-        reqUpdate = true;
-        getSessionStatus(true);
+        scheduleNext = true;
         return;
     }, () => {});
+    reqUpdate = true;
+    getSessionStatus(scheduleNext);
 }
 
 function tryShoot(pos) {
