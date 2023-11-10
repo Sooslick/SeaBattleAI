@@ -14,9 +14,12 @@ import java.util.stream.Collectors;
  * Players and sessions keeper
  */
 public class LifetimeWatcher extends Thread {
-    private static final long INTERVAL = SeaBattleProperties.APP_CLEANUP_INTERVAL;  //s
+    private static final long INTERVAL = SeaBattleProperties.APP_CLEANUP_INTERVAL;
+    private static final long IDLE_TIMEOUT = SeaBattleProperties.APP_INACTIVITY_SHUTDOWN_TIMEOUT;
+    private static final boolean IDLE_ENABLED = SeaBattleProperties.APP_INACTIVITY_SHUTDOWN_ENABLE;
 
     boolean alive = true;
+    long lastSessionTs = System.currentTimeMillis();
 
     @Override
     public void run() {
@@ -44,6 +47,18 @@ public class LifetimeWatcher extends Thread {
                     TimeUnit.SECONDS.sleep(INTERVAL);
                 } catch (InterruptedException e) {
                     alive = false;
+                }
+            }
+
+            if (IDLE_ENABLED) {
+                long currentTs = System.currentTimeMillis();
+                if (SeaBattleMain.getActiveSessions().size() > 0 || SeaBattleMain.getActivePlayers().size() > 0)
+                    lastSessionTs = currentTs;
+                else {
+                    long idleSeconds = (currentTs - lastSessionTs) / 1000;
+                    Log.info(idleSeconds + " seconds idle");
+                    if (idleSeconds > IDLE_TIMEOUT)
+                        UserPromptListener.forceQuit();
                 }
             }
         }

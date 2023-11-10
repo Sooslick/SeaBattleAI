@@ -15,6 +15,8 @@ public class SeaBattleProperties {
     public static int APP_SERVER_PORT = 65535;
     public static int APP_SERVER_CONNECTIONS = 16;
     public static int APP_CLEANUP_INTERVAL = 90;
+    public static int APP_INACTIVITY_SHUTDOWN_TIMEOUT = 3600;
+    public static boolean APP_INACTIVITY_SHUTDOWN_ENABLE = false;
     public static int SESSION_LIFETIME_TOTAL = 3000;
     public static int SESSION_LIFETIME_LOOKUP = 300;
     public static int SESSION_LIFETIME_PREPARE = 300;
@@ -85,6 +87,8 @@ public class SeaBattleProperties {
         APP_SERVER_PORT = tryParse(properties, "app.server.port", 65535);
         APP_SERVER_CONNECTIONS = tryParse(properties, "app.server.connections", 16);
         APP_CLEANUP_INTERVAL = tryParse(properties, "app.cleanup.interval", 90);
+        APP_INACTIVITY_SHUTDOWN_TIMEOUT = tryParse(properties, "app.inactivity.shutdown.timeout", 3600);
+        APP_INACTIVITY_SHUTDOWN_ENABLE = Boolean.parseBoolean(properties.getProperty("app.inactivity.shutdown.enable", "false"));
         SESSION_LIFETIME_TOTAL = tryParse(properties, "session.lifetime.total", 3000);
         SESSION_LIFETIME_LOOKUP = tryParse(properties, "session.lifetime.lookup", 300);
         SESSION_LIFETIME_PREPARE = tryParse(properties, "session.lifetime.prepare", 300);

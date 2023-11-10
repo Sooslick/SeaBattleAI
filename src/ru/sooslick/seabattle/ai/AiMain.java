@@ -78,7 +78,7 @@ public class AiMain {
 
         AiHeatData.init(heatDir);
         if (analyzePre) {
-            Log.info("-analyze flag presents, update heat map");
+            Log.info("-analyze flag are presented, update heat map");
             AiHeatData.analyze();
             Log.info("Analyze completed.");
             return;
