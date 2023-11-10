@@ -1,7 +1,7 @@
 function getToken() {
     let xhr = new XMLHttpRequest();
     xhr.onload = getTokenHandler;
-    xhr.open('GET', '/api/getToken', true);
+    xhr.open('GET', 'api/getToken', true);
     xhr.send();
 }
 
@@ -26,7 +26,7 @@ function getTokenHandler() {
 function getSessions() {
     let xhr = new XMLHttpRequest();
 	xhr.onload = getSessionsHandler;
-	xhr.open('GET', '/api/getSessions?token=' + storedToken, true);
+	xhr.open('GET', 'api/getSessions?token=' + storedToken, true);
 	xhr.send();
 }
 
@@ -58,7 +58,7 @@ function createSession() {
         pwParam = "&pw=" + pwValue;
     let xhr = new XMLHttpRequest();
 	xhr.onload = createSessionHandler;
-	xhr.open('GET', '/api/registerSession?token=' + storedToken + pwParam, true);
+	xhr.open('GET', 'api/registerSession?token=' + storedToken + pwParam, true);
 	xhr.send();
 }
 
@@ -79,7 +79,7 @@ function joinSession(sid) {
         pwParam = "&pw=" + storedRpw;
     let xhr = new XMLHttpRequest();
 	xhr.onload = joinSessionHandler;
-	xhr.open('GET', '/api/joinSession?token=' + storedToken + "&sessionId=" + sid + pwParam, true);
+	xhr.open('GET', 'api/joinSession?token=' + storedToken + "&sessionId=" + sid + pwParam, true);
 	xhr.send();
 	storedSessionId = sid;
 }
@@ -102,7 +102,7 @@ function getSessionStatus(scheduleNext) {
     xhr.onload = getStatusHandler;
     xhr.scheduleNext = scheduleNext;
     xhr.spectateMode = false;
-    xhr.open('GET', '/api/getSessionStatus?token=' + storedToken, true);
+    xhr.open('GET', 'api/getSessionStatus?token=' + storedToken, true);
     xhr.send();
 }
 
@@ -116,7 +116,7 @@ function getLongpollSessionStatus(sessionId) {
     xhr.onload = getStatusHandler;
     xhr.scheduleNext = true;
     xhr.spectateMode = sessionId != null;
-    xhr.open('GET', '/api/longpoll/getSessionStatus?token=' + storedToken + sidParam, true);
+    xhr.open('GET', 'api/longpoll/getSessionStatus?token=' + storedToken + sidParam, true);
     xhr.send();
 }
 
@@ -167,7 +167,7 @@ function getStatusHandler() {
 function placeShip(pos, size, vert) {
     let xhr = new XMLHttpRequest();
     xhr.onload = placeShipHandler;
-    xhr.open('GET', '/api/placeShip?token=' + storedToken
+    xhr.open('GET', 'api/placeShip?token=' + storedToken
             + "&position=" + pos
             + "&size=" + size
             + "&vertical=" + vert, true);
@@ -187,7 +187,7 @@ function placeShipHandler() {
 function tryShoot(pos) {
     let xhr = new XMLHttpRequest();
     xhr.onload = shootHandler;
-    xhr.open('GET', '/api/shoot?token=' + storedToken
+    xhr.open('GET', 'api/shoot?token=' + storedToken
             + "&position=" + pos, true);
     xhr.send();
 }
@@ -203,7 +203,7 @@ function shootHandler() {
 function initAi(aiType) {
     let xhr = new XMLHttpRequest();
     xhr.onload = aiHandler;
-    xhr.open('GET', '/api/initAI?token=' + storedToken
+    xhr.open('GET', 'api/initAI?token=' + storedToken
             + "&sessionId=" + storedSessionId
             + "&sessionPw=" + storedRpw
             + (aiType == "ah" ? "&skill=true" : ""), true);
@@ -217,7 +217,7 @@ function aiHandler() {
 function getRules() {
     let xhr = new XMLHttpRequest();
     xhr.onload = rulesHandler;
-    xhr.open('GET', '/api/getRules?token=' + storedToken, true);
+    xhr.open('GET', 'api/getRules?token=' + storedToken, true);
     xhr.send();
 }
 
@@ -226,7 +226,7 @@ function rulesHandler() {
         document.getElementById("debugRules").innerHTML = obj.info.replaceAll("\n", "<br>");
     }, () => {
         queuedAction = "gr";
-        getToken();
+//        getToken();   // this line causes inf loop (for some cases such as bad server config) so i commented this line
     });
 }
 
