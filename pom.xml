@@ -122,6 +122,16 @@
                             </arguments>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>visualizator</id>
+                        <configuration>
+                            <mainClass>ru.sooslick.seabattle.job.Visualizator</mainClass>
+                            <arguments>
+                                <argument>-jar</argument>
+                                <argument>target/${artifactId}-${project.version}-${assembly.descriptor}.jar</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
         </plugins>
