@@ -4,7 +4,7 @@ $curl = curl_init("http://localhost:65535");
 curl_setopt($curl, CURLOPT_TIMEOUT, 1);
 curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 1);
 curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 0);	// current nginx setup redirects this script to itself (?!)
+curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 0);	// scary alert
 curl_exec($curl);
 $code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 curl_close($curl);
@@ -222,7 +222,7 @@ body {
 let dotsInterval = setInterval(updateDots, 400);
 let pingInterval = setInterval(ping, 1000);
 let attempts = 0;
-let attemptsMax = 5;
+let attemptsMax = 13;
 
 function updateDots() {
 	let dots = document.getElementById("dots");
@@ -236,6 +236,7 @@ function ping() {
 	let xhr = new XMLHttpRequest();
     xhr.onload = pong;
     xhr.open('GET', 'index.html', true);
+	xhr.setRequestHeader('Startup-Check', 'v1');
     xhr.send();
 }
 

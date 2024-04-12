@@ -1,7 +1,6 @@
 package ru.sooslick.seabattle;
 
 import com.google.common.io.Files;
-import ru.sooslick.seabattle.entity.SeaBattlePlayer;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -70,9 +69,9 @@ public class SeaBattleProperties {
         }
     }
 
-    public static String getRules(SeaBattlePlayer requester) {
+    public static String getRules() {
         return "SeaBattle ver " + APP_VERSION +
-                "\nToken expires in " + requester.getExpiration() +
+                "\nSession lifetime " + SESSION_LIFETIME_TOTAL +
                 "\n\nGame rules:" +
                 "\nField size: 10x10" +
                 "\nAvailable ships: ↕4x1, ↕3x2, ↕2x3, ↕1x4" +

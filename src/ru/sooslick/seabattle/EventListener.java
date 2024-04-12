@@ -16,10 +16,11 @@ public class EventListener {
     }
 
     public static EventResult getRules(@Nullable String token) {
+        // todo make getRules public
         SeaBattlePlayer player = SeaBattleMain.getPlayer(token);
         if (player == null)
             return new EventResult(false).info("Failed getRules: unknown or expired token");
-        return new EventResult(true).info(SeaBattleProperties.getRules(player));
+        return new EventResult(true).info(SeaBattleProperties.getRules());
     }
 
     public static EventResult registerSession(@Nullable String token, @Nullable String pw) {

@@ -80,6 +80,19 @@ td.cell:hover {
     animation: flicker 3s infinite;
 }
 
+.home-button {
+	position: absolute;
+	top: 4px;
+	left: 4px;
+	z-index: 2;
+}
+.home-button img {
+	filter: opacity(0.75);
+}
+.home-button img:hover {
+	filter: drop-shadow(2px 6px 6px #204);
+}
+
 .linkBtn {
     color: #aaa;
     font-style: italic;
