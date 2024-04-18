@@ -68,6 +68,7 @@ td.cell:hover {
     font-size: 80%;
     margin-top: 100px;
     text-align: left;
+    text-size-adjust: 150%;
 }
 
 .field {

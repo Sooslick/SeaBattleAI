@@ -7,6 +7,8 @@
     <meta name='author' content='Sooslick' />
     <meta name='description' content='Simple web game' />
     <link rel="stylesheet" href="style.css" type="text/css" charset="utf-8" />
+    <meta property='og:type' content='website' />
+    <meta property='og:image' content='https://sooslick.art/resources/img/og/ogBattleships.jpg' />
 </head>
 <body>
 <div class="captionText">Battleships</div>
@@ -455,6 +457,7 @@
     <div class="clickable" onclick="leave()">Leave</div>
 </div>
 <div class="debug">
+    <hr />
     <span>User authenticator:</span>
     <span id="debugToken"></span>
     <span id="bRefreshToken" class="linkBtn" onclick="getToken()">(refresh)</span>
