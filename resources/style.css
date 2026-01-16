@@ -69,6 +69,9 @@ td.cell:hover {
     margin-top: 100px;
     text-align: left;
     text-size-adjust: 150%;
+    position: fixed;
+    bottom: 0;
+    z-index: -1;
 }
 
 .field {
