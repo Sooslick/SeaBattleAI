@@ -226,7 +226,7 @@ function rulesHandler() {
         document.getElementById("debugRules").innerHTML = obj.info.replaceAll("\n", "<br>");
     }, () => {
         queuedAction = "gr";
-//        getToken();   // this line causes inf loop (for some cases such as bad server config) so i commented this line
+        getToken();
     });
 }
 
