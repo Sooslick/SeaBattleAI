@@ -8,7 +8,6 @@ import ru.sooslick.seabattle.entity.SeaBattleSession;
 import ru.sooslick.seabattle.handler.ApiHandler;
 import ru.sooslick.seabattle.handler.IndexHandler;
 import ru.sooslick.seabattle.job.LifetimeWatcher;
-import ru.sooslick.seabattle.job.UserPromptListener;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -85,13 +84,10 @@ public class SeaBattleMain {
 
         LifetimeWatcher lifetimeWatcher = new LifetimeWatcher();
         lifetimeWatcher.start();
-
-        UserPromptListener upl = new UserPromptListener();
-        upl.start();
-        upl.join();
+        Runtime.getRuntime().addShutdownHook(new Thread(lifetimeWatcher::kill));
+        lifetimeWatcher.join();
 
         Log.info("Stopping server...");
-        lifetimeWatcher.kill();
         server.stop(0);
         exec.shutdownNow();
     }

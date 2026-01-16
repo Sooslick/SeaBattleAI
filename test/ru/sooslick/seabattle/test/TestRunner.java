@@ -17,7 +17,6 @@ public class TestRunner {
                 SessionTest.class,
                 HandlerTest.class,
                 MainTest.class,
-                PromptTest.class,
                 EventsTest.class
         );
         if (result.getFailureCount() == 0)

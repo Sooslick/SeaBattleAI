@@ -58,7 +58,7 @@ public class LifetimeWatcher extends Thread {
                     long idleSeconds = (currentTs - lastSessionTs) / 1000;
                     Log.info(idleSeconds + " seconds idle");
                     if (idleSeconds > IDLE_TIMEOUT)
-                        UserPromptListener.forceQuit();
+                        kill();
                 }
             }
         }
