@@ -3,6 +3,7 @@ package ru.sooslick.seabattle.job;
 import ru.sooslick.seabattle.Log;
 
 import java.io.IOException;
+import java.util.Scanner;
 
 /**
  * Listen console commands. Only quit command available :)
@@ -21,28 +22,16 @@ public class UserPromptListener extends Thread {
 
     @Override
     public void run() {
-        int bytesAvailable;
-        byte[] buffer = new byte[256];
+        Scanner scanner = new Scanner(System.in);
         do {
-            try {
-                bytesAvailable = System.in.available();
-                if (bytesAvailable > 0) {
-                    System.in.read(buffer);
-                    if (hasQuitCommand(buffer))
-                        break;
+            if (scanner.hasNextLine()) {
+                String prompt = scanner.nextLine();
+                if (prompt.startsWith("q") || prompt.startsWith("Q")) {
+                    scanner.close();
+                    break;
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
             }
         } while (!isInterrupted());
         Log.info("Quitting...");
-    }
-
-    private boolean hasQuitCommand(byte[] test) {
-        for (int i = 0; i < test.length; i++) {
-            if (test[i] == (byte) 'q' || test[i] == (byte) 'Q')
-                return true;
-        }
-        return false;
     }
 }

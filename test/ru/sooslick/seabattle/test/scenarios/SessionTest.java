@@ -219,21 +219,38 @@ public class SessionTest {
     }
 
     @Test
-    public void testAlive() throws InterruptedException {
+    public void testAliveLookup() throws InterruptedException {
         SeaBattlePlayer p1 = new SeaBattlePlayer();
         SeaBattlePlayer p2 = new SeaBattlePlayer();
 
         SeaBattleProperties.SESSION_LIFETIME_LOOKUP = 1;
         SeaBattleSession session = new SeaBattleSession(p1, "");
+        Assert.assertEquals("Room has wrong phase", SeaBattleSession.SessionPhase.LOOKUP, session.getPhase());
         Assert.assertTrue("Room is not alive", session.isAlive());
         TimeUnit.SECONDS.sleep(1);
-        Assert.assertFalse("Room is alive", session.isAlive());
+        Assert.assertFalse("Room is alive, expected not", session.isAlive());
+    }
+
+    @Test
+    public void testAlivePrepare() throws InterruptedException {
+        SeaBattlePlayer p1 = new SeaBattlePlayer();
+        SeaBattlePlayer p2 = new SeaBattlePlayer();
+        SeaBattleSession session = new SeaBattleSession(p1, "");
 
         SeaBattleProperties.SESSION_LIFETIME_PREPARE = 1;
         session.joinPlayer(p2);
+        Assert.assertEquals("Room has wrong phase", SeaBattleSession.SessionPhase.PREPARE, session.getPhase());
         Assert.assertTrue("Room is not alive", session.isAlive());
         TimeUnit.SECONDS.sleep(1);
-        Assert.assertFalse("Room is alive", session.isAlive());
+        Assert.assertFalse("Room is alive, expected not", session.isAlive());
+    }
+
+    @Test
+    public void testAlivePlayer() throws InterruptedException {
+        SeaBattlePlayer p1 = new SeaBattlePlayer();
+        SeaBattlePlayer p2 = new SeaBattlePlayer();
+        SeaBattleSession session = new SeaBattleSession(p1, "");
+        session.joinPlayer(p2);
 
         SeaBattleProperties.SESSION_LIFETIME_PLAYER = 1;
         session.placeShip(p1, cp("a1"), 1, true);
@@ -256,16 +273,23 @@ public class SessionTest {
         session.placeShip(p2, cp("e4"), 3, true);
         session.placeShip(p2, cp("c4"), 3, true);
         session.placeShip(p2, cp("a4"), 4, true);
+        Assert.assertTrue("Room has phase " + session.getPhase() + ", expected TURN", session.getPhase().toString().contains("TURN"));
         Assert.assertTrue("Room is not alive", session.isAlive());
         TimeUnit.SECONDS.sleep(1);
-        Assert.assertFalse("Room is alive", session.isAlive());
+        Assert.assertFalse("Room is alive, expected not", session.isAlive());
+    }
+
+    @Test
+    public void testAliveGeneral() throws InterruptedException {
+        SeaBattlePlayer p1 = new SeaBattlePlayer();
 
         SeaBattleProperties.SESSION_LIFETIME_LOOKUP = 100;
         SeaBattleProperties.SESSION_LIFETIME_TOTAL = 1;
-        session = new SeaBattleSession(p1, "");
+
+        SeaBattleSession session = new SeaBattleSession(p1, "");
         Assert.assertTrue("Room is not alive", session.isAlive());
         TimeUnit.SECONDS.sleep(1);
-        Assert.assertFalse("Room is alive", session.isAlive());
+        Assert.assertFalse("Room is alive, expected not", session.isAlive());
     }
 
     public void verifyEventResult(EventResult er, boolean success, String info) {

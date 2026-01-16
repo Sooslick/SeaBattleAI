@@ -18,15 +18,19 @@ public class PromptTest {
 
         upl.start();
         TimeUnit.MILLISECONDS.sleep(50);
-        Assert.assertTrue("RIP prompt listener", upl.isAlive());
+        Assert.assertTrue("prompt listener is closed, expected alive and waiting for input", upl.isAlive());
+        Assert.assertTrue("input stream should wait for next input", is.isWaiting());
 
         is.prompt("aqua\n");
         TimeUnit.MILLISECONDS.sleep(50);
-        Assert.assertTrue("RIP prompt listener", upl.isAlive());
+        Assert.assertTrue("prompt listener is closed, expected alive and waiting for input", upl.isAlive());
+        Assert.assertTrue("input stream should wait for next input", is.isWaiting());
 
         is.prompt("quit\n");
         TimeUnit.MILLISECONDS.sleep(50);
-        Assert.assertFalse("Prompt listener is alive", upl.isAlive());
+        Assert.assertFalse("Prompt listener is alive, expected closed", upl.isAlive());
+
+        is.close();
     }
 
     @After
