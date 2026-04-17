@@ -4,6 +4,10 @@ Simple implementation of the Battleships game as RESTful web service and AI to p
 
 ### Build and execute
 
+Requirements:
+- Java 11
+- Maven 3
+
 Build and launch JAR by executing maven goals
 
 > `mvn clean compile assembly:single exec:java@server`
